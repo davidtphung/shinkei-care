@@ -129,7 +129,7 @@ function PackItem({
         const dy = event.clientY - drag.current.startY
         if (Math.hypot(dx, dy) > 8) drag.current.moved = true
         if (drag.current.moved) setOffset({ x: dx, y: dy })
-      }
+      }}
       onPointerUp={(event) => {
         pressProps.onPointerUp()
         const { moved } = drag.current
