@@ -8,11 +8,12 @@ Brand: [Shinkei Systems](https://shinkei.systems)
 
 ## Live URL
 
-- Public game: see the latest production URL in this README after deploy, and in the Origin repo description
-- GitHub Pages (if enabled): https://davidtphung.github.io/shinkei-care/
-- GitHub source: https://github.com/davidtphung/shinkei-care
+Play now: **https://davidtphung.github.io/shinkei-care/**
 
-Origin is the source of truth. GitHub is a public mirror for Pages and sharing.
+- GitHub source: https://github.com/davidtphung/shinkei-care
+- Hosted on David T Phung's user GitHub Pages (`davidtphung.github.io/shinkei-care/`)
+
+Origin is the source of truth. GitHub is the public mirror.
 
 ## How to play
 
@@ -78,4 +79,4 @@ Contrast: navy on cream, cream on navy, and navy on `#FF4400` meet WCAG 2.2 AA. 
 
 ## Deploy
 
-Static Vite build. GitHub Pages builds from `.github/workflows/pages.yml` with `BASE_PATH=/shinkei-care/`. Vercel and Origin previews use `/`.
+Static Vite build. GitHub Pages builds from `.github/workflows/pages.yml` with `BASE_PATH=/shinkei-care/`. The live host today is the user Pages site at `/shinkei-care/`.
