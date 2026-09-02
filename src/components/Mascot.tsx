@@ -1,3 +1,5 @@
+import { usePrefersReducedMotion } from '@/hooks/usePrefers.ts'
+
 type Props = {
   waving?: boolean
   size?: number
@@ -5,6 +7,9 @@ type Props = {
 }
 
 export function Mascot({ waving = false, size = 160, className }: Props) {
+  const reduced = usePrefersReducedMotion()
+  const shouldWave = waving && !reduced
+
   return (
     <svg
       width={size}
@@ -17,12 +22,7 @@ export function Mascot({ waving = false, size = 160, className }: Props) {
       <g transform="translate(18 18)">
         <polygon points="108,50 142,28 142,72" fill="#0B1424" />
         <polygon points="112,50 138,34 138,66" fill="#FFEBD0" />
-        <g
-          style={{
-            transformOrigin: '108px 28px',
-            animation: waving ? 'wave-fin 0.9s ease-in-out infinite' : undefined,
-          }}
-        >
+        <g className={shouldWave ? 'wave-fin' : undefined}>
           <polygon points="78,10 108,28 70,32" fill="#FF4400" />
         </g>
         <ellipse cx="62" cy="52" rx="52" ry="34" fill="#0B1424" />

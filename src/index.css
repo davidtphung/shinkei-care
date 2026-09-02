@@ -90,7 +90,8 @@ body {
   .spring,
   .floaty,
   .swim,
-  .shimmer {
+  .shimmer,
+  .wave-fin {
     animation: none !important;
     transition: opacity 0.2s ease !important;
   }
@@ -126,6 +127,11 @@ body {
   50% {
     transform: rotate(-18deg);
   }
+}
+
+.wave-fin {
+  transform-origin: 108px 28px;
+  animation: wave-fin 0.9s ease-in-out infinite;
 }
 
 .floaty {

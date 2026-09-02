@@ -2,7 +2,7 @@
 
 A gentle care routine. Playable in the browser on phone and desktop.
 
-This is a care game. The mascot is an abstract friendly fish. Nothing is caught, cut, harvested, or processed on screen. After packing, the mascot swims away in a separate ocean scene.
+This is a care game. The mascot is an abstract friendly fish. After packing, the mascot always swims away safe.
 
 Brand: [Shinkei Systems](https://shinkei.systems)
 
@@ -12,8 +12,9 @@ Play now: **https://davidtphung.github.io/shinkei-care/**
 
 - GitHub source: https://github.com/davidtphung/shinkei-care
 - Hosted on David T Phung's user GitHub Pages (`davidtphung.github.io/shinkei-care/`)
+- Origin (source of truth): https://origin.cursor.com/git/davidtphung/tmp-7b8db1b6a14c8783.git
 
-Origin is the source of truth. GitHub is the public mirror.
+GitHub is the public mirror.
 
 ## How to play
 
@@ -79,4 +80,4 @@ Contrast: navy on cream, cream on navy, and navy on `#FF4400` meet WCAG 2.2 AA. 
 
 ## Deploy
 
-Static Vite build. GitHub Pages builds from `.github/workflows/pages.yml` with `BASE_PATH=/shinkei-care/`. The live host today is the user Pages site at `/shinkei-care/`.
+Static Vite build. GitHub Pages builds from `.github/workflows/pages.yml` with `BASE_PATH=/shinkei-care/`. Vercel and Origin previews use `/`.

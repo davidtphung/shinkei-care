@@ -52,7 +52,7 @@ export const copy = {
     'Keep the cooler chilly by placing large ice tokens. The drop zone is wide on purpose.',
     'Pack ice, a label, and a reusable container into matching labeled zones.',
     'Keyboard users can finish every stage, including Choose a spot.',
-    'After packing, the fish mascot swims away in a separate ocean scene. Nobody is caught, cut, or processed here.',
+    'After packing, the mascot always swims away safe.',
   ],
 
   itemNames: {

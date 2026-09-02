@@ -34,7 +34,7 @@ export function OceanScene({ headingRef, onContinue }: Props) {
 
         <div className="relative flex flex-1 items-center justify-center py-8">
           <div className={reduced ? undefined : 'swim'}>
-            <Mascot waving size={200} />
+            <Mascot waving={!reduced} size={200} />
           </div>
         </div>
 
