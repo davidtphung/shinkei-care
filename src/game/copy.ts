@@ -24,16 +24,17 @@ export const copy = {
 
   spikeName: 'Spike',
   spikeLead: 'Spike the brain first.',
-  spikeTeach: 'Spike the brain so it stays still.',
+  spikeTeach: 'The brain sits between the eye and the gill, where the gill-shaped bone meets the lateral line.',
   spikeSuccess: 'Still.',
   spikeMissLate: 'Late.',
   spikeMissEarly: 'Early.',
   spikeMissHigh: 'High.',
   spikeMissWindow: 'Try that window.',
   spikeTarget: 'Brain target',
-  spikeHint: 'Tap Brain when it says Now. Space or Enter also works.',
+  spikeHint: 'Tap Brain when it says Now. Space or Enter also works. Arrows or Tab move to the mark.',
   looksSteady: 'Looks steady',
   bodyLabel: 'Body',
+  bodyMiss: 'Fish body. Aim for the Brain mark between the eye and the gill.',
 
   gillName: 'Gill',
   gillLead: 'Cut the gill. Bleed.',
@@ -43,8 +44,9 @@ export const copy = {
   gillSuccess: 'Clear.',
   gillMiss: 'Try that line.',
   gillMissHigh: 'High.',
-  gillTarget: 'Gill line',
+  gillTarget: 'Gill membrane',
   gillAction: 'Cut the gill',
+  gillBodyMiss: 'Fish body. Follow the labeled Gill mark on the membrane.',
 
   coolLead: 'Ice now.',
   coolSuccess: 'Held.',
@@ -81,11 +83,16 @@ export const copy = {
   skipToGame: 'Skip to game',
 
   howToBody: [
-    'Spike the brain in the six-second window so the fish does not fight.',
-    'Cut the gill to bleed. Poseidon skips the spinal wire.',
-    'Ice now to hold the quality you just protected.',
+    'Spike the brain in the six-second window. Aim between the eye and the gill, where the gill bone meets the lateral line.',
+    'Cut the gill so blood does not sit in the flesh. Poseidon skips the spinal wire.',
+    'Ice now. Hold the quality you just protected.',
     'Space, Enter, or tap. Misses drop Freshness. Play again anytime.',
   ],
+
+  soundOn: 'Sound on. Mute arcade cues.',
+  soundOff: 'Sound off. Unmute arcade cues.',
+  soundLabel: 'Sound',
+  muteLabel: 'Muted',
 
   itemNames: {
     cooler: 'Cooler',

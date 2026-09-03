@@ -20,9 +20,11 @@ GitHub is the public mirror.
 
 Each round has three short arcade stages. Same cream cards, pixel tiles, and cooler drop as the live cabinet. Juice is timing, combo, and a six-second pulse.
 
-1. **Spike.** Three cream cards. The Brain card gets a cool-blue ring, a word label, and a six-second pulse. Tap it when it says Now. A miss says Early, Late, High, or Try that window. Freshness drops. Try that beat again.
-2. **Gill.** Same card grammar. Tap the Gill card (cool-blue ring plus a word label). Cut the gill so blood does not sit in the flesh. One line notes that traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.
+1. **Spike.** One cream card holds a side-view fish. The brain mark sits between the eye and the gill, where the gill-shaped bone meets the lateral line. A cool-blue ring, a Brain / Now label, and a six-second pulse fill that mark. Tap it when it says Now. A clean hit opens the mouth, flares the fins, and gives a short flail, then the fish goes still. A miss says Early, Late, High, or Try that window. Freshness drops. The fish stays intact.
+2. **Gill.** Same cream-card grammar on the fish. Tap the Gill ring on the membrane (cool-blue ring plus a word label). Cut the gill so blood does not sit in the flesh. One line notes that traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.
 3. **Ice.** Ice tokens on the left. Dashed cooler drop zone. Drag ice onto the cooler, or tap ice then tap the cooler. Arrow keys choose a token. Enter places it. Ice now. Hold the quality you just protected.
+
+Arcade cues are original Web Audio ticks (window, spike, miss, gill, ice, combo, seal). Mute stays on this device. `prefers-reduced-motion` starts quiet and still lets you unmute.
 
 Then a freshness seal, a rest on ice, and an **Ikejime Score**. Rank labels are kind only: Clean Spike, Steady Hands, Six-Second Crew.
 
@@ -47,7 +49,7 @@ npm run preview
 - Hit targets are at least 44px. Drop zones are large.
 - Pointer-down press feedback. Springs are critically damped (no bounce, about 0.36s).
 - Only `transform` and `opacity` animate.
-- `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim overshoot. The spike window stays open.
+- `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim or flail overshoot. The spike window stays open. Sound starts quiet and can still be unmuted.
 - `prefers-reduced-transparency`: solid cream or navy fills.
 - Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter.
 - Visible focus rings. Every control has a name, role, and state.

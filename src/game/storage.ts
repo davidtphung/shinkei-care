@@ -1,4 +1,5 @@
 const KEY = 'shinkei-care-high-score'
+const MUTE_KEY = 'shinkei-care-mute'
 
 export function readHighScore(): number {
   try {
@@ -19,4 +20,23 @@ export function writeHighScore(score: number): number {
     return next
   }
   return next
+}
+
+export function readMutePreference(): boolean | null {
+  try {
+    const raw = localStorage.getItem(MUTE_KEY)
+    if (raw === '1') return true
+    if (raw === '0') return false
+    return null
+  } catch {
+    return null
+  }
+}
+
+export function writeMutePreference(muted: boolean): void {
+  try {
+    localStorage.setItem(MUTE_KEY, muted ? '1' : '0')
+  } catch {
+    // Private mode can block writes. The in-memory mute flag still works.
+  }
 }

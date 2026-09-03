@@ -1,5 +1,6 @@
-import type { Ref } from 'react'
+import { useEffect, type Ref } from 'react'
 import { copy } from '@/game/copy.ts'
+import { playCue } from '@/game/audio.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { usePrefersReducedMotion } from '@/hooks/usePrefers.ts'
@@ -12,6 +13,10 @@ type Props = {
 
 export function PackSeal({ headingRef, onContinue }: Props) {
   const reduced = usePrefersReducedMotion()
+
+  useEffect(() => {
+    playCue('seal')
+  }, [])
 
   return (
     <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between px-5 pb-8 pt-[max(1.5rem,env(safe-area-inset-top))]">

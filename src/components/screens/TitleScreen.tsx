@@ -1,6 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import type { Ref } from 'react'
 import { copy } from '@/game/copy.ts'
+import { unlockAudio } from '@/game/audio.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { Mascot } from '@/components/Mascot.tsx'
@@ -46,7 +47,13 @@ export function TitleScreen({ highScore, onPlay, headingRef }: Props) {
         ) : (
           <p className="text-center text-sm text-navy/80">A new Ikejime Score starts at zero.</p>
         )}
-        <Button className="w-full text-lg" onClick={onPlay}>
+        <Button
+          className="w-full text-lg"
+          onClick={() => {
+            unlockAudio()
+            onPlay()
+          }}
+        >
           {copy.play}
         </Button>
         <HowToPlay />

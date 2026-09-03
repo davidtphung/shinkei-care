@@ -62,7 +62,13 @@ export function StageCool({
 
   return (
     <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-4 px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))]">
-      <StageHeader stage={3} title={copy.coolLead} combo={combo} headingRef={headingRef} />
+      <StageHeader
+        stage={3}
+        title={copy.coolLead}
+        teach={copy.iceTeach}
+        combo={combo}
+        headingRef={headingRef}
+      />
       <LiveAnnouncer message={announcement} />
       <p className="text-sm text-navy/80">{copy.coolHint}</p>
 

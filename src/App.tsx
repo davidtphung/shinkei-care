@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { BrandBackground } from '@/components/BrandBackground.tsx'
 import { HardwareAtmosphere } from '@/components/HardwareAtmosphere.tsx'
+import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { OceanScene } from '@/components/screens/OceanScene.tsx'
 import { PackSeal } from '@/components/screens/PackSeal.tsx'
 import { RoundEnd } from '@/components/screens/RoundEnd.tsx'
@@ -8,10 +9,14 @@ import { StageCool } from '@/components/screens/StageCool.tsx'
 import { StageNotice } from '@/components/screens/StageNotice.tsx'
 import { StagePack } from '@/components/screens/StagePack.tsx'
 import { TitleScreen } from '@/components/screens/TitleScreen.tsx'
+import { playCue, unlockAudio } from '@/game/audio.ts'
 import { copy } from '@/game/copy.ts'
 import { comboBonus, firstTryPoints, FRESHNESS_MAX, ICE_GOAL, judgeSpike } from '@/game/puzzles.ts'
 import { readHighScore, writeHighScore } from '@/game/storage.ts'
 import type { Screen } from '@/game/types.ts'
+
+const SPIKE_HOLD_MS = 480
+const GILL_HOLD_MS = 380
 
 type Game = {
   screen: Screen
@@ -58,6 +63,7 @@ export default function App() {
   const headingRef = useRef<HTMLHeadingElement>(null)
   const spikeLock = useRef(false)
   const gillLock = useRef(false)
+  const holdTimer = useRef(0)
   const [game, setGame] = useState<Game>(() => ({
     ...freshRound(1, readHighScore()),
     screen: 'title',
@@ -69,14 +75,26 @@ export default function App() {
     if (game.screen === 'gill') gillLock.current = false
   }, [game.screen])
 
+  useEffect(() => {
+    return () => window.clearTimeout(holdTimer.current)
+  }, [])
+
   const start = () => {
+    unlockAudio()
     setGame(freshRound(game.round, game.highScore))
+  }
+
+  const cheer = (combo: number) => {
+    if (combo >= 2) {
+      window.setTimeout(() => playCue('combo'), 160)
+    }
   }
 
   const spike = (progress: number, reduced: boolean, onTarget: boolean): 'hit' | 'miss' => {
     if (spikeLock.current) return 'hit'
     const timing = judgeSpike(progress, reduced, onTarget)
     if (timing !== 'hit') {
+      playCue('miss')
       setGame((prev) => ({
         ...prev,
         spikeAttempts: prev.spikeAttempts + 1,
@@ -88,42 +106,55 @@ export default function App() {
     }
 
     spikeLock.current = true
+    playCue('spike')
+    let nextCombo = 0
     setGame((prev) => {
       const attempts = prev.spikeAttempts + 1
       const first = attempts === 1
       const combo = first ? prev.combo + 1 : 0
+      nextCombo = combo
       return {
         ...prev,
         spikeAttempts: attempts,
         combo,
         score: prev.score + firstTryPoints(attempts, 100) + comboBonus(combo),
         announcement: copy.spikeSuccess,
-        screen: 'gill',
       }
     })
+    cheer(nextCombo)
+    holdTimer.current = window.setTimeout(() => {
+      setGame((prev) => (prev.screen === 'spike' ? { ...prev, screen: 'gill' } : prev))
+    }, SPIKE_HOLD_MS)
     return 'hit'
   }
 
   const gill = () => {
     if (gillLock.current) return
     gillLock.current = true
+    playCue('gill')
+    let nextCombo = 0
     setGame((prev) => {
       if (prev.screen !== 'gill') return prev
       const attempts = prev.gillAttempts + 1
       const first = attempts === 1
       const combo = first ? prev.combo + 1 : 0
+      nextCombo = combo
       return {
         ...prev,
         gillAttempts: attempts,
         combo,
         score: prev.score + firstTryPoints(attempts, 100) + comboBonus(combo),
         announcement: copy.gillSuccess,
-        screen: 'ice',
       }
     })
+    cheer(nextCombo)
+    holdTimer.current = window.setTimeout(() => {
+      setGame((prev) => (prev.screen === 'gill' ? { ...prev, screen: 'ice' } : prev))
+    }, GILL_HOLD_MS)
   }
 
   const gillMiss = () => {
+    playCue('miss')
     setGame((prev) => ({
       ...prev,
       gillAttempts: prev.gillAttempts + 1,
@@ -142,6 +173,9 @@ export default function App() {
   }
 
   const placeIce = (id: string) => {
+    playCue('ice')
+    let nextCombo = 0
+    let finished = false
     setGame((prev) => {
       if (prev.icePlaced.includes(id)) return prev
       const placed = [...prev.icePlaced, id]
@@ -149,6 +183,8 @@ export default function App() {
       if (placed.length >= ICE_GOAL) {
         const first = prev.iceMisses === 0
         const combo = first ? prev.combo + 1 : 0
+        nextCombo = combo
+        finished = true
         return {
           ...prev,
           icePlaced: placed,
@@ -167,9 +203,11 @@ export default function App() {
         announcement: copy.keepCool,
       }
     })
+    if (finished) cheer(nextCombo)
   }
 
   const missIce = () => {
+    playCue('miss')
     setGame((prev) => ({
       ...prev,
       iceMisses: prev.iceMisses + 1,
@@ -202,6 +240,9 @@ export default function App() {
       <a href="#game" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-full focus:bg-cream focus:px-4 focus:py-3">
         {copy.skipToGame}
       </a>
+      <div className="absolute top-[max(0.75rem,env(safe-area-inset-top))] right-[max(0.75rem,env(safe-area-inset-right))] z-40">
+        <MuteToggle ink={game.screen === 'rest'} />
+      </div>
       <main id="game">
         {game.screen === 'title' ? (
           <TitleScreen highScore={game.highScore} onPlay={start} headingRef={headingRef} />
