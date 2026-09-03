@@ -1,7 +1,7 @@
 {
-  "name": "Shinkei Care",
-  "short_name": "Shinkei Care",
-  "description": "A gentle care routine. Notice, keep it cool, and pack with care.",
+  "name": "Six Seconds",
+  "short_name": "Six Seconds",
+  "description": "A Shinkei Care arcade. Spike, gill, ice. Learn ikejime in about a minute.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

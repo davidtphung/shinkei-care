@@ -16,25 +16,25 @@ export function TitleScreen({ highScore, onPlay, headingRef }: Props) {
     <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between px-5 pb-8 pt-[max(1.5rem,env(safe-area-inset-top))]">
       <div className="pt-6 text-center">
         <p className="text-xs font-semibold tracking-[0.28em] text-navy uppercase">
-          {copy.brand}
+          {copy.kicker}
         </p>
         <h1
           ref={headingRef}
           tabIndex={-1}
-          className="font-display mt-2 text-7xl leading-none text-cream drop-shadow-[0_2px_0_#0B1424] sm:text-8xl"
+          className="font-display mt-2 text-6xl leading-none text-cream drop-shadow-[0_2px_0_#0B1424] sm:text-8xl"
         >
-          Shinkei
+          {copy.title}
         </h1>
-        <p className="mt-1 text-4xl font-semibold tracking-tight text-navy">Care</p>
-        <p className="mt-2 text-lg text-navy">{copy.subtitle}</p>
+        <p className="mt-3 text-lg font-semibold tracking-tight text-navy">{copy.subtitle}</p>
+        <p className="mt-1 text-sm text-navy/80">A centuries-old Japanese technique.</p>
       </div>
 
       <div className="flex flex-col items-center gap-4">
         <Mascot size={168} className="drop-shadow-md" />
         <div className="flex items-center gap-3" aria-hidden>
+          <PixelMatrix name="brain" size={44} />
+          <PixelMatrix name="gill" size={44} />
           <PixelMatrix name="ice" size={44} />
-          <PixelMatrix name="cooler" size={44} />
-          <PixelMatrix name="seal" size={44} />
         </div>
       </div>
 
@@ -44,7 +44,7 @@ export function TitleScreen({ highScore, onPlay, headingRef }: Props) {
             {copy.bestScore(highScore)}
           </p>
         ) : (
-          <p className="text-center text-sm text-navy/80">A new Care Score starts at zero.</p>
+          <p className="text-center text-sm text-navy/80">A new Ikejime Score starts at zero.</p>
         )}
         <Button className="w-full text-lg" onClick={onPlay}>
           {copy.play}
@@ -74,7 +74,7 @@ function HowToPlay() {
         <Dialog.Content className="panel fixed inset-x-4 top-1/2 z-50 mx-auto max-w-md -translate-y-1/2 rounded-3xl bg-cream p-6 text-navy shadow-xl">
           <Dialog.Title className="text-2xl font-semibold">{copy.howTo}</Dialog.Title>
           <Dialog.Description className="sr-only">
-            How to play Shinkei Care
+            How to play Six Seconds
           </Dialog.Description>
           <ol className="mt-4 list-decimal space-y-3 pl-5 text-base">
             {copy.howToBody.map((line) => (

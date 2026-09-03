@@ -1,6 +1,7 @@
 import type { Ref } from 'react'
 import { copy, rankLabel } from '@/game/copy.ts'
 import { Button } from '@/components/ui/button.tsx'
+import { Mascot } from '@/components/Mascot.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 
 type Props = {
@@ -28,13 +29,13 @@ export function RoundEnd({ score, highScore, headingRef, onAgain }: Props) {
       <p className="font-display text-center text-5xl text-cream drop-shadow-[0_2px_0_#0B1424]">
         {label}
       </p>
-      <div className="mx-auto flex items-center gap-3" aria-hidden>
-        <PixelMatrix name="seal" size={52} />
-        <PixelMatrix name="fish" size={52} />
-        <PixelMatrix name="ice" size={52} />
+      <div className="mx-auto flex items-center gap-3">
+        <PixelMatrix name="brain" size={48} />
+        <Mascot resting size={96} />
+        <PixelMatrix name="ice" size={48} />
       </div>
       <p className="text-center text-base text-navy">
-        {highScore > 0 ? copy.bestScore(highScore) : 'This is your first saved Care Score.'}
+        {highScore > 0 ? copy.bestScore(highScore) : 'This is your first saved Ikejime Score.'}
       </p>
       <Button className="w-full text-lg" onClick={onAgain}>
         {copy.playAgain}

@@ -1,5 +1,11 @@
 import type { NoticePuzzle, PackPuzzle } from './types.ts'
 
+export const CYCLE_MS = 6000
+export const WINDOW_START = 0.55
+export const WINDOW_END = 0.88
+export const FRESHNESS_MAX = 6
+export const ICE_GOAL = 3
+
 export const noticePuzzles: NoticePuzzle[] = [
   { id: 'n1', options: ['cooler', 'ice', 'label'], answer: 'cooler' },
   { id: 'n2', options: ['basket', 'ice', 'label'], answer: 'ice' },
@@ -28,4 +34,17 @@ export function firstTryPoints(attempts: number, max: number): number {
   if (attempts <= 1) return max
   if (attempts === 2) return Math.round(max * 0.7)
   return Math.round(max * 0.4)
+}
+
+export function comboBonus(combo: number): number {
+  if (combo <= 1) return 0
+  return combo * 15
+}
+
+export function judgeSpike(progress: number, reducedMotion: boolean, onTarget: boolean): 'early' | 'late' | 'high' | 'hit' {
+  if (!onTarget) return 'high'
+  if (reducedMotion) return 'hit'
+  if (progress >= WINDOW_START && progress < WINDOW_END) return 'hit'
+  if (progress < WINDOW_START) return 'early'
+  return 'late'
 }

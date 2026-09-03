@@ -1,10 +1,10 @@
-# Shinkei Care
+# Six Seconds
 
-A gentle care routine. Playable in the browser on phone and desktop.
+A short ikejime arcade. Playable in the browser on phone and desktop.
 
-This is a care game. The mascot is an abstract friendly fish. After packing, the mascot always swims away safe.
+Wordmark: **Six Seconds**. Kicker: **Shinkei Care**. Brand: [Shinkei Systems](https://shinkei.systems)
 
-Brand: [Shinkei Systems](https://shinkei.systems)
+This is a skill game. The mascot is an abstract friendly fish. After the round it rests on ice. There is no gore and no photoreal slaughter.
 
 ## Live URL
 
@@ -18,19 +18,15 @@ GitHub is the public mirror.
 
 ## How to play
 
-Each round has three cheerful short stages.
+Each round has three short arcade stages. A six-second cycle ring stays in view.
 
-1. **Notice.** Take a calm look. Three large illustrated items float on screen. A cool-blue clue, a shape, and a word label show what needs help. Tap or select the right item.
-2. **Keep it cool.** Help the cooler stay chilly. Drag a large ice token onto the open cooler, or tap the ice then tap the cooler. Arrow keys choose a token. Enter places it. Each correct action fills Freshness.
-3. **Pack with care.** Place ice, a label, a reusable container, and sometimes a ready tag into matching labeled zones. Keyboard and screen reader users can use **Choose a spot**.
+1. **Spike.** A brain target sits on the fish head. Tap, click, or press Space or Enter when the cycle hits Now. Hit the window and the fish stills. Miss and you will hear Early, Late, High, or Try that window. Freshness drops. Try that beat again.
+2. **Gill.** Tap or drag the labeled gill line. Cut the gill so blood does not sit in the flesh. One line notes that traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.
+3. **Ice.** Drag large ice tokens onto the open cooler, or tap ice then tap the cooler. Arrow keys choose a token. Enter places it. Ice now. Hold the quality you just protected.
 
-Then a lid closes, a blue freshness seal appears, and the mascot waves from a separate safe ocean scene.
+Then a freshness seal, a rest on ice, and an **Ikejime Score**. Rank labels are kind only: Clean Spike, Steady Hands, Six-Second Crew.
 
-**Care Score** uses kind labels only: Great Helper, Careful Keeper, Ocean Expert.
-
-On a miss you will hear: Try that one again. / Let's keep it nice and cool. / You're learning!
-
-The highest Care Score stays in `localStorage` on this device. No accounts.
+First-try hits build Combo. The highest Ikejime Score stays in `localStorage` on this device. No accounts.
 
 ## Run locally
 
@@ -51,13 +47,14 @@ npm run preview
 - Hit targets are at least 44px. Drop zones are large.
 - Pointer-down press feedback. Springs are critically damped (no bounce, about 0.36s).
 - Only `transform` and `opacity` animate.
-- `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim overshoot.
+- `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim overshoot. The spike window stays open.
 - `prefers-reduced-transparency`: solid cream or navy fills.
-- Full keyboard path, including Choose a spot.
+- Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter.
 - Visible focus rings. Every control has a name, role, and state.
-- Live region announces success and near-miss copy.
+- Live region announces hits, misses, and the open window.
 - Color is never the only clue. Cool-blue is paired with a shape and a word label.
 - Mobile first from 375px, plus desktop. Safe-area insets. No horizontal trap.
+- Skip to game is the first focusable control.
 
 ## Brand tokens
 
@@ -70,7 +67,7 @@ npm run preview
 | Display | Great Vibes | Script wordmark |
 | UI | Outfit | Labels, body, buttons |
 
-Icons are 7x7 ArUco-inspired pixel matrices for cooler, ice, label, basket, freshness seal, and the abstract fish. Poseidon-style linework sits in the background as atmosphere only.
+Icons are 7x7 ArUco-inspired pixel matrices for cooler, ice, label, basket, freshness seal, brain, gill, and the abstract fish. Poseidon-style linework sits in the background as atmosphere only.
 
 Contrast: navy on cream, cream on navy, and navy on `#FF4400` meet WCAG 2.2 AA. Orange is not used as small body text on cream.
 

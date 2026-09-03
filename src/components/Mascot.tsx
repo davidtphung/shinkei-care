@@ -2,13 +2,14 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefers.ts'
 
 type Props = {
   waving?: boolean
+  resting?: boolean
   size?: number
   className?: string
 }
 
-export function Mascot({ waving = false, size = 160, className }: Props) {
+export function Mascot({ waving = false, resting = false, size = 160, className }: Props) {
   const reduced = usePrefersReducedMotion()
-  const shouldWave = waving && !reduced
+  const shouldWave = waving && !reduced && !resting
 
   return (
     <svg
@@ -16,10 +17,10 @@ export function Mascot({ waving = false, size = 160, className }: Props) {
       height={size}
       viewBox="0 0 160 120"
       role="img"
-      aria-label="Abstract friendly fish mascot"
+      aria-label={resting ? 'Friendly pixel fish resting on ice' : 'Abstract friendly fish mascot'}
       className={className}
     >
-      <g transform="translate(18 18)">
+      <g transform={resting ? 'translate(18 26) rotate(-10 62 52)' : 'translate(18 18)'}>
         <polygon points="108,50 142,28 142,72" fill="#0B1424" />
         <polygon points="112,50 138,34 138,66" fill="#FFEBD0" />
         <g className={shouldWave ? 'wave-fin' : undefined}>
