@@ -15,7 +15,8 @@ import { comboBonus, firstTryPoints, FRESHNESS_MAX, ICE_GOAL, judgeSpike } from 
 import { readHighScore, writeHighScore } from '@/game/storage.ts'
 import type { Screen } from '@/game/types.ts'
 
-const SPIKE_HOLD_MS = 480
+const SPIKE_HIT_MS = 360
+const SPIKE_HOLD_MS = 780
 const GILL_HOLD_MS = 380
 
 type Game = {
@@ -64,6 +65,7 @@ export default function App() {
   const spikeLock = useRef(false)
   const gillLock = useRef(false)
   const holdTimer = useRef(0)
+  const beatTimer = useRef(0)
   const [game, setGame] = useState<Game>(() => ({
     ...freshRound(1, readHighScore()),
     screen: 'title',
@@ -76,7 +78,10 @@ export default function App() {
   }, [game.screen])
 
   useEffect(() => {
-    return () => window.clearTimeout(holdTimer.current)
+    return () => {
+      window.clearTimeout(holdTimer.current)
+      window.clearTimeout(beatTimer.current)
+    }
   }, [])
 
   const start = () => {
@@ -118,10 +123,13 @@ export default function App() {
         spikeAttempts: attempts,
         combo,
         score: prev.score + firstTryPoints(attempts, 100) + comboBonus(combo),
-        announcement: copy.spikeSuccess,
+        announcement: copy.spikeHit,
       }
     })
     cheer(nextCombo)
+    beatTimer.current = window.setTimeout(() => {
+      setGame((prev) => (prev.screen === 'spike' ? { ...prev, announcement: copy.spikeSuccess } : prev))
+    }, SPIKE_HIT_MS)
     holdTimer.current = window.setTimeout(() => {
       setGame((prev) => (prev.screen === 'spike' ? { ...prev, screen: 'gill' } : prev))
     }, SPIKE_HOLD_MS)

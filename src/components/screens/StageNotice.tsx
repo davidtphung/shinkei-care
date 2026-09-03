@@ -83,7 +83,7 @@ export function StageNotice({
         combo={combo}
         headingRef={headingRef}
       />
-      <LiveAnnouncer message={inWindow ? copy.windowOpen : announcement || windowNote} />
+      <LiveAnnouncer message={announcement || (inWindow ? copy.windowOpen : windowNote)} />
       <p className="text-sm text-navy/80">{copy.spikeHint}</p>
       <FishPlayfield
         mode="spike"

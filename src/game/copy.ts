@@ -24,17 +24,19 @@ export const copy = {
 
   spikeName: 'Spike',
   spikeLead: 'Spike the brain first.',
-  spikeTeach: 'The brain sits between the eye and the gill, where the gill-shaped bone meets the lateral line.',
+  spikeTeach:
+    'The mark sits slightly behind and above the eye, toward the center of the head, where the gill-shaped bone meets the lateral line.',
+  spikeHit: 'Hit.',
   spikeSuccess: 'Still.',
   spikeMissLate: 'Late.',
   spikeMissEarly: 'Early.',
   spikeMissHigh: 'High.',
   spikeMissWindow: 'Try that window.',
   spikeTarget: 'Brain target',
-  spikeHint: 'Tap Brain when it says Now. Space or Enter also works. Arrows or Tab move to the mark.',
+  spikeHint: 'Hit Brain when it says Now. A short wiggle settles it. Space or Enter also works. Arrows or Tab move to the mark.',
   looksSteady: 'Looks steady',
   bodyLabel: 'Body',
-  bodyMiss: 'Fish body. Aim for the Brain mark between the eye and the gill.',
+  bodyMiss: 'Fish body. Aim for the Brain mark slightly behind and above the eye.',
 
   gillName: 'Gill',
   gillLead: 'Cut the gill. Bleed.',
@@ -83,10 +85,10 @@ export const copy = {
   skipToGame: 'Skip to game',
 
   howToBody: [
-    'Spike the brain in the six-second window. Aim between the eye and the gill, where the gill bone meets the lateral line.',
+    'Hit the brain mark in the six-second window. Aim slightly behind and above the eye, where the gill bone meets the lateral line.',
     'Cut the gill so blood does not sit in the flesh. Poseidon skips the spinal wire.',
     'Ice now. Hold the quality you just protected.',
-    'Space, Enter, or tap. Misses drop Freshness. Play again anytime.',
+    'A short wiggle after a hit means it settled. Space, Enter, or tap. Misses drop Freshness.',
   ],
 
   soundOn: 'Sound on. Mute arcade cues.',

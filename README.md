@@ -20,7 +20,7 @@ GitHub is the public mirror.
 
 Each round has three short arcade stages. Same cream cards, pixel tiles, and cooler drop as the live cabinet. Juice is timing, combo, and a six-second pulse.
 
-1. **Spike.** One cream card holds a side-view fish. The brain mark sits between the eye and the gill, where the gill-shaped bone meets the lateral line. A cool-blue ring, a Brain / Now label, and a six-second pulse fill that mark. Tap it when it says Now. A clean hit opens the mouth, flares the fins, and gives a short flail, then the fish goes still. A miss says Early, Late, High, or Try that window. Freshness drops. The fish stays intact.
+1. **Spike.** One cream card holds a silvery side-view fish with a readable eye and gill plate. The brain mark sits slightly behind and above the eye, toward the center of the head, where the gill-shaped bone meets the lateral line. A cool-blue ring, a Brain / Now label, and a six-second pulse fill that mark. Hit it when it says Now. A clean hit opens the mouth, then a short wiggle settles it, fins flare, and the fish goes still. A miss says Early, Late, High, or Try that window. Freshness drops. The fish stays intact.
 2. **Gill.** Same cream-card grammar on the fish. Tap the Gill ring on the membrane (cool-blue ring plus a word label). Cut the gill so blood does not sit in the flesh. One line notes that traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.
 3. **Ice.** Ice tokens on the left. Dashed cooler drop zone. Drag ice onto the cooler, or tap ice then tap the cooler. Arrow keys choose a token. Enter places it. Ice now. Hold the quality you just protected.
 

@@ -40,7 +40,7 @@ export function FishPlayfield({
       >
         <div
           className={cn(
-            pose === 'success' ? 'fish-flail' : null,
+            pose === 'success' ? 'fish-wiggle' : null,
             pose === 'miss' ? 'fish-shake' : null,
           )}
         >
@@ -89,91 +89,94 @@ function FishArt({
       aria-label={
         still
           ? 'Side-view fish, still after a clean spike'
-          : 'Side-view fish with eye, gill bone, and lateral line'
+          : 'Silvery side-view fish with a readable eye, gill plate, and lateral line'
       }
     >
-      <ellipse cx="176" cy="176" rx="108" ry="8" fill="#0B1424" opacity="0.12" />
+      <ellipse cx="196" cy="178" rx="118" ry="8" fill="#0B1424" opacity="0.12" />
 
       <g className="fish-tail">
-        <polygon points="286,102 348,66 336,102 348,138" fill="#0B1424" />
-        <polygon points="292,102 336,76 328,102 336,128" fill="#FFEBD0" />
+        <polygon points="292,104 352,68 340,104 352,140" fill="#0B1424" />
+        <polygon points="298,104 340,78 332,104 340,130" fill="#FFEBD0" />
       </g>
 
       <g className="fish-fin-dorsal">
-        <polygon points="168,40 216,76 150,78" fill="#FF4400" />
-        <polygon points="174,48 206,74 158,74" fill="#0B1424" />
-        <rect x="180" y="50" width="6" height="20" fill="#FFEBD0" />
-        <rect x="190" y="54" width="6" height="16" fill="#FFEBD0" />
+        <polygon points="176,36 228,74 158,76" fill="#FF4400" />
+        <polygon points="182,46 216,72 166,72" fill="#0B1424" />
+        <rect x="188" y="48" width="6" height="20" fill="#FFEBD0" />
+        <rect x="198" y="52" width="6" height="16" fill="#FFEBD0" />
       </g>
 
-      <ellipse cx="176" cy="106" rx="112" ry="46" fill="#0B1424" />
-      <ellipse cx="174" cy="106" rx="102" ry="38" fill="#FF4400" />
-      <ellipse cx="178" cy="124" rx="82" ry="16" fill="#FFEBD0" />
+      <ellipse cx="188" cy="110" rx="108" ry="42" fill="#0B1424" />
+      <ellipse cx="186" cy="110" rx="100" ry="36" fill="#FFEBD0" />
+      <ellipse cx="200" cy="96" rx="70" ry="16" fill="#3D8FB5" opacity="0.22" />
+      <ellipse cx="190" cy="128" rx="78" ry="14" fill="#FFEBD0" />
 
-      <rect x="148" y="90" width="10" height="8" fill="#0B1424" opacity="0.22" />
-      <rect x="168" y="96" width="10" height="8" fill="#0B1424" opacity="0.22" />
-      <rect x="188" y="90" width="10" height="8" fill="#0B1424" opacity="0.22" />
-      <rect x="208" y="96" width="10" height="8" fill="#0B1424" opacity="0.22" />
-      <rect x="228" y="90" width="10" height="8" fill="#0B1424" opacity="0.22" />
+      <rect x="158" y="96" width="10" height="7" fill="#0B1424" opacity="0.18" />
+      <rect x="176" y="102" width="10" height="7" fill="#0B1424" opacity="0.18" />
+      <rect x="194" y="96" width="10" height="7" fill="#0B1424" opacity="0.18" />
+      <rect x="212" y="102" width="10" height="7" fill="#0B1424" opacity="0.18" />
+      <rect x="230" y="96" width="10" height="7" fill="#0B1424" opacity="0.18" />
+      <rect x="248" y="102" width="10" height="7" fill="#0B1424" opacity="0.18" />
 
-      <ellipse cx="86" cy="104" rx="40" ry="30" fill="#0B1424" />
-      <ellipse cx="86" cy="104" rx="34" ry="24" fill="#FF4400" />
-      <polygon points="44,104 70,86 70,122" fill="#FF4400" />
-      <polygon points="40,104 58,92 58,116" fill="#0B1424" />
+      <ellipse cx="92" cy="104" rx="54" ry="40" fill="#0B1424" />
+      <ellipse cx="92" cy="104" rx="48" ry="34" fill="#FFEBD0" />
+      <ellipse cx="100" cy="90" rx="28" ry="12" fill="#3D8FB5" opacity="0.16" />
+      <polygon points="38,106 68,84 70,128" fill="#FFEBD0" />
+      <polygon points="34,106 56,90 56,122" fill="#0B1424" />
 
       <g className="fish-mouth">
-        <rect x="36" y="98" width="22" height="5" fill="#0B1424" />
-        <rect className="fish-jaw-lower" x="36" y="106" width="20" height="4" fill="#0B1424" />
-        <rect className="fish-mouth-gap spring" x="38" y="102" width="16" height="6" fill="#FFEBD0" />
+        <rect x="32" y="100" width="24" height="5" fill="#0B1424" />
+        <rect className="fish-jaw-lower" x="34" y="108" width="22" height="4" fill="#0B1424" />
+        <rect className="fish-mouth-gap spring" x="36" y="104" width="18" height="7" fill="#0B1424" />
       </g>
 
-      <circle cx="80" cy="90" r="12" fill="#0B1424" />
-      <circle cx="80" cy="90" r="8" fill="#FFEBD0" />
-      <circle cx="77" cy="88" r="3.2" fill="#0B1424" />
+      <circle cx="84" cy="90" r="16" fill="#0B1424" />
+      <circle cx="84" cy="90" r="12" fill="#FFEBD0" />
+      <circle cx="84" cy="90" r="7" fill="#FFB060" />
+      <circle cx="81" cy="88" r="4.2" fill="#0B1424" />
+      <circle cx="79" cy="86" r="1.6" fill="#FFEBD0" />
 
       <path
-        d="M108 76 C122 88, 122 122, 108 136"
+        d="M108 62 C124 78, 126 112, 110 140"
         fill="none"
         stroke="#0B1424"
-        strokeWidth="5"
+        strokeWidth="6"
         strokeLinecap="round"
       />
       <path
-        d="M114 80 C128 92, 128 118, 114 132"
-        fill="none"
+        d="M114 68 C128 84, 130 116, 114 136"
+        fill="#FFEBD0"
         stroke="#0B1424"
-        strokeWidth="3"
+        strokeWidth="3.2"
         strokeLinecap="round"
       />
-
       <path
-        d="M122 84 C138 96, 138 118, 122 130"
-        fill={mode === 'gill' || gillDone ? '#3D8FB5' : 'none'}
-        fillOpacity={mode === 'gill' || gillDone ? 0.28 : 0}
+        d="M122 74 C136 90, 136 118, 120 134"
+        fill={mode === 'gill' || gillDone ? '#3D8FB5' : '#0B1424'}
+        fillOpacity={mode === 'gill' || gillDone ? 0.28 : 0.12}
         stroke="#3D8FB5"
-        strokeWidth={mode === 'gill' ? 4 : 2.5}
+        strokeWidth={mode === 'gill' ? 4 : 2.4}
         strokeLinecap="round"
       />
 
-      <line
-        x1="118"
-        y1="104"
-        x2="268"
-        y2="104"
+      <polyline
+        points="108,76 150,90 198,100 268,108"
+        fill="none"
         stroke="#0B1424"
         strokeWidth="2.4"
         strokeDasharray="7 5"
         strokeLinecap="round"
       />
-      <circle cx="118" cy="104" r="3.4" fill="#3D8FB5" />
+      <line x1="108" y1="64" x2="108" y2="88" stroke="#3D8FB5" strokeWidth="2.2" strokeLinecap="round" />
+      <circle cx="108" cy="76" r="3.6" fill="#3D8FB5" />
 
       <g className="fish-fin-pectoral">
-        <polygon points="132,118 172,142 126,134" fill="#FF4400" />
-        <polygon points="136,122 164,138 130,132" fill="#0B1424" />
+        <polygon points="138,120 180,146 130,136" fill="#FF4400" />
+        <polygon points="142,124 170,140 134,132" fill="#0B1424" />
       </g>
 
-      <polygon points="206,142 236,142 218,160" fill="#FF4400" />
-      <polygon points="210,144 230,144 218,156" fill="#0B1424" />
+      <polygon points="214,144 246,144 228,162" fill="#FF4400" />
+      <polygon points="218,146 240,146 228,158" fill="#0B1424" />
     </svg>
   )
 }
@@ -195,37 +198,37 @@ function BrainTarget({
   const dash = Math.max(0.04, progress) * circ
 
   return (
-    <div className="absolute top-[52%] left-[32.8%] z-20 -translate-x-1/2 -translate-y-1/2">
-    <button
-      ref={targetRef}
-      type="button"
-      {...pressProps}
-      data-pressed={pressed ? 'true' : 'false'}
-      onClick={onSpike}
-      aria-label={`${copy.spikeTarget}. ${inWindow ? copy.windowOpen : copy.windowClosed}`}
-      className={cn(
-        'pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-1.5 py-1.5',
-        inWindow ? 'cycle-pulse border-cool bg-cream text-navy' : 'border-cool bg-navy text-cream',
-      )}
-    >
-      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 48 48" aria-hidden>
-        <circle cx="24" cy="24" r={r} fill="none" stroke="#0B1424" strokeWidth="3" opacity="0.2" />
-        <circle
-          cx="24"
-          cy="24"
-          r={r}
-          fill="none"
-          stroke="#3D8FB5"
-          strokeWidth="4"
-          strokeDasharray={`${dash} ${circ}`}
-          strokeLinecap="round"
-          transform="rotate(-90 24 24)"
-        />
-      </svg>
-      <span className="relative text-[10px] font-semibold tracking-[0.12em] uppercase">
-        {inWindow ? copy.now : copy.clue.brain}
-      </span>
-    </button>
+    <div className="absolute top-[38%] left-[30%] z-20 -translate-x-1/2 -translate-y-1/2">
+      <button
+        ref={targetRef}
+        type="button"
+        {...pressProps}
+        data-pressed={pressed ? 'true' : 'false'}
+        onClick={onSpike}
+        aria-label={`${copy.spikeTarget}. ${inWindow ? copy.windowOpen : copy.windowClosed}`}
+        className={cn(
+          'pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-1.5 py-1.5',
+          inWindow ? 'cycle-pulse border-cool bg-cream text-navy' : 'border-cool bg-navy text-cream',
+        )}
+      >
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 48 48" aria-hidden>
+          <circle cx="24" cy="24" r={r} fill="none" stroke="#0B1424" strokeWidth="3" opacity="0.2" />
+          <circle
+            cx="24"
+            cy="24"
+            r={r}
+            fill="none"
+            stroke="#3D8FB5"
+            strokeWidth="4"
+            strokeDasharray={`${dash} ${circ}`}
+            strokeLinecap="round"
+            transform="rotate(-90 24 24)"
+          />
+        </svg>
+        <span className="relative text-[10px] font-semibold tracking-[0.12em] uppercase">
+          {inWindow ? copy.now : copy.clue.brain}
+        </span>
+      </button>
     </div>
   )
 }
@@ -237,7 +240,7 @@ function BodyMiss({ onMiss, label }: { onMiss: () => void; label: string }) {
       onClick={onMiss}
       tabIndex={-1}
       aria-label={label}
-      className="absolute top-[34%] right-[10%] left-[46%] z-10 h-[42%] rounded-[42%] bg-transparent"
+      className="absolute top-[40%] right-[8%] left-[48%] z-10 h-[38%] rounded-[42%] bg-transparent"
     />
   )
 }
@@ -258,30 +261,30 @@ function GillTarget({
 
   return (
     <>
-      <div className="absolute top-[53%] left-[36.2%] z-20 -translate-x-1/2 -translate-y-1/2">
-      <button
-        ref={targetRef}
-        type="button"
-        {...pressProps}
-        data-pressed={pressed ? 'true' : 'false'}
-        disabled={done}
-        aria-label={`${copy.gillTarget}. ${copy.gillAction}.`}
-        onPointerDown={(event) => {
-          pressProps.onPointerDown()
-          drag.onDown(event)
-        }}
-        onPointerMove={drag.onMove}
-        onPointerUp={(event) => {
-          pressProps.onPointerUp()
-          drag.onUp(event)
-        }}
-        className={cn(
-          'pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-2 py-1.5',
-          done ? 'border-cool bg-cool text-navy' : 'border-cool bg-navy text-cream',
-        )}
-      >
-        <span className="text-[10px] font-semibold tracking-[0.12em] uppercase">{copy.clue.gill}</span>
-      </button>
+      <div className="absolute top-[51%] left-[35.5%] z-20 -translate-x-1/2 -translate-y-1/2">
+        <button
+          ref={targetRef}
+          type="button"
+          {...pressProps}
+          data-pressed={pressed ? 'true' : 'false'}
+          disabled={done}
+          aria-label={`${copy.gillTarget}. ${copy.gillAction}.`}
+          onPointerDown={(event) => {
+            pressProps.onPointerDown()
+            drag.onDown(event)
+          }}
+          onPointerMove={drag.onMove}
+          onPointerUp={(event) => {
+            pressProps.onPointerUp()
+            drag.onUp(event)
+          }}
+          className={cn(
+            'pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-2 py-1.5',
+            done ? 'border-cool bg-cool text-navy' : 'border-cool bg-navy text-cream',
+          )}
+        >
+          <span className="text-[10px] font-semibold tracking-[0.12em] uppercase">{copy.clue.gill}</span>
+        </button>
       </div>
       {onMiss && !done ? <BodyMiss onMiss={onMiss} label={copy.gillBodyMiss} /> : null}
     </>

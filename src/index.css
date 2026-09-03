@@ -94,6 +94,7 @@ body {
   .wave-fin,
   .cycle-pulse,
   .fish-flail,
+  .fish-wiggle,
   .fish-shake {
     animation: none !important;
     transition: opacity 0.2s ease !important;
@@ -180,6 +181,21 @@ body {
   }
 }
 
+@keyframes fish-wiggle {
+  0% {
+    transform: rotate(0deg);
+  }
+  28% {
+    transform: rotate(-4deg);
+  }
+  64% {
+    transform: rotate(3deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
 @keyframes fish-shake {
   0%,
   100% {
@@ -231,7 +247,12 @@ body {
 
 .fish-flail {
   animation: fish-flail 0.36s var(--ease-spring) both;
-  transform-origin: 42% 54%;
+  transform-origin: 30% 48%;
+}
+
+.fish-wiggle {
+  animation: fish-wiggle 0.36s var(--ease-spring) 0.36s both;
+  transform-origin: 30% 48%;
 }
 
 .fish-shake {
@@ -239,17 +260,17 @@ body {
 }
 
 .fish-success .fish-fin-dorsal {
-  transform-origin: 170px 78px;
-  animation: fish-fin-flare 0.36s var(--ease-spring) both;
+  transform-origin: 182px 72px;
+  animation: fish-fin-flare 0.36s var(--ease-spring) 0.08s both;
 }
 
 .fish-success .fish-fin-pectoral {
-  transform-origin: 136px 122px;
-  animation: fish-fin-flare-low 0.36s var(--ease-spring) both;
+  transform-origin: 142px 124px;
+  animation: fish-fin-flare-low 0.36s var(--ease-spring) 0.08s both;
 }
 
 .fish-success .fish-mouth {
-  transform-origin: 48px 104px;
+  transform-origin: 44px 104px;
   animation: fish-mouth-open 0.36s var(--ease-spring) both;
 }
 
@@ -263,6 +284,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .fish-flail,
+  .fish-wiggle,
   .fish-shake,
   .fish-success .fish-fin-dorsal,
   .fish-success .fish-fin-pectoral,
