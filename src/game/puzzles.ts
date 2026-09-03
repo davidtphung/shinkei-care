@@ -1,8 +1,8 @@
 import type { NoticePuzzle, PackPuzzle } from './types.ts'
 
 export const CYCLE_MS = 6000
-export const WINDOW_START = 0.55
-export const WINDOW_END = 0.88
+export const WINDOW_START = 0.48
+export const WINDOW_END = 0.9
 export const FRESHNESS_MAX = 6
 export const ICE_GOAL = 3
 

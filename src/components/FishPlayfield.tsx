@@ -1,4 +1,4 @@
-import { useRef, type PointerEvent } from 'react'
+import { useRef, type PointerEvent, type ReactNode } from 'react'
 import { copy } from '@/game/copy.ts'
 import { usePressed } from '@/hooks/usePressed.ts'
 import { cn } from '@/lib/utils.ts'
@@ -10,6 +10,7 @@ type Props = {
   still?: boolean
   inWindow?: boolean
   gillDone?: boolean
+  hud?: ReactNode
   onSpike?: () => void
   onSpikeHigh?: () => void
   onGill?: () => void
@@ -21,18 +22,20 @@ export function FishPlayfield({
   still = false,
   inWindow = false,
   gillDone = false,
+  hud,
   onSpike,
   onSpikeHigh,
   onGill,
   onGillMiss,
 }: Props) {
   return (
-    <div className="panel relative mx-auto w-full max-w-lg overflow-hidden rounded-[2rem] border-4 border-navy bg-cream px-3 py-5 sm:px-6">
-      <div className="pointer-events-none absolute inset-x-6 top-4 flex justify-between text-[10px] font-semibold tracking-[0.2em] text-navy/50 uppercase">
+    <div className="panel relative mx-auto w-full max-w-xl overflow-hidden rounded-[2rem] border-4 border-navy bg-cream px-2 pt-10 pb-3 sm:px-5 sm:pt-12 sm:pb-4">
+      <div className="pointer-events-none absolute inset-x-4 top-3 flex justify-between text-[10px] font-semibold tracking-[0.2em] text-navy/50 uppercase">
         <span>Playfield</span>
         <span>{mode}</span>
       </div>
-      <div className="relative mx-auto aspect-[8/5] w-full max-w-[34rem]">
+      {hud ? <div className="absolute top-2 right-2 z-30 sm:top-3 sm:right-3">{hud}</div> : null}
+      <div className="relative mx-auto min-h-[200px] w-full max-w-[34rem] sm:min-h-[240px]">
         <FishArt still={still} gillDone={gillDone} mode={mode} />
         {mode === 'spike' && onSpike ? (
           <BrainTarget inWindow={inWindow} onSpike={onSpike} />
@@ -59,7 +62,7 @@ function FishArt({
 
   return (
     <svg
-      className={cn('h-full w-full', still ? undefined : 'floaty')}
+      className={cn('h-auto w-full', still ? undefined : 'floaty')}
       viewBox="0 0 320 200"
       role="img"
       aria-label={
@@ -121,7 +124,7 @@ function BrainTarget({ inWindow, onSpike }: { inWindow: boolean; onSpike: () => 
       aria-label={`${copy.spikeTarget}. ${inWindow ? copy.windowOpen : copy.windowClosed}`}
       className={cn(
         'pressable spring absolute z-20 flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-2 py-2',
-        'left-[16%] top-[18%] sm:left-[18%] sm:top-[16%]',
+        'top-[28%] left-[12%] sm:top-[30%] sm:left-[14%]',
         inWindow ? 'scale-105 border-accent bg-accent text-navy' : 'border-cool bg-navy text-cream',
       )}
     >
@@ -174,7 +177,7 @@ function GillTarget({
         }}
         className={cn(
           'pressable spring absolute z-20 flex min-h-16 min-w-[4.5rem] flex-col items-center justify-center rounded-full border-4 px-3 py-2',
-          'left-[32%] top-[28%] sm:left-[34%]',
+          'top-[30%] left-[30%] sm:top-[32%] sm:left-[32%]',
           done ? 'border-cool bg-cool text-navy' : 'border-navy bg-navy text-cream',
         )}
       >

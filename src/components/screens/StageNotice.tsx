@@ -4,7 +4,6 @@ import { CycleRing } from '@/components/CycleRing.tsx'
 import { FishPlayfield } from '@/components/FishPlayfield.tsx'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
-import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { StageHeader } from '@/components/StageHeader.tsx'
 import { useCycle } from '@/hooks/useCycle.ts'
 
@@ -70,17 +69,14 @@ export function StageNotice({
         combo={combo}
         headingRef={headingRef}
       />
-      <LiveAnnouncer message={announcement || windowNote} />
+      <LiveAnnouncer message={inWindow ? copy.windowOpen : announcement || windowNote} />
       <p className="text-sm text-navy/80">{copy.spikeHint}</p>
 
-      <div className="grid flex-1 items-center gap-4 sm:grid-cols-[auto_1fr]">
-        <div className="flex flex-col items-center gap-3">
-          <CycleRing progress={progress} inWindow={inWindow} reduced={reduced} />
-          <PixelMatrix name="brain" size={52} title={copy.itemNames.brain} />
-        </div>
+      <div className="flex flex-1 flex-col justify-center">
         <FishPlayfield
           mode="spike"
           inWindow={inWindow}
+          hud={<CycleRing progress={progress} inWindow={inWindow} reduced={reduced} size="sm" />}
           onSpike={() => attempt(true)}
           onSpikeHigh={() => attempt(false)}
         />

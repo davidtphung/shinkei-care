@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState, type Ref, type RefObject } from 'react'
 import { copy } from '@/game/copy.ts'
 import { ICE_GOAL } from '@/game/puzzles.ts'
-import { CycleRing } from '@/components/CycleRing.tsx'
-import { FishPlayfield } from '@/components/FishPlayfield.tsx'
+import { CycleBar } from '@/components/CycleRing.tsx'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
@@ -76,12 +75,10 @@ export function StageCool({
       <LiveAnnouncer message={announcement} />
       <p className="text-sm text-navy/80">{copy.coolHint}</p>
 
-      <div className="flex justify-center">
-        <CycleRing progress={progress} inWindow={inWindow} reduced={reduced} />
-      </div>
+      <CycleBar progress={progress} inWindow={inWindow} reduced={reduced} />
 
-      <div className="grid flex-1 grid-cols-1 items-center gap-4 sm:grid-cols-[auto_1fr_auto]">
-        <ul className="flex flex-wrap justify-center gap-3 sm:flex-col">
+      <div className="flex flex-1 flex-col justify-center gap-4">
+        <ul className="flex flex-wrap justify-center gap-3">
           {TOKENS.map((id) =>
             placed.includes(id) ? null : (
               <li key={id}>
@@ -106,10 +103,6 @@ export function StageCool({
             if (selected) onPlace(selected)
           }}
         />
-
-        <div className="hidden sm:block">
-          <FishPlayfield mode="ice" still gillDone />
-        </div>
       </div>
 
       <FreshnessMeter value={freshness} max={freshnessMax} />
@@ -144,7 +137,7 @@ function CoolerDrop({
           : `Open cooler drop zone. ${copy.of(filled, ICE_GOAL)} filled.`
       }
       className={cn(
-        'pressable spring panel mx-auto flex min-h-[220px] min-w-[220px] flex-col items-center justify-center gap-3 rounded-[2rem] border-4 border-dashed border-navy bg-cream px-6 py-8 text-navy',
+        'pressable spring panel mx-auto flex min-h-[180px] w-full max-w-[20rem] flex-col items-center justify-center gap-3 rounded-[2rem] border-4 border-dashed border-navy bg-cream px-6 py-6 text-navy',
         selected ? 'border-solid border-accent' : null,
         filled > 0 ? 'scale-[1.02]' : null,
       )}
@@ -228,13 +221,16 @@ function IceToken({
           onSelect(id)
         }
       }}
+      onClick={() => {
+        if (!drag.current.moved) onSelect(id)
+      }}
       className={cn(
-        'pressable spring flex min-h-28 min-w-28 flex-col items-center justify-center gap-2 rounded-3xl border-4 bg-cream px-4 py-3 text-navy',
+        'pressable spring flex min-h-20 min-w-20 flex-col items-center justify-center gap-1 rounded-3xl border-4 bg-cream px-3 py-2 text-navy',
         selected ? 'border-accent scale-105' : 'border-navy',
       )}
       style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}
     >
-      <PixelMatrix name="ice" size={72} />
+      <PixelMatrix name="ice" size={56} />
       <span className="text-sm font-semibold">{copy.itemNames.ice}</span>
     </button>
   )

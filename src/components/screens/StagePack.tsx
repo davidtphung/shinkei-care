@@ -4,7 +4,6 @@ import { CycleRing } from '@/components/CycleRing.tsx'
 import { FishPlayfield } from '@/components/FishPlayfield.tsx'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
-import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { StageHeader } from '@/components/StageHeader.tsx'
 import { useCycle } from '@/hooks/useCycle.ts'
 
@@ -55,12 +54,14 @@ export function StagePack({
       <LiveAnnouncer message={announcement} />
       <p className="text-sm text-navy/80">{copy.gillHint}</p>
 
-      <div className="grid flex-1 items-center gap-4 sm:grid-cols-[auto_1fr]">
-        <div className="flex flex-col items-center gap-3">
-          <CycleRing progress={progress} inWindow={inWindow} reduced={reduced} />
-          <PixelMatrix name="gill" size={52} title={copy.itemNames.gill} />
-        </div>
-        <FishPlayfield mode="gill" still onGill={onGill} onGillMiss={onGillMiss} />
+      <div className="flex flex-1 flex-col justify-center">
+        <FishPlayfield
+          mode="gill"
+          still
+          hud={<CycleRing progress={progress} inWindow={inWindow} reduced={reduced} size="sm" />}
+          onGill={onGill}
+          onGillMiss={onGillMiss}
+        />
       </div>
 
       <FreshnessMeter value={freshness} max={freshnessMax} />
