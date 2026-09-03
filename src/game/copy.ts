@@ -1,7 +1,9 @@
 export const copy = {
-  title: 'Six Seconds',
-  kicker: 'Shinkei Care',
-  subtitle: 'spike, gill, ice',
+  title: 'Shinkei Care',
+  wordmark: 'Shinkei',
+  wordmarkLine: 'Care',
+  kicker: 'Shinkei Systems',
+  subtitle: 'Six Seconds',
   brand: 'Shinkei Systems',
   brandUrl: 'https://shinkei.systems',
   play: 'Play',
@@ -29,7 +31,9 @@ export const copy = {
   spikeMissHigh: 'High.',
   spikeMissWindow: 'Try that window.',
   spikeTarget: 'Brain target',
-  spikeHint: 'Tap the brain when the cycle hits Now. Space or Enter also works.',
+  spikeHint: 'Tap Brain when it says Now. Space or Enter also works.',
+  looksSteady: 'Looks steady',
+  bodyLabel: 'Body',
 
   gillName: 'Gill',
   gillLead: 'Cut the gill. Bleed.',

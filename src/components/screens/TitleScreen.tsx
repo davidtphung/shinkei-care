@@ -21,20 +21,20 @@ export function TitleScreen({ highScore, onPlay, headingRef }: Props) {
         <h1
           ref={headingRef}
           tabIndex={-1}
-          className="font-display mt-2 text-6xl leading-none text-cream drop-shadow-[0_2px_0_#0B1424] sm:text-8xl"
+          className="font-display mt-2 text-7xl leading-none text-cream drop-shadow-[0_2px_0_#0B1424] sm:text-8xl"
         >
-          {copy.title}
+          {copy.wordmark}
         </h1>
-        <p className="mt-3 text-lg font-semibold tracking-tight text-navy">{copy.subtitle}</p>
-        <p className="mt-1 text-sm text-navy/80">A centuries-old Japanese technique.</p>
+        <p className="mt-1 text-4xl font-semibold tracking-tight text-navy">{copy.wordmarkLine}</p>
+        <p className="mt-2 text-lg text-navy">{copy.subtitle}</p>
       </div>
 
       <div className="flex flex-col items-center gap-4">
         <Mascot size={168} className="drop-shadow-md" />
         <div className="flex items-center gap-3" aria-hidden>
-          <PixelMatrix name="brain" size={44} />
-          <PixelMatrix name="gill" size={44} />
           <PixelMatrix name="ice" size={44} />
+          <PixelMatrix name="cooler" size={44} />
+          <PixelMatrix name="seal" size={44} />
         </div>
       </div>
 
@@ -74,7 +74,7 @@ function HowToPlay() {
         <Dialog.Content className="panel fixed inset-x-4 top-1/2 z-50 mx-auto max-w-md -translate-y-1/2 rounded-3xl bg-cream p-6 text-navy shadow-xl">
           <Dialog.Title className="text-2xl font-semibold">{copy.howTo}</Dialog.Title>
           <Dialog.Description className="sr-only">
-            How to play Six Seconds
+            How to play Shinkei Care
           </Dialog.Description>
           <ol className="mt-4 list-decimal space-y-3 pl-5 text-base">
             {copy.howToBody.map((line) => (

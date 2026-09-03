@@ -1,7 +1,7 @@
 {
-  "name": "Six Seconds",
-  "short_name": "Six Seconds",
-  "description": "A Shinkei Care arcade. Spike, gill, ice. Learn ikejime in about a minute.",
+  "name": "Shinkei Care",
+  "short_name": "Shinkei Care",
+  "description": "A Six Seconds ikejime arcade. Spike, gill, ice.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

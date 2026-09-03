@@ -1,8 +1,8 @@
-# Six Seconds
+# Shinkei Care
 
 A short ikejime arcade. Playable in the browser on phone and desktop.
 
-Wordmark: **Six Seconds**. Kicker: **Shinkei Care**. Brand: [Shinkei Systems](https://shinkei.systems)
+Wordmark: **Shinkei Care**. Subtitle: **Six Seconds**. Brand: [Shinkei Systems](https://shinkei.systems)
 
 This is a skill game. The mascot is an abstract friendly fish. After the round it rests on ice. There is no gore and no photoreal slaughter.
 
@@ -18,11 +18,11 @@ GitHub is the public mirror.
 
 ## How to play
 
-Each round has three short arcade stages. A six-second cycle ring stays in view.
+Each round has three short arcade stages. Same cream cards, pixel tiles, and cooler drop as the live cabinet. Juice is timing, combo, and a six-second pulse.
 
-1. **Spike.** A brain target sits on the fish head. Tap, click, or press Space or Enter when the cycle hits Now. Hit the window and the fish stills. Miss and you will hear Early, Late, High, or Try that window. Freshness drops. Try that beat again.
-2. **Gill.** Tap or drag the labeled gill line. Cut the gill so blood does not sit in the flesh. One line notes that traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.
-3. **Ice.** Drag large ice tokens onto the open cooler, or tap ice then tap the cooler. Arrow keys choose a token. Enter places it. Ice now. Hold the quality you just protected.
+1. **Spike.** Three cream cards. The Brain card gets a cool-blue ring, a word label, and a six-second pulse. Tap it when it says Now. A miss says Early, Late, High, or Try that window. Freshness drops. Try that beat again.
+2. **Gill.** Same card grammar. Tap the Gill card (cool-blue ring plus a word label). Cut the gill so blood does not sit in the flesh. One line notes that traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.
+3. **Ice.** Ice tokens on the left. Dashed cooler drop zone. Drag ice onto the cooler, or tap ice then tap the cooler. Arrow keys choose a token. Enter places it. Ice now. Hold the quality you just protected.
 
 Then a freshness seal, a rest on ice, and an **Ikejime Score**. Rank labels are kind only: Clean Spike, Steady Hands, Six-Second Crew.
 

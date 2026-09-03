@@ -28,26 +28,8 @@ export function OceanScene({ headingRef, onContinue }: Props) {
           </h1>
         </header>
 
-        <div className="relative flex flex-1 flex-col items-center justify-center gap-6 py-8">
-          <div className="flex items-end gap-3">
-            <PixelMatrix name="ice" size={56} />
-            <Mascot resting size={180} />
-            <PixelMatrix name="ice" size={56} />
-          </div>
-          <ol className="grid w-full grid-cols-3 gap-2 text-center">
-            <li className="panel rounded-2xl bg-navy px-2 py-3">
-              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase">1</p>
-              <p className="text-sm font-semibold">{copy.spikeName}</p>
-            </li>
-            <li className="panel rounded-2xl bg-navy px-2 py-3">
-              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase">2</p>
-              <p className="text-sm font-semibold">{copy.gillName}</p>
-            </li>
-            <li className="panel rounded-2xl bg-navy px-2 py-3">
-              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase">3</p>
-              <p className="text-sm font-semibold">{copy.stageNames[2]}</p>
-            </li>
-          </ol>
+        <div className="relative flex flex-1 items-center justify-center py-8">
+          <Mascot resting size={200} />
         </div>
 
         <div className="space-y-4">

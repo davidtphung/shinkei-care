@@ -15,11 +15,7 @@ export function FreshnessMeter({ value, max, className }: Props) {
     <div className={cn('panel w-full rounded-2xl bg-cream px-4 py-3 text-navy', className)}>
       <div className="mb-2 flex items-baseline justify-between gap-3">
         <p className="text-sm font-semibold tracking-[0.16em] uppercase">{copy.freshness}</p>
-        <p className="inline-flex items-center gap-2 text-sm font-medium">
-          <span aria-hidden className="h-2.5 w-2.5 rounded-full bg-cool" />
-          <span>{word}</span>
-          <span className="text-navy/70">{copy.of(value, max)}</span>
-        </p>
+        <p className="text-sm font-medium">{copy.of(value, max)}</p>
       </div>
       <div
         className="h-3 overflow-hidden rounded-full bg-navy/15"

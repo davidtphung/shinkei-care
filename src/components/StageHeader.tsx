@@ -25,7 +25,7 @@ export function StageHeader({
     <header className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <p className={`text-xs font-semibold tracking-[0.22em] uppercase ${mute}`}>
-          {copy.stageOf(stage)} · {copy.stageNames[stage - 1]}
+          {copy.stageOf(stage)}
         </p>
         {combo > 0 ? (
           <p className={`text-xs font-semibold tracking-[0.16em] uppercase ${ink}`}>

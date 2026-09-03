@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState, type Ref, type RefObject } from 'react'
 import { copy } from '@/game/copy.ts'
 import { ICE_GOAL } from '@/game/puzzles.ts'
-import { CycleBar } from '@/components/CycleRing.tsx'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { StageHeader } from '@/components/StageHeader.tsx'
-import { useCycle } from '@/hooks/useCycle.ts'
 import { usePressed } from '@/hooks/usePressed.ts'
 import { cn } from '@/lib/utils.ts'
 
@@ -38,7 +36,6 @@ export function StageCool({
   onMiss,
 }: Props) {
   const dropRef = useRef<HTMLButtonElement>(null)
-  const { progress, inWindow, reduced } = useCycle(true)
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -65,20 +62,12 @@ export function StageCool({
 
   return (
     <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-4 px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))]">
-      <StageHeader
-        stage={3}
-        title={copy.coolLead}
-        teach={copy.iceTeach}
-        combo={combo}
-        headingRef={headingRef}
-      />
+      <StageHeader stage={3} title={copy.coolLead} combo={combo} headingRef={headingRef} />
       <LiveAnnouncer message={announcement} />
       <p className="text-sm text-navy/80">{copy.coolHint}</p>
 
-      <CycleBar progress={progress} inWindow={inWindow} reduced={reduced} />
-
-      <div className="flex flex-1 flex-col justify-center gap-4">
-        <ul className="flex flex-wrap justify-center gap-3">
+      <div className="grid flex-1 grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
+        <ul className="flex flex-wrap justify-center gap-3 sm:flex-col">
           {TOKENS.map((id) =>
             placed.includes(id) ? null : (
               <li key={id}>
@@ -103,6 +92,8 @@ export function StageCool({
             if (selected) onPlace(selected)
           }}
         />
+
+        <div className="hidden sm:block" />
       </div>
 
       <FreshnessMeter value={freshness} max={freshnessMax} />
@@ -137,14 +128,13 @@ function CoolerDrop({
           : `Open cooler drop zone. ${copy.of(filled, ICE_GOAL)} filled.`
       }
       className={cn(
-        'pressable spring panel mx-auto flex min-h-[180px] w-full max-w-[20rem] flex-col items-center justify-center gap-3 rounded-[2rem] border-4 border-dashed border-navy bg-cream px-6 py-6 text-navy',
-        selected ? 'border-solid border-accent' : null,
-        filled > 0 ? 'scale-[1.02]' : null,
+        'pressable spring panel mx-auto flex min-h-[220px] min-w-[220px] flex-col items-center justify-center gap-3 rounded-[2rem] border-4 border-dashed border-navy bg-cream px-6 py-8 text-navy',
+        selected ? 'border-solid border-cool' : null,
       )}
     >
       <PixelMatrix name="cooler" size={96} />
       <span className="text-lg font-semibold">{copy.itemNames.cooler}</span>
-      <span className="text-sm">{copy.of(filled, ICE_GOAL)} iced</span>
+      <span className="text-sm">Open drop zone</span>
     </button>
   )
 }
@@ -225,12 +215,12 @@ function IceToken({
         if (!drag.current.moved) onSelect(id)
       }}
       className={cn(
-        'pressable spring flex min-h-20 min-w-20 flex-col items-center justify-center gap-1 rounded-3xl border-4 bg-cream px-3 py-2 text-navy',
-        selected ? 'border-accent scale-105' : 'border-navy',
+        'pressable spring flex min-h-28 min-w-28 flex-col items-center justify-center gap-2 rounded-3xl border-4 bg-cream px-4 py-3 text-navy',
+        selected ? 'border-cool' : 'border-navy',
       )}
       style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}
     >
-      <PixelMatrix name="ice" size={56} />
+      <PixelMatrix name="ice" size={72} />
       <span className="text-sm font-semibold">{copy.itemNames.ice}</span>
     </button>
   )
