@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Enable GitHub Pages with Actions source
+        continue-on-error: true
         uses: actions/configure-pages@v5
         with:
           enablement: true
