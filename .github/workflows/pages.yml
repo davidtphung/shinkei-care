@@ -15,7 +15,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  enable-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enable GitHub Pages with Actions source
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
   build:
+    needs: enable-pages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
