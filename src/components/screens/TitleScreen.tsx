@@ -16,16 +16,16 @@ export function TitleScreen({ highScore, onPlay, headingRef }: Props) {
     <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between px-5 pb-8 pt-[max(1.5rem,env(safe-area-inset-top))]">
       <div className="pt-6 text-center">
         <p className="text-xs font-semibold tracking-[0.28em] text-navy uppercase">
-          {copy.brand}
+          {copy.kicker}
         </p>
         <h1
           ref={headingRef}
           tabIndex={-1}
           className="font-display mt-2 text-7xl leading-none text-cream drop-shadow-[0_2px_0_#0B1424] sm:text-8xl"
         >
-          Shinkei
+          {copy.wordmark}
         </h1>
-        <p className="mt-1 text-4xl font-semibold tracking-tight text-navy">Care</p>
+        <p className="mt-1 text-4xl font-semibold tracking-tight text-navy">{copy.wordmarkLine}</p>
         <p className="mt-2 text-lg text-navy">{copy.subtitle}</p>
       </div>
 
@@ -44,7 +44,7 @@ export function TitleScreen({ highScore, onPlay, headingRef }: Props) {
             {copy.bestScore(highScore)}
           </p>
         ) : (
-          <p className="text-center text-sm text-navy/80">A new Care Score starts at zero.</p>
+          <p className="text-center text-sm text-navy/80">A new Ikejime Score starts at zero.</p>
         )}
         <Button className="w-full text-lg" onClick={onPlay}>
           {copy.play}

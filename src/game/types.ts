@@ -1,4 +1,4 @@
-export type Screen = 'title' | 'notice' | 'cool' | 'pack' | 'seal' | 'ocean' | 'score'
+export type Screen = 'title' | 'spike' | 'gill' | 'ice' | 'seal' | 'rest' | 'score'
 
 export type CareItemId =
   | 'cooler'
@@ -9,6 +9,8 @@ export type CareItemId =
   | 'container'
   | 'tag'
   | 'seal'
+  | 'brain'
+  | 'gill'
 
 export type NoticeId = 'cooler' | 'ice' | 'label' | 'basket' | 'fish'
 
@@ -23,3 +25,7 @@ export type NoticePuzzle = {
 export type PackPuzzle = {
   items: PackId[]
 }
+
+export type SpikeTiming = 'early' | 'late' | 'high' | 'hit'
+
+export type GillResult = 'hit' | 'high' | 'miss'

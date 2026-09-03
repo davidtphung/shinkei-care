@@ -1,4 +1,4 @@
-import { copy } from '@/game/copy.ts'
+import { copy, freshnessWord } from '@/game/copy.ts'
 import { cn } from '@/lib/utils.ts'
 
 type Props = {
@@ -8,7 +8,8 @@ type Props = {
 }
 
 export function FreshnessMeter({ value, max, className }: Props) {
-  const pct = Math.round((value / max) * 100)
+  const pct = max === 0 ? 0 : Math.round((value / max) * 100)
+  const word = freshnessWord(value, max)
 
   return (
     <div className={cn('panel w-full rounded-2xl bg-cream px-4 py-3 text-navy', className)}>
@@ -23,6 +24,7 @@ export function FreshnessMeter({ value, max, className }: Props) {
         aria-valuemin={0}
         aria-valuemax={max}
         aria-valuenow={value}
+        aria-valuetext={`${word}. ${copy.of(value, max)}`}
       >
         <div
           className="spring h-full rounded-full bg-cool"

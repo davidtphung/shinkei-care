@@ -91,7 +91,8 @@ body {
   .floaty,
   .swim,
   .shimmer,
-  .wave-fin {
+  .wave-fin,
+  .cycle-pulse {
     animation: none !important;
     transition: opacity 0.2s ease !important;
   }
@@ -144,4 +145,20 @@ body {
 
 .shimmer {
   animation: floaty 3.6s var(--ease-spring) infinite;
+}
+
+@keyframes cycle-pulse {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+.cycle-pulse {
+  animation: cycle-pulse 6s var(--ease-spring) infinite;
 }

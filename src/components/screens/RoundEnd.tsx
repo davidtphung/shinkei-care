@@ -34,7 +34,7 @@ export function RoundEnd({ score, highScore, headingRef, onAgain }: Props) {
         <PixelMatrix name="ice" size={52} />
       </div>
       <p className="text-center text-base text-navy">
-        {highScore > 0 ? copy.bestScore(highScore) : 'This is your first saved Care Score.'}
+        {highScore > 0 ? copy.bestScore(highScore) : 'This is your first saved Ikejime Score.'}
       </p>
       <Button className="w-full text-lg" onClick={onAgain}>
         {copy.playAgain}
