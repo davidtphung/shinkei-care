@@ -269,6 +269,7 @@ function GillTarget({
           data-pressed={pressed ? 'true' : 'false'}
           disabled={done}
           aria-label={`${copy.gillTarget}. ${copy.gillAction}.`}
+          onClick={onGill}
           onPointerDown={(event) => {
             pressProps.onPointerDown()
             drag.onDown(event)
