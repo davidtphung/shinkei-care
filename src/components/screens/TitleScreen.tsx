@@ -33,7 +33,7 @@ export function TitleScreen({ progress, onPlay, headingRef }: Props) {
         <h1
           ref={headingRef}
           tabIndex={-1}
-          className="font-display mt-2 text-[clamp(3.25rem,18vw,4.5rem)] leading-none text-cream drop-shadow-[0_2px_0_#0B1424] sm:text-8xl"
+          className="font-display mt-2 text-[clamp(3.25rem,18vw,4.5rem)] leading-none text-cream drop-shadow-[0_2px_0_#0B1424] outline-none focus:outline-none focus-visible:outline-none sm:text-8xl"
         >
           {copy.wordmark}
         </h1>
