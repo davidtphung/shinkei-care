@@ -53,7 +53,7 @@ export function StagePlate({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
-      <p className="text-sm text-navy/80">{copy.l3PlateHint}</p>
+      <p className="stage-hint text-sm text-navy/80">{copy.l3PlateHint}</p>
       <button
         type="button"
         {...pressProps}

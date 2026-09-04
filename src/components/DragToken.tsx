@@ -41,7 +41,7 @@ export function DragToken({
       {...dragProps}
       data-pressed={dragging ? 'true' : 'false'}
       className={cn(
-        'drag-token pressable spring flex min-h-[5.5rem] w-full min-w-[5.5rem] flex-col items-center justify-center gap-1.5 rounded-3xl border-4 bg-cream px-3 py-3 text-navy sm:min-h-28 sm:min-w-28 sm:gap-2 sm:px-4',
+        'drag-token pressable spring flex min-h-24 min-w-24 flex-1 flex-col items-center justify-center gap-1 rounded-3xl border-4 bg-cream px-2 py-2 text-navy sm:min-h-28 sm:min-w-28 sm:flex-none sm:gap-2 sm:px-4 sm:py-3',
         selected || overDrop ? 'border-cool' : 'border-navy',
         dragging ? 'is-dragging' : null,
         overDrop ? 'is-over-drop' : null,
@@ -55,7 +55,7 @@ export function DragToken({
       <span className="drag-grip" aria-hidden />
       {children}
       <span className="text-sm font-semibold">{label}</span>
-      <span className="text-[10px] font-semibold tracking-[0.16em] text-navy/65 uppercase">
+      <span className="hidden text-[10px] font-semibold tracking-[0.16em] text-navy/65 uppercase sm:inline">
         {copy.dragCue}
       </span>
     </button>

@@ -71,13 +71,13 @@ export function StageHandoff({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
-      <p className="text-sm text-navy/80">{copy.l3HandoffHint}</p>
+      <p className="stage-hint text-sm text-navy/80">{copy.l3HandoffHint}</p>
 
-      <div className="drop-board grid flex-1 grid-cols-[minmax(6.25rem,8rem)_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[1fr_auto_1fr] sm:gap-4">
-        <ul className="flex flex-col justify-center gap-2 sm:items-center sm:gap-3">
+      <div className="drop-board grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_auto] items-center gap-3 sm:grid-cols-[1fr_auto_1fr] sm:grid-rows-1 sm:gap-4">
+        <ul className="order-2 flex min-w-0 flex-row justify-center gap-2 sm:order-1 sm:flex-col sm:items-center sm:gap-3">
           {LOTS.map((id) =>
             placed.includes(id) ? null : (
-              <li key={id} className="min-w-0">
+              <li key={id} className="flex min-w-0 flex-1 sm:flex-none">
                 <DragToken
                   selected={selected === id}
                   label={copy.l3Lot}
@@ -86,7 +86,7 @@ export function StageHandoff({
                   onPlace={() => onPlace(id)}
                   onMiss={onMiss}
                 >
-                  <PixelMatrix name="fish" size={64} className="sm:h-[72px] sm:w-[72px]" />
+                  <PixelMatrix name="fish" size={56} className="sm:h-[72px] sm:w-[72px]" />
                 </DragToken>
               </li>
             ),
@@ -102,7 +102,7 @@ export function StageHandoff({
           }}
         />
 
-        <div className="hidden sm:block" />
+        <div className="drop-spacer hidden sm:block" />
       </div>
 
       <FreshnessMeter value={freshness} max={freshnessMax} />
@@ -137,7 +137,7 @@ function HoldDrop({
           : `Open hold drop zone. ${copy.of(filled, HANDOFF_GOAL)} filled.`
       }
       className={cn(
-        'hit-target pressable spring panel mx-auto flex min-h-[200px] w-full min-w-0 flex-col items-center justify-center gap-3 rounded-[2rem] border-4 border-dashed border-navy bg-cream px-5 py-6 text-navy sm:min-h-[220px] sm:min-w-[220px] sm:px-6 sm:py-8',
+        'hit-target pressable spring panel order-1 mx-auto flex min-h-[168px] w-full min-w-0 flex-col items-center justify-center gap-2 rounded-[2rem] border-4 border-dashed border-navy bg-cream px-5 py-5 text-navy sm:order-2 sm:min-h-[220px] sm:min-w-[220px] sm:gap-3 sm:px-6 sm:py-8',
         selected ? 'border-solid border-cool' : null,
       )}
     >

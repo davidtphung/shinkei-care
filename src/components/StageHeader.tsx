@@ -40,7 +40,7 @@ export function StageHeader({
       >
         {title}
       </h1>
-      {teach ? <p className={`max-w-xl text-base ${ink}`}>{teach}</p> : null}
+      {teach ? <p className={`stage-teach max-w-xl text-base ${ink}`}>{teach}</p> : null}
     </header>
   )
 }

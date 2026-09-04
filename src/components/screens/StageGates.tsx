@@ -58,7 +58,7 @@ export function StageGates({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
-      <p className="text-sm text-navy/80">{copy.l3GatesHint}</p>
+      <p className="stage-hint text-sm text-navy/80">{copy.l3GatesHint}</p>
       <ul className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
         {GATES.map((id, index) => (
           <li key={id}>

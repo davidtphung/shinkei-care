@@ -77,7 +77,7 @@ export function StagePack({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
-      <p className="text-sm text-navy/80">{hint}</p>
+      <p className="stage-hint text-sm text-navy/80">{hint}</p>
       <FishPlayfield
         mode="gill"
         pose={pose}

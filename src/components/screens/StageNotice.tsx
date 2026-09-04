@@ -90,7 +90,7 @@ export function StageNotice({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement || (inWindow ? copy.windowOpen : windowNote)} />
-      <p className="text-sm text-navy/80">{hint}</p>
+      <p className="stage-hint text-sm text-navy/80">{hint}</p>
       <FishPlayfield
         mode="spike"
         pose={pose}
