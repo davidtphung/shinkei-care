@@ -93,6 +93,13 @@ export default function App() {
   }))
 
   const running = game.screen !== 'title' && game.screen !== 'score'
+  const lockPlay =
+    game.screen === 'ice' || game.screen === 'handoff' || game.screen === 'gill' || game.screen === 'spike'
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('play-locked', lockPlay)
+    return () => document.documentElement.classList.remove('play-locked')
+  }, [lockPlay])
 
   useEffect(() => {
     headingRef.current?.focus()
@@ -446,7 +453,7 @@ export default function App() {
       <a href="#game" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-full focus:bg-cream focus:px-4 focus:py-3">
         {copy.skipToGame}
       </a>
-      <div className="pointer-events-none absolute inset-x-3 top-[max(0.75rem,env(safe-area-inset-top))] z-40 flex items-center justify-between gap-3">
+      <div className="pointer-events-none absolute top-[max(0.75rem,env(safe-area-inset-top))] right-[max(0.75rem,env(safe-area-inset-right))] left-[max(0.75rem,env(safe-area-inset-left))] z-40 flex items-center justify-between gap-3">
         <div>{running ? <RaceClock elapsed={elapsed} ink={game.screen === 'rest'} /> : null}</div>
         <div className="pointer-events-auto">
           <MuteToggle ink={game.screen === 'rest'} />

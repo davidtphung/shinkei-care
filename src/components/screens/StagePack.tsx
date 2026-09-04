@@ -68,7 +68,7 @@ export function StagePack({
   }, [done])
 
   return (
-    <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-5 px-5 pb-8">
+    <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full flex-col gap-4 sm:gap-5">
       <StageHeader
         stage={2}
         title={lead}

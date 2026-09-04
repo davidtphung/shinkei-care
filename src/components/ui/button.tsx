@@ -5,7 +5,7 @@ import { usePressed } from '@/hooks/usePressed.ts'
 import { cn } from '@/lib/utils.ts'
 
 const buttonVariants = cva(
-  'pressable spring inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full px-5 py-3 text-base font-semibold leading-none disabled:pointer-events-none disabled:opacity-50',
+  'hit-target pressable spring inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full px-5 py-3 text-base font-semibold leading-none disabled:pointer-events-none disabled:opacity-50 sm:min-h-12',
   {
     variants: {
       variant: {

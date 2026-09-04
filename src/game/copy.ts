@@ -56,9 +56,11 @@ export const copy = {
 
   coolLead: 'Ice now.',
   coolSuccess: 'Held.',
-  coolHint: 'Drag ice onto the cooler, or tap ice then tap the cooler. Arrows pick a token. Enter places it.',
+  coolHint: 'Hold and drag ice onto the cooler, or tap ice then tap the cooler. Arrows pick a token. Enter places it.',
   iceTeach: 'Ice now. Hold the quality you just protected.',
   iceMiss: 'Try that cooler.',
+  dragCue: 'Drag',
+  dropOpen: 'Open drop zone',
 
   packLead: 'Pack it gently.',
   packSuccess: 'Packed with care!',
@@ -133,7 +135,7 @@ export const copy = {
   l3GatesHint: 'Tap the gate that says Now. A wrong gate breaks the chain.',
   l3HandoffLead: 'Hand the lot forward.',
   l3HandoffTeach: 'Boat to cooler to hold. Do not break the cold chain.',
-  l3HandoffHint: 'Drag a lot onto Hold, or tap a lot then tap Hold. Arrows pick a lot. Enter places it.',
+  l3HandoffHint: 'Hold and drag a lot onto Hold, or tap a lot then tap Hold. Arrows pick a lot. Enter places it.',
   l3PlateLead: 'Plate check.',
   l3PlateTeach: 'Only a clean chain earns a high Seremoni quality seal.',
   l3PlateHint: 'Tap the seal. Soft quality still seals what you held.',

@@ -1,5 +1,6 @@
-import { useRef, type PointerEvent, type Ref } from 'react'
+import { useEffect, useRef, type PointerEvent, type Ref } from 'react'
 import { copy } from '@/game/copy.ts'
+import { haptic } from '@/lib/haptics.ts'
 import { usePressed } from '@/hooks/usePressed.ts'
 import { cn } from '@/lib/utils.ts'
 
@@ -31,7 +32,7 @@ export function FishPlayfield({
   targetRef,
 }: Props) {
   return (
-    <div className="panel relative mx-auto w-full max-w-xl overflow-hidden rounded-[2rem] border-4 border-navy bg-cream px-2 pt-6 pb-3 sm:px-5 sm:pt-7 sm:pb-4">
+    <div className="play-surface panel relative mx-auto w-full max-w-xl overflow-hidden rounded-[2rem] border-4 border-navy bg-cream px-2 pt-6 pb-3 sm:px-5 sm:pt-7 sm:pb-4">
       <div
         className={cn(
           'relative mx-auto w-full max-w-[34rem]',
@@ -204,10 +205,13 @@ function BrainTarget({
         type="button"
         {...pressProps}
         data-pressed={pressed ? 'true' : 'false'}
-        onClick={onSpike}
+        onClick={() => {
+          haptic('start')
+          onSpike()
+        }}
         aria-label={`${copy.spikeTarget}. ${inWindow ? copy.windowOpen : copy.windowClosed}`}
         className={cn(
-          'pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-1.5 py-1.5',
+          'hit-target hit-slop pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-1.5 py-1.5 max-sm:min-h-[4.75rem] max-sm:min-w-[4.75rem]',
           inWindow ? 'cycle-pulse border-cool bg-cream text-navy' : 'border-cool bg-navy text-cream',
         )}
       >
@@ -279,8 +283,12 @@ function GillTarget({
             pressProps.onPointerUp()
             drag.onUp(event)
           }}
+          onPointerCancel={(event) => {
+            pressProps.onPointerCancel()
+            drag.onCancel(event)
+          }}
           className={cn(
-            'pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-2 py-1.5',
+            'hit-target-drag hit-slop pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-2 py-1.5 max-sm:min-h-[4.75rem] max-sm:min-w-[4.75rem]',
             done ? 'border-cool bg-cool text-navy' : 'border-cool bg-navy text-cream',
           )}
         >
@@ -295,34 +303,73 @@ function GillTarget({
 function useRefDrag(onComplete: () => void) {
   const state = useRef({
     active: false,
+    pointerId: -1,
     startX: 0,
     startY: 0,
     done: false,
   })
+  const nodeRef = useRef<HTMLButtonElement | null>(null)
+
+  useEffect(() => {
+    const node = nodeRef.current
+    if (!node) return
+    const block = (event: TouchEvent) => {
+      if (!state.current.active) return
+      if (event.cancelable) event.preventDefault()
+    }
+    node.addEventListener('touchstart', block, { passive: false })
+    node.addEventListener('touchmove', block, { passive: false })
+    return () => {
+      node.removeEventListener('touchstart', block)
+      node.removeEventListener('touchmove', block)
+    }
+  }, [])
 
   return {
     onDown: (event: PointerEvent<HTMLButtonElement>) => {
-      event.currentTarget.setPointerCapture(event.pointerId)
+      if (event.cancelable) event.preventDefault()
+      nodeRef.current = event.currentTarget
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId)
+      } catch {
+        // Window-level pointer events still complete a tap or short swipe.
+      }
       state.current.active = true
+      state.current.pointerId = event.pointerId
       state.current.startX = event.clientX
       state.current.startY = event.clientY
       state.current.done = false
+      haptic('start')
     },
     onMove: (event: PointerEvent<HTMLButtonElement>) => {
       if (!state.current.active || state.current.done) return
+      if (event.cancelable) event.preventDefault()
       const dist = Math.hypot(event.clientX - state.current.startX, event.clientY - state.current.startY)
-      if (dist >= 36) {
+      if (dist >= 28) {
         state.current.done = true
+        haptic('success')
         onComplete()
       }
     },
     onUp: (event: PointerEvent<HTMLButtonElement>) => {
+      if (state.current.pointerId !== event.pointerId && state.current.pointerId !== -1) return
       const already = state.current.done
       state.current.active = false
       if (event.currentTarget.hasPointerCapture(event.pointerId)) {
         event.currentTarget.releasePointerCapture(event.pointerId)
       }
-      if (!already) onComplete()
+      if (!already) {
+        haptic('success')
+        onComplete()
+      }
+    },
+    onCancel: (event: PointerEvent<HTMLButtonElement>) => {
+      if (state.current.pointerId !== event.pointerId && state.current.pointerId !== -1) return
+      state.current.active = false
+      state.current.done = false
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId)
+      }
     },
   }
 }
