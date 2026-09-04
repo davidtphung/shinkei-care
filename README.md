@@ -11,7 +11,8 @@ This is a skill game. The mascot is an abstract friendly fish. After the round i
 Play now: **https://sere.davidtphung.com/**
 
 - GitHub source: https://github.com/davidtphung/shinkei-care
-- Custom domain on project Pages (`main` → `/docs`)
+- Live host: user Pages (`davidtphung.github.io`, branch `claw`) with CNAME `sere.davidtphung.com` — project Pages on this repo is still off (Actions cannot create the site)
+- This repo is ready for **Deploy from a branch → main → /docs** if the owner enables Pages here later (remove the user-site CNAME first)
 - Fallback path: https://davidtphung.github.io/shinkei-care/
 - Origin (source of truth): https://origin.cursor.com/git/davidtphung/tmp-7b8db1b6a14c8783.git
 
@@ -85,9 +86,9 @@ Contrast: navy on cream, cream on navy, and navy on `#FF4400` meet WCAG 2.2 AA. 
 
 ## Deploy
 
-Static Vite build. GitHub Pages should use **Deploy from a branch → `main` → `/docs`** with custom domain `sere.davidtphung.com`. `docs/CNAME` holds that host. Asset paths in `docs/index.html` are root-absolute (`/assets/...`) so the arcade loads at the custom-domain root.
+The public arcade is live at **https://sere.davidtphung.com/**. DNS CNAME `sere.davidtphung.com` → `davidtphung.github.io` is claimed by the user Pages site because creating project Pages on `shinkei-care` still returns `Resource not accessible by integration` (needs Administration).
 
-`.github/workflows/pages.yml` tries to enable that branch source and set the custom domain. If the API only allows GitHub Actions, it publishes the already-built `docs/` folder (not a `/shinkei-care/` rebuild).
+This repo still has the project-Pages payload: `docs/CNAME`, root-absolute assets in `docs/index.html` / `docs/404.html`, and a workflow that tries **main → /docs** (or publishes `docs/` via Actions). One owner click at [Settings → Pages](https://github.com/davidtphung/shinkei-care/settings/pages) enables that path. Move the custom domain here only after removing `CNAME` from `davidtphung.github.io`.
 
 `published/` remains a copy of the older project-Pages build. Soft-refresh if an old tab still shows a stale cabinet.
 
