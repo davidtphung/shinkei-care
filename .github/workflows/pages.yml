@@ -1,3 +1,8 @@
+# Builds with BASE_PATH=/shinkei-care/ and deploys the dist artifact.
+# If deploy fails with 404 / "Resource not accessible":
+#   Settings → Pages → Build and deployment → Source: GitHub Actions
+# Fallback static copies (same build) live in published/ and docs/.
+# Owner can instead choose Deploy from a branch → main → /docs.
 name: GitHub Pages
 
 on:
