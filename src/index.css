@@ -52,6 +52,10 @@ body {
   transform: scale(0.97);
 }
 
+.play-pad {
+  padding-top: max(4.75rem, calc(env(safe-area-inset-top) + 3.5rem));
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -92,7 +96,10 @@ body {
   .swim,
   .shimmer,
   .wave-fin,
-  .cycle-pulse {
+  .cycle-pulse,
+  .fish-flail,
+  .fish-wiggle,
+  .fish-shake {
     animation: none !important;
     transition: opacity 0.2s ease !important;
   }
@@ -161,4 +168,136 @@ body {
 
 .cycle-pulse {
   animation: cycle-pulse 6s var(--ease-spring) infinite;
+}
+
+@keyframes fish-flail {
+  0% {
+    transform: rotate(0deg);
+  }
+  32% {
+    transform: rotate(-6deg);
+  }
+  64% {
+    transform: rotate(5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes fish-wiggle {
+  0% {
+    transform: rotate(0deg);
+  }
+  28% {
+    transform: rotate(-4deg);
+  }
+  64% {
+    transform: rotate(3deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes fish-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes fish-fin-flare {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(-26deg);
+  }
+  100% {
+    transform: rotate(-10deg);
+  }
+}
+
+@keyframes fish-fin-flare-low {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(22deg);
+  }
+  100% {
+    transform: rotate(8deg);
+  }
+}
+
+@keyframes fish-mouth-open {
+  0% {
+    transform: scaleY(1);
+  }
+  35% {
+    transform: scaleY(1.85);
+  }
+  100% {
+    transform: scaleY(1.35);
+  }
+}
+
+.fish-flail {
+  animation: fish-flail 0.36s var(--ease-spring) both;
+  transform-origin: 30% 48%;
+}
+
+.fish-wiggle {
+  animation: fish-wiggle 0.36s var(--ease-spring) 0.36s both;
+  transform-origin: 30% 48%;
+}
+
+.fish-shake {
+  animation: fish-shake 0.36s var(--ease-spring) both;
+}
+
+.fish-success .fish-fin-dorsal {
+  transform-origin: 182px 72px;
+  animation: fish-fin-flare 0.36s var(--ease-spring) 0.08s both;
+}
+
+.fish-success .fish-fin-pectoral {
+  transform-origin: 142px 124px;
+  animation: fish-fin-flare-low 0.36s var(--ease-spring) 0.08s both;
+}
+
+.fish-success .fish-mouth {
+  transform-origin: 44px 104px;
+  animation: fish-mouth-open 0.36s var(--ease-spring) both;
+}
+
+.fish-success .fish-mouth-gap {
+  opacity: 1;
+}
+
+.fish-mouth-gap {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fish-flail,
+  .fish-wiggle,
+  .fish-shake,
+  .fish-success .fish-fin-dorsal,
+  .fish-success .fish-fin-pectoral,
+  .fish-success .fish-mouth {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .fish-success .fish-mouth-gap {
+    opacity: 1;
+  }
 }

@@ -20,13 +20,19 @@ GitHub is the public mirror.
 
 Each round has three short arcade stages. Same cream cards, pixel tiles, and cooler drop as the live cabinet. Juice is timing, combo, and a six-second pulse.
 
-1. **Spike.** Three cream cards. The Brain card gets a cool-blue ring, a word label, and a six-second pulse. Tap it when it says Now. A miss says Early, Late, High, or Try that window. Freshness drops. Try that beat again.
-2. **Gill.** Same card grammar. Tap the Gill card (cool-blue ring plus a word label). Cut the gill so blood does not sit in the flesh. One line notes that traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.
+1. **Spike.** One cream card holds a silvery side-view fish with a readable eye and gill plate. The brain mark sits slightly behind and above the eye, toward the center of the head, where the gill-shaped bone meets the lateral line. A cool-blue ring, a Brain / Now label, and a six-second pulse fill that mark. Hit it when it says Now. A clean hit opens the mouth, then a short wiggle settles it, fins flare, and the fish goes still. A miss says Early, Late, High, or Try that window. Freshness drops. The fish stays intact.
+2. **Gill.** Same cream-card grammar on the fish. Tap the Gill ring on the membrane (cool-blue ring plus a word label). Cut the gill so blood does not sit in the flesh. One line notes that traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.
 3. **Ice.** Ice tokens on the left. Dashed cooler drop zone. Drag ice onto the cooler, or tap ice then tap the cooler. Arrow keys choose a token. Enter places it. Ice now. Hold the quality you just protected.
 
-Then a freshness seal, a rest on ice, and an **Ikejime Score**. Rank labels are kind only: Clean Spike, Steady Hands, Six-Second Crew.
+Arcade cues are original Web Audio ticks (window, spike, miss, gill, ice, combo, seal). Mute stays on this device. `prefers-reduced-motion` starts quiet and still lets you unmute.
 
-First-try hits build Combo. The highest Ikejime Score stays in `localStorage` on this device. No accounts.
+Then a freshness seal, a rest on ice, and a **Seremoni quality** result. That is Shinkei's own quality bar for the fish, not an outside certification. Rank labels stay kind: Clean Spike, Steady Hands, Six-Second Crew.
+
+There are three levels. Craft is open first. A first clear of Craft opens Systems. A first clear of Systems opens Chain. Each level stores its own Best quality and Best time. The race clock starts on Play and stops on the result screen. Misses still count.
+
+First-try hits build Combo. Best quality and Best time stay in `localStorage` on this device. No accounts.
+
+Built by [David T Phung](https://x.com/davidtphung).
 
 ## Run locally
 
@@ -47,7 +53,7 @@ npm run preview
 - Hit targets are at least 44px. Drop zones are large.
 - Pointer-down press feedback. Springs are critically damped (no bounce, about 0.36s).
 - Only `transform` and `opacity` animate.
-- `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim overshoot. The spike window stays open.
+- `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim or flail overshoot. The spike window stays open. Sound starts quiet and can still be unmuted.
 - `prefers-reduced-transparency`: solid cream or navy fills.
 - Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter.
 - Visible focus rings. Every control has a name, role, and state.
@@ -77,4 +83,8 @@ Contrast: navy on cream, cream on navy, and navy on `#FF4400` meet WCAG 2.2 AA. 
 
 ## Deploy
 
-Static Vite build. GitHub Pages builds from `.github/workflows/pages.yml` with `BASE_PATH=/shinkei-care/`. Vercel and Origin previews use `/`.
+Static Vite build. GitHub Pages builds from `.github/workflows/pages.yml` with `BASE_PATH=/shinkei-care/`. A push to `main` runs that workflow, builds `dist`, and deploys it. That is what serves **https://davidtphung.github.io/shinkei-care/**.
+
+The `published/` folder is a leftover snapshot in the repo. Pages does not deploy from `published/` or from jsDelivr. After this branch merges to `main`, wait for the Pages workflow to finish. Then the live URL gets the new arcade. Soft-refresh if an old tab still shows the three cream cards.
+
+Vercel and Origin previews use `/`.

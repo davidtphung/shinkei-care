@@ -1,22 +1,41 @@
 import type { Ref } from 'react'
-import { copy, rankLabel } from '@/game/copy.ts'
+import { copy, levelName, rankLabel } from '@/game/copy.ts'
+import { formatRaceTime } from '@/game/time.ts'
+import type { LevelId } from '@/game/types.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 
 type Props = {
+  level: LevelId
   score: number
-  highScore: number
+  bestQuality: number
+  elapsed: number
+  bestTime: number | null
+  newBestQuality: boolean
+  newBestTime: boolean
   headingRef: Ref<HTMLHeadingElement>
   onAgain: () => void
+  onLevels: () => void
 }
 
-export function RoundEnd({ score, highScore, headingRef, onAgain }: Props) {
+export function RoundEnd({
+  level,
+  score,
+  bestQuality,
+  elapsed,
+  bestTime,
+  newBestQuality,
+  newBestTime,
+  headingRef,
+  onAgain,
+  onLevels,
+}: Props) {
   const label = rankLabel(score)
 
   return (
-    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center gap-6 px-5 pb-8 pt-[max(1.5rem,env(safe-area-inset-top))]">
+    <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center gap-5 px-5 pb-8">
       <p className="text-center text-xs font-semibold tracking-[0.24em] text-navy uppercase">
-        {copy.careScore}
+        {levelName(level)} · {copy.careScore}
       </p>
       <h1
         ref={headingRef}
@@ -33,11 +52,31 @@ export function RoundEnd({ score, highScore, headingRef, onAgain }: Props) {
         <PixelMatrix name="fish" size={52} />
         <PixelMatrix name="ice" size={52} />
       </div>
-      <p className="text-center text-base text-navy">
-        {highScore > 0 ? copy.bestScore(highScore) : 'This is your first saved Ikejime Score.'}
+      <p className="text-center text-base text-navy tabular-nums">
+        {copy.time} {formatRaceTime(elapsed)}
       </p>
+      <p className="text-center text-base text-navy">
+        {bestQuality > 0 ? copy.bestScore(bestQuality) : copy.firstSavedQuality}
+      </p>
+      {bestTime !== null ? (
+        <p className="text-center text-base text-navy tabular-nums">
+          {copy.bestTimeValue(formatRaceTime(bestTime))}
+        </p>
+      ) : null}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {newBestQuality ? `${copy.newBest}. ${copy.bestScore(bestQuality)}.` : ''}
+        {newBestTime && bestTime !== null ? ` ${copy.newBest}. ${copy.bestTimeValue(formatRaceTime(bestTime))}.` : ''}
+      </div>
+      {newBestQuality || newBestTime ? (
+        <p className="text-center text-sm font-semibold tracking-[0.16em] text-navy uppercase">
+          {copy.newBest}
+        </p>
+      ) : null}
       <Button className="w-full text-lg" onClick={onAgain}>
         {copy.playAgain}
+      </Button>
+      <Button variant="outline" className="w-full" onClick={onLevels}>
+        {copy.backToLevels}
       </Button>
     </div>
   )
