@@ -52,6 +52,10 @@ body {
   transform: scale(0.97);
 }
 
+.play-pad {
+  padding-top: max(4.75rem, calc(env(safe-area-inset-top) + 3.5rem));
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

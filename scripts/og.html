@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Shinkei Care OG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Outfit:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html, body { margin: 0; }
+      .card {
+        width: 1200px;
+        height: 630px;
+        position: relative;
+        overflow: hidden;
+        font-family: Outfit, sans-serif;
+        color: #0B1424;
+        background: linear-gradient(135deg, #FFEBD0 0%, #FFB060 16%, #FF4400 46%, #FF6A1A 68%, #FFC58A 86%, #FFEBD0 100%);
+      }
+      .stripes {
+        position: absolute;
+        inset: 0;
+        opacity: 0.28;
+        background: repeating-linear-gradient(-38deg, transparent, transparent 42px, rgba(11,20,36,0.1) 42px, rgba(11,20,36,0.1) 46px);
+      }
+      .inner {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 72px 80px;
+        box-sizing: border-box;
+      }
+      .kicker { letter-spacing: 0.28em; font-size: 22px; font-weight: 700; text-transform: uppercase; }
+      .script { font-family: "Great Vibes", cursive; font-size: 164px; line-height: 0.8; color: #FFEBD0; text-shadow: 0 3px 0 #0B1424; margin: 12px 0 0; }
+      .care { font-size: 64px; font-weight: 700; margin: 8px 0 0; }
+      .sub { font-size: 32px; margin: 10px 0 0; }
+      .desc { font-size: 22px; margin-top: 22px; max-width: 620px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="stripes"></div>
+      <div class="inner">
+        <div>
+          <div class="kicker">Shinkei Systems</div>
+          <div class="script">Shinkei</div>
+          <div class="care">Care</div>
+          <div class="sub">Six Seconds</div>
+          <div class="desc">A Six Seconds ikejime arcade. Spike, gill, ice.</div>
+        </div>
+        <svg width="320" height="240" viewBox="0 0 160 120" aria-hidden="true">
+          <g transform="translate(18 18)">
+            <polygon points="108,50 142,28 142,72" fill="#0B1424" />
+            <polygon points="112,50 138,34 138,66" fill="#FFEBD0" />
+            <polygon points="78,10 108,28 70,32" fill="#FF4400" />
+            <ellipse cx="62" cy="52" rx="52" ry="34" fill="#0B1424" />
+            <ellipse cx="62" cy="52" rx="46" ry="28" fill="#FF4400" />
+            <ellipse cx="54" cy="48" rx="18" ry="14" fill="#FFEBD0" />
+            <circle cx="50" cy="48" r="7" fill="#0B1424" />
+            <circle cx="47" cy="46" r="2.4" fill="#FFEBD0" />
+            <rect x="28" y="62" width="10" height="6" fill="#0B1424" />
+            <rect x="42" y="66" width="8" height="4" fill="#0B1424" />
+          </g>
+        </svg>
+      </div>
+    </div>
+  </body>
+</html>

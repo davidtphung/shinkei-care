@@ -19,7 +19,7 @@ export function PackSeal({ headingRef, onContinue }: Props) {
   }, [])
 
   return (
-    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between px-5 pb-8 pt-[max(1.5rem,env(safe-area-inset-top))]">
+    <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between px-5 pb-8">
       <header className="space-y-2">
         <p className="text-xs font-semibold tracking-[0.22em] text-navy/70 uppercase">
           {copy.stageOf(3)}

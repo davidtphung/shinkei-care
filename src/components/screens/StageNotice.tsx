@@ -13,6 +13,9 @@ type Props = {
   freshnessMax: number
   combo: number
   headingRef: Ref<HTMLHeadingElement>
+  lead?: string
+  teach?: string
+  hint?: string
   onSpike: (progress: number, reduced: boolean, onTarget: boolean) => 'hit' | 'miss'
 }
 
@@ -22,6 +25,9 @@ export function StageNotice({
   freshnessMax,
   combo,
   headingRef,
+  lead = copy.spikeLead,
+  teach = copy.spikeTeach,
+  hint = copy.spikeHint,
   onSpike,
 }: Props) {
   const { progress, inWindow, reduced, reset } = useCycle(true)
@@ -75,16 +81,16 @@ export function StageNotice({
   }, [pose, reduced])
 
   return (
-    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-5 px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))]">
+    <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-5 px-5 pb-8">
       <StageHeader
         stage={1}
-        title={copy.spikeLead}
-        teach={copy.spikeTeach}
+        title={lead}
+        teach={teach}
         combo={combo}
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement || (inWindow ? copy.windowOpen : windowNote)} />
-      <p className="text-sm text-navy/80">{copy.spikeHint}</p>
+      <p className="text-sm text-navy/80">{hint}</p>
       <FishPlayfield
         mode="spike"
         pose={pose}

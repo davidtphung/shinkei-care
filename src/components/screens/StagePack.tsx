@@ -11,6 +11,9 @@ type Props = {
   freshnessMax: number
   combo: number
   headingRef: Ref<HTMLHeadingElement>
+  lead?: string
+  teach?: string
+  hint?: string
   onGill: () => void
   onGillMiss: () => void
 }
@@ -21,6 +24,9 @@ export function StagePack({
   freshnessMax,
   combo,
   headingRef,
+  lead = copy.gillLead,
+  teach = copy.gillTeach,
+  hint = copy.gillHint,
   onGill,
   onGillMiss,
 }: Props) {
@@ -62,16 +68,16 @@ export function StagePack({
   }, [done])
 
   return (
-    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-5 px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))]">
+    <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-5 px-5 pb-8">
       <StageHeader
         stage={2}
-        title={copy.gillLead}
-        teach={copy.gillTeach}
+        title={lead}
+        teach={teach}
         combo={combo}
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
-      <p className="text-sm text-navy/80">{copy.gillHint}</p>
+      <p className="text-sm text-navy/80">{hint}</p>
       <FishPlayfield
         mode="gill"
         pose={pose}

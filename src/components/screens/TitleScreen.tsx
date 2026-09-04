@@ -1,21 +1,31 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import type { Ref } from 'react'
-import { copy } from '@/game/copy.ts'
-import { unlockAudio } from '@/game/audio.ts'
+import { copy, levelName } from '@/game/copy.ts'
+import { isMuted, playConfirm, unlockAudio } from '@/game/audio.ts'
+import { isUnlocked, type Progress } from '@/game/progress.ts'
+import { formatRaceTime } from '@/game/time.ts'
+import type { LevelId } from '@/game/types.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { Mascot } from '@/components/Mascot.tsx'
 
 type Props = {
-  highScore: number
-  onPlay: () => void
+  progress: Progress
+  onPlay: (level: LevelId) => void
   headingRef: Ref<HTMLHeadingElement>
 }
 
-export function TitleScreen({ highScore, onPlay, headingRef }: Props) {
+export function TitleScreen({ progress, onPlay, headingRef }: Props) {
+  const start = (level: LevelId) => {
+    void unlockAudio().then((ok) => {
+      if (ok && !isMuted()) playConfirm()
+    })
+    onPlay(level)
+  }
+
   return (
-    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between px-5 pb-8 pt-[max(1.5rem,env(safe-area-inset-top))]">
-      <div className="pt-6 text-center">
+    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between px-5 pb-8 pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.25rem))]">
+      <div className="text-center">
         <p className="text-xs font-semibold tracking-[0.28em] text-navy uppercase">
           {copy.kicker}
         </p>
@@ -28,34 +38,61 @@ export function TitleScreen({ highScore, onPlay, headingRef }: Props) {
         </h1>
         <p className="mt-1 text-4xl font-semibold tracking-tight text-navy">{copy.wordmarkLine}</p>
         <p className="mt-2 text-lg text-navy">{copy.subtitle}</p>
+        <p className="mt-3 text-sm font-semibold tracking-[0.16em] text-navy/80 uppercase">
+          {copy.careScore}
+        </p>
+        <TitleBests progress={progress} />
       </div>
 
-      <div className="flex flex-col items-center gap-4">
-        <Mascot size={168} className="drop-shadow-md" />
+      <div className="flex flex-col items-center gap-3">
+        <Mascot size={132} className="drop-shadow-md" />
         <div className="flex items-center gap-3" aria-hidden>
-          <PixelMatrix name="ice" size={44} />
-          <PixelMatrix name="cooler" size={44} />
-          <PixelMatrix name="seal" size={44} />
+          <PixelMatrix name="ice" size={40} />
+          <PixelMatrix name="cooler" size={40} />
+          <PixelMatrix name="seal" size={40} />
         </div>
       </div>
 
       <div className="space-y-3">
-        {highScore > 0 ? (
-          <p className="text-center text-sm font-semibold tracking-wide text-navy">
-            {copy.bestScore(highScore)}
-          </p>
-        ) : (
-          <p className="text-center text-sm text-navy/80">A new Ikejime Score starts at zero.</p>
-        )}
-        <Button
-          className="w-full text-lg"
-          onClick={() => {
-            unlockAudio()
-            onPlay()
-          }}
-        >
-          {copy.play}
-        </Button>
+        <p className="text-center text-xs font-semibold tracking-[0.2em] text-navy/70 uppercase">
+          {copy.levelsTitle}
+        </p>
+        <ul className="space-y-2">
+          {([1, 2, 3] as const).map((level) => {
+            const open = isUnlocked(progress, level)
+            const quality = progress.quality[level]
+            const time = progress.time[level]
+            return (
+              <li key={level}>
+                <button
+                  type="button"
+                  disabled={!open}
+                  onClick={() => start(level)}
+                  aria-label={
+                    open
+                      ? copy.playLevel(levelName(level))
+                      : copy.levelLocked(levelName(level - 1))
+                  }
+                  className="pressable spring panel min-h-11 w-full rounded-3xl border-4 border-navy bg-cream px-4 py-3 text-left text-navy disabled:opacity-50"
+                >
+                  <span className="block text-lg font-semibold">
+                    {level}. {levelName(level)}
+                  </span>
+                  <span className="block text-sm text-navy/75">{copy.levelBlurb[level - 1]}</span>
+                  {open && quality > 0 ? (
+                    <span className="mt-1 block text-sm font-semibold">
+                      {copy.bestScore(quality)}
+                      {time !== null ? ` · ${copy.bestTimeValue(formatRaceTime(time))}` : ''}
+                    </span>
+                  ) : null}
+                  {!open ? (
+                    <span className="mt-1 block text-sm">{copy.levelLocked(levelName(level - 1))}</span>
+                  ) : null}
+                </button>
+              </li>
+            )
+          })}
+        </ul>
         <HowToPlay />
         <a
           className="block text-center text-sm font-semibold text-navy underline decoration-navy/40 underline-offset-4"
@@ -63,8 +100,38 @@ export function TitleScreen({ highScore, onPlay, headingRef }: Props) {
         >
           {copy.brand}
         </a>
+        <a
+          className="block text-center text-sm font-semibold text-navy underline decoration-navy/40 underline-offset-4"
+          href={copy.builtByUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {copy.builtBy}
+        </a>
       </div>
     </div>
+  )
+}
+
+function TitleBests({ progress }: { progress: Progress }) {
+  const qualities = [progress.quality[1], progress.quality[2], progress.quality[3]]
+  const times = [progress.time[1], progress.time[2], progress.time[3]].filter(
+    (value): value is number => value !== null,
+  )
+  const bestQuality = Math.max(...qualities)
+  const bestTime = times.length > 0 ? Math.min(...times) : null
+
+  if (bestQuality <= 0 && bestTime === null) {
+    return (
+      <p className="mt-2 text-sm text-navy/80">{copy.firstQuality}</p>
+    )
+  }
+
+  return (
+    <p className="mt-2 text-sm text-navy tabular-nums">
+      {bestQuality > 0 ? copy.bestScore(bestQuality) : copy.firstQuality}
+      {bestTime !== null ? ` · ${copy.bestTimeValue(formatRaceTime(bestTime))}` : ''}
+    </p>
   )
 }
 
@@ -78,7 +145,7 @@ function HowToPlay() {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-navy/70" />
-        <Dialog.Content className="panel fixed inset-x-4 top-1/2 z-50 mx-auto max-w-md -translate-y-1/2 rounded-3xl bg-cream p-6 text-navy shadow-xl">
+        <Dialog.Content className="panel fixed inset-x-4 top-1/2 z-50 mx-auto max-h-[80dvh] max-w-md -translate-y-1/2 overflow-y-auto rounded-3xl bg-cream p-6 text-navy shadow-xl">
           <Dialog.Title className="text-2xl font-semibold">{copy.howTo}</Dialog.Title>
           <Dialog.Description className="sr-only">
             How to play Shinkei Care
@@ -88,6 +155,18 @@ function HowToPlay() {
               <li key={line}>{line}</li>
             ))}
           </ol>
+          <h3 className="mt-6 text-lg font-semibold">{copy.howToMdaTitle}</h3>
+          <ul className="mt-3 space-y-3 text-base">
+            {copy.howToMda.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <h3 className="mt-6 text-lg font-semibold">{copy.howToLevelsTitle}</h3>
+          <ul className="mt-3 space-y-3 text-base">
+            {copy.howToLevels.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
           <Dialog.Close asChild>
             <Button className="mt-6 w-full">{copy.howToClose}</Button>
           </Dialog.Close>

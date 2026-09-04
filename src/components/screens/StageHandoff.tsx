@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type Ref, type RefObject } from 'react'
 import { copy } from '@/game/copy.ts'
-import { ICE_GOAL } from '@/game/puzzles.ts'
+import { HANDOFF_GOAL } from '@/game/puzzles.ts'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
@@ -8,7 +8,7 @@ import { StageHeader } from '@/components/StageHeader.tsx'
 import { usePressed } from '@/hooks/usePressed.ts'
 import { cn } from '@/lib/utils.ts'
 
-const TOKENS = ['ice-a', 'ice-b', 'ice-c'] as const
+const LOTS = ['lot-a', 'lot-b', 'lot-c'] as const
 
 type Props = {
   placed: string[]
@@ -18,15 +18,12 @@ type Props = {
   freshnessMax: number
   combo: number
   headingRef: Ref<HTMLHeadingElement>
-  lead?: string
-  teach?: string
-  hint?: string
   onSelect: (id: string) => void
   onPlace: (id: string) => void
   onMiss: () => void
 }
 
-export function StageCool({
+export function StageHandoff({
   placed,
   selected,
   announcement,
@@ -34,9 +31,6 @@ export function StageCool({
   freshnessMax,
   combo,
   headingRef,
-  lead = copy.coolLead,
-  teach = copy.iceTeach,
-  hint = copy.coolHint,
   onSelect,
   onPlace,
   onMiss,
@@ -45,19 +39,19 @@ export function StageCool({
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      const remaining = TOKENS.filter((id) => !placed.includes(id))
+      const remaining = LOTS.filter((id) => !placed.includes(id))
       if (remaining.length === 0) return
       if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
         event.preventDefault()
-        const idx = selected ? remaining.indexOf(selected as (typeof TOKENS)[number]) : -1
+        const idx = selected ? remaining.indexOf(selected as (typeof LOTS)[number]) : -1
         onSelect(remaining[(idx + 1) % remaining.length])
       }
       if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
         event.preventDefault()
-        const idx = selected ? remaining.indexOf(selected as (typeof TOKENS)[number]) : 0
+        const idx = selected ? remaining.indexOf(selected as (typeof LOTS)[number]) : 0
         onSelect(remaining[(idx - 1 + remaining.length) % remaining.length])
       }
-      if (event.key === 'Enter' && selected && remaining.includes(selected as (typeof TOKENS)[number])) {
+      if (event.key === 'Enter' && selected && remaining.includes(selected as (typeof LOTS)[number])) {
         event.preventDefault()
         onPlace(selected)
       }
@@ -69,21 +63,21 @@ export function StageCool({
   return (
     <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-4 px-5 pb-8">
       <StageHeader
-        stage={3}
-        title={lead}
-        teach={teach}
+        stage={2}
+        title={copy.l3HandoffLead}
+        teach={copy.l3HandoffTeach}
         combo={combo}
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
-      <p className="text-sm text-navy/80">{hint}</p>
+      <p className="text-sm text-navy/80">{copy.l3HandoffHint}</p>
 
       <div className="grid flex-1 grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
         <ul className="flex flex-wrap justify-center gap-3 sm:flex-col">
-          {TOKENS.map((id) =>
+          {LOTS.map((id) =>
             placed.includes(id) ? null : (
               <li key={id}>
-                <IceToken
+                <LotToken
                   id={id}
                   selected={selected === id}
                   dropRef={dropRef}
@@ -96,7 +90,7 @@ export function StageCool({
           )}
         </ul>
 
-        <CoolerDrop
+        <HoldDrop
           ref={dropRef}
           selected={selected}
           filled={placed.length}
@@ -113,7 +107,7 @@ export function StageCool({
   )
 }
 
-function CoolerDrop({
+function HoldDrop({
   ref,
   selected,
   filled,
@@ -130,14 +124,14 @@ function CoolerDrop({
     <button
       ref={ref}
       type="button"
-      data-drop="cooler"
+      data-drop="hold"
       {...pressProps}
       data-pressed={pressed ? 'true' : 'false'}
       onClick={onActivate}
       aria-label={
         selected
-          ? `Open cooler. Place selected ice pack. ${copy.of(filled, ICE_GOAL)} filled.`
-          : `Open cooler drop zone. ${copy.of(filled, ICE_GOAL)} filled.`
+          ? `Open hold. Place selected lot. ${copy.of(filled, HANDOFF_GOAL)} filled.`
+          : `Open hold drop zone. ${copy.of(filled, HANDOFF_GOAL)} filled.`
       }
       className={cn(
         'pressable spring panel mx-auto flex min-h-[220px] min-w-[220px] flex-col items-center justify-center gap-3 rounded-[2rem] border-4 border-dashed border-navy bg-cream px-6 py-8 text-navy',
@@ -145,13 +139,13 @@ function CoolerDrop({
       )}
     >
       <PixelMatrix name="cooler" size={96} />
-      <span className="text-lg font-semibold">{copy.itemNames.cooler}</span>
+      <span className="text-lg font-semibold">{copy.l3Hold}</span>
       <span className="text-sm">Open drop zone</span>
     </button>
   )
 }
 
-function IceToken({
+function LotToken({
   id,
   selected,
   dropRef,
@@ -167,7 +161,6 @@ function IceToken({
   onMiss: () => void
 }) {
   const { pressed, pressProps } = usePressed()
-  const tokenRef = useRef<HTMLButtonElement>(null)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const drag = useRef({
     active: false,
@@ -178,10 +171,9 @@ function IceToken({
 
   return (
     <button
-      ref={tokenRef}
       type="button"
       aria-pressed={selected}
-      aria-label={`${copy.itemNames.ice}${selected ? ', selected' : ''}`}
+      aria-label={`${copy.l3Lot}${selected ? ', selected' : ''}`}
       {...pressProps}
       data-pressed={pressed ? 'true' : 'false'}
       onPointerDown={(event) => {
@@ -232,8 +224,8 @@ function IceToken({
       )}
       style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}
     >
-      <PixelMatrix name="ice" size={72} />
-      <span className="text-sm font-semibold">{copy.itemNames.ice}</span>
+      <PixelMatrix name="fish" size={72} />
+      <span className="text-sm font-semibold">{copy.l3Lot}</span>
     </button>
   )
 }

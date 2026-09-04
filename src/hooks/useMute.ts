@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { applyMute, unlockAudio } from '@/game/audio.ts'
+import { applyMute, playConfirm, unlockAudio } from '@/game/audio.ts'
 import { readMutePreference, writeMutePreference } from '@/game/storage.ts'
 import { usePrefersReducedMotion } from '@/hooks/usePrefers.ts'
 
@@ -24,7 +24,11 @@ export function useMute() {
     setMutedState(next)
     writeMutePreference(next)
     applyMute(next)
-    if (!next) unlockAudio()
+    if (!next) {
+      void unlockAudio().then((ok) => {
+        if (ok) playConfirm()
+      })
+    }
   }
 
   return {

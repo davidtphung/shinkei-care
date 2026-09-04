@@ -1,5 +1,6 @@
 const KEY = 'shinkei-care-high-score'
 const MUTE_KEY = 'shinkei-care-mute'
+const TIME_KEY = 'shinkei-care-best-time'
 
 export function readHighScore(): number {
   try {
@@ -39,4 +40,30 @@ export function writeMutePreference(muted: boolean): void {
   } catch {
     // Private mode can block writes. The in-memory mute flag still works.
   }
+}
+
+export function readBestTime(): number | null {
+  try {
+    const raw = localStorage.getItem(TIME_KEY)
+    if (!raw) return null
+    const n = Number.parseInt(raw, 10)
+    return Number.isFinite(n) && n > 0 ? n : null
+  } catch {
+    return null
+  }
+}
+
+export function writeBestTime(ms: number): { best: number; isNew: boolean } {
+  const elapsed = Math.max(1, Math.round(ms))
+  const prev = readBestTime()
+  const isNew = prev === null || elapsed < prev
+  const best = isNew ? elapsed : prev
+  if (isNew) {
+    try {
+      localStorage.setItem(TIME_KEY, String(best))
+    } catch {
+      return { best, isNew }
+    }
+  }
+  return { best, isNew }
 }

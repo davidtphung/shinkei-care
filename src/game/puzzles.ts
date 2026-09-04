@@ -5,6 +5,12 @@ export const WINDOW_START = 0.48
 export const WINDOW_END = 0.9
 export const FRESHNESS_MAX = 6
 export const ICE_GOAL = 3
+export const HANDOFF_GOAL = 3
+export const GATES = ['harvest', 'bleed', 'chill'] as const
+
+export function drainForLevel(level: number): number {
+  return level >= 2 ? 2 : 1
+}
 
 export const noticePuzzles: NoticePuzzle[] = [
   { id: 'n1', options: ['cooler', 'ice', 'label'], answer: 'cooler' },

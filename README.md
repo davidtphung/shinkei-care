@@ -26,9 +26,13 @@ Each round has three short arcade stages. Same cream cards, pixel tiles, and coo
 
 Arcade cues are original Web Audio ticks (window, spike, miss, gill, ice, combo, seal). Mute stays on this device. `prefers-reduced-motion` starts quiet and still lets you unmute.
 
-Then a freshness seal, a rest on ice, and an **Ikejime Score**. Rank labels are kind only: Clean Spike, Steady Hands, Six-Second Crew.
+Then a freshness seal, a rest on ice, and a **Seremoni quality** result. That is Shinkei's own quality bar for the fish, not an outside certification. Rank labels stay kind: Clean Spike, Steady Hands, Six-Second Crew.
 
-First-try hits build Combo. The highest Ikejime Score stays in `localStorage` on this device. No accounts.
+There are three levels. Craft is open first. A first clear of Craft opens Systems. A first clear of Systems opens Chain. Each level stores its own Best quality and Best time. The race clock starts on Play and stops on the result screen. Misses still count.
+
+First-try hits build Combo. Best quality and Best time stay in `localStorage` on this device. No accounts.
+
+Built by [David T Phung](https://x.com/davidtphung).
 
 ## Run locally
 
@@ -79,4 +83,8 @@ Contrast: navy on cream, cream on navy, and navy on `#FF4400` meet WCAG 2.2 AA. 
 
 ## Deploy
 
-Static Vite build. GitHub Pages builds from `.github/workflows/pages.yml` with `BASE_PATH=/shinkei-care/`. Vercel and Origin previews use `/`.
+Static Vite build. GitHub Pages builds from `.github/workflows/pages.yml` with `BASE_PATH=/shinkei-care/`. A push to `main` runs that workflow, builds `dist`, and deploys it. That is what serves **https://davidtphung.github.io/shinkei-care/**.
+
+The `published/` folder is a leftover snapshot in the repo. Pages does not deploy from `published/` or from jsDelivr. After this branch merges to `main`, wait for the Pages workflow to finish. Then the live URL gets the new arcade. Soft-refresh if an old tab still shows the three cream cards.
+
+Vercel and Origin previews use `/`.

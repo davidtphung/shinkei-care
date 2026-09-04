@@ -1,4 +1,16 @@
-export type Screen = 'title' | 'spike' | 'gill' | 'ice' | 'seal' | 'rest' | 'score'
+export type LevelId = 1 | 2 | 3
+
+export type Screen =
+  | 'title'
+  | 'spike'
+  | 'gill'
+  | 'ice'
+  | 'gates'
+  | 'handoff'
+  | 'plate'
+  | 'seal'
+  | 'rest'
+  | 'score'
 
 export type CareItemId =
   | 'cooler'
