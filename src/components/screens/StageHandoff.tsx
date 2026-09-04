@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type Ref, type RefObject } from 'react'
+import { useEffect, useRef, type Ref } from 'react'
+import { DragToken } from '@/components/DragToken.tsx'
 import { copy } from '@/game/copy.ts'
 import { HANDOFF_GOAL } from '@/game/puzzles.ts'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
@@ -61,7 +62,7 @@ export function StageHandoff({
   }, [placed, selected, onPlace, onSelect])
 
   return (
-    <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-4 px-5 pb-8">
+    <div className="play-pad play-surface cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full flex-col gap-3 sm:gap-4">
       <StageHeader
         stage={2}
         title={copy.l3HandoffLead}
@@ -70,21 +71,23 @@ export function StageHandoff({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
-      <p className="text-sm text-navy/80">{copy.l3HandoffHint}</p>
+      <p className="stage-hint text-sm text-navy/80">{copy.l3HandoffHint}</p>
 
-      <div className="grid flex-1 grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
-        <ul className="flex flex-wrap justify-center gap-3 sm:flex-col">
+      <div className="drop-board grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_auto] items-center gap-3 sm:grid-cols-[1fr_auto_1fr] sm:grid-rows-1 sm:gap-4">
+        <ul className="order-2 flex min-w-0 flex-row justify-center gap-2 sm:order-1 sm:flex-col sm:items-center sm:gap-3">
           {LOTS.map((id) =>
             placed.includes(id) ? null : (
-              <li key={id}>
-                <LotToken
-                  id={id}
+              <li key={id} className="flex min-w-0 flex-1 sm:flex-none">
+                <DragToken
                   selected={selected === id}
+                  label={copy.l3Lot}
                   dropRef={dropRef}
-                  onSelect={onSelect}
-                  onPlace={onPlace}
+                  onSelect={() => onSelect(id)}
+                  onPlace={() => onPlace(id)}
                   onMiss={onMiss}
-                />
+                >
+                  <PixelMatrix name="fish" size={56} className="sm:h-[72px] sm:w-[72px]" />
+                </DragToken>
               </li>
             ),
           )}
@@ -99,7 +102,7 @@ export function StageHandoff({
           }}
         />
 
-        <div className="hidden sm:block" />
+        <div className="drop-spacer hidden sm:block" />
       </div>
 
       <FreshnessMeter value={freshness} max={freshnessMax} />
@@ -134,98 +137,13 @@ function HoldDrop({
           : `Open hold drop zone. ${copy.of(filled, HANDOFF_GOAL)} filled.`
       }
       className={cn(
-        'pressable spring panel mx-auto flex min-h-[220px] min-w-[220px] flex-col items-center justify-center gap-3 rounded-[2rem] border-4 border-dashed border-navy bg-cream px-6 py-8 text-navy',
+        'hit-target pressable spring panel order-1 mx-auto flex min-h-[168px] w-full min-w-0 flex-col items-center justify-center gap-2 rounded-[2rem] border-4 border-dashed border-navy bg-cream px-5 py-5 text-navy sm:order-2 sm:min-h-[220px] sm:min-w-[220px] sm:gap-3 sm:px-6 sm:py-8',
         selected ? 'border-solid border-cool' : null,
       )}
     >
-      <PixelMatrix name="cooler" size={96} />
+      <PixelMatrix name="cooler" size={88} className="sm:h-24 sm:w-24" />
       <span className="text-lg font-semibold">{copy.l3Hold}</span>
-      <span className="text-sm">Open drop zone</span>
-    </button>
-  )
-}
-
-function LotToken({
-  id,
-  selected,
-  dropRef,
-  onSelect,
-  onPlace,
-  onMiss,
-}: {
-  id: string
-  selected: boolean
-  dropRef: RefObject<HTMLButtonElement | null>
-  onSelect: (id: string) => void
-  onPlace: (id: string) => void
-  onMiss: () => void
-}) {
-  const { pressed, pressProps } = usePressed()
-  const [offset, setOffset] = useState({ x: 0, y: 0 })
-  const drag = useRef({
-    active: false,
-    startX: 0,
-    startY: 0,
-    moved: false,
-  })
-
-  return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      aria-label={`${copy.l3Lot}${selected ? ', selected' : ''}`}
-      {...pressProps}
-      data-pressed={pressed ? 'true' : 'false'}
-      onPointerDown={(event) => {
-        pressProps.onPointerDown()
-        event.currentTarget.setPointerCapture(event.pointerId)
-        drag.current = {
-          active: true,
-          startX: event.clientX,
-          startY: event.clientY,
-          moved: false,
-        }
-      }}
-      onPointerMove={(event) => {
-        if (!drag.current.active) return
-        const dx = event.clientX - drag.current.startX
-        const dy = event.clientY - drag.current.startY
-        if (Math.hypot(dx, dy) > 8) drag.current.moved = true
-        if (drag.current.moved) setOffset({ x: dx, y: dy })
-      }}
-      onPointerUp={(event) => {
-        pressProps.onPointerUp()
-        const { moved } = drag.current
-        drag.current.active = false
-        setOffset({ x: 0, y: 0 })
-        if (moved) {
-          const zone = dropRef.current?.getBoundingClientRect()
-          if (
-            zone &&
-            event.clientX >= zone.left &&
-            event.clientX <= zone.right &&
-            event.clientY >= zone.top &&
-            event.clientY <= zone.bottom
-          ) {
-            onPlace(id)
-            return
-          }
-          onMiss()
-        } else {
-          onSelect(id)
-        }
-      }}
-      onClick={() => {
-        if (!drag.current.moved) onSelect(id)
-      }}
-      className={cn(
-        'pressable spring flex min-h-28 min-w-28 flex-col items-center justify-center gap-2 rounded-3xl border-4 bg-cream px-4 py-3 text-navy',
-        selected ? 'border-cool' : 'border-navy',
-      )}
-      style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}
-    >
-      <PixelMatrix name="fish" size={72} />
-      <span className="text-sm font-semibold">{copy.l3Lot}</span>
+      <span className="text-sm">{copy.dropOpen}</span>
     </button>
   )
 }

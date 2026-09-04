@@ -81,7 +81,7 @@ export function StageNotice({
   }, [pose, reduced])
 
   return (
-    <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-5 px-5 pb-8">
+    <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full flex-col gap-4 sm:gap-5">
       <StageHeader
         stage={1}
         title={lead}
@@ -90,7 +90,7 @@ export function StageNotice({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement || (inWindow ? copy.windowOpen : windowNote)} />
-      <p className="text-sm text-navy/80">{hint}</p>
+      <p className="stage-hint text-sm text-navy/80">{hint}</p>
       <FishPlayfield
         mode="spike"
         pose={pose}

@@ -8,6 +8,7 @@ import type { LevelId } from '@/game/types.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { Mascot } from '@/components/Mascot.tsx'
+import { usePressed } from '@/hooks/usePressed.ts'
 
 type Props = {
   progress: Progress
@@ -24,7 +25,7 @@ export function TitleScreen({ progress, onPlay, headingRef }: Props) {
   }
 
   return (
-    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between px-5 pb-8 pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.25rem))]">
+    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg min-w-0 flex-col justify-between overflow-x-hidden pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.25rem))] pr-[max(1.25rem,env(safe-area-inset-right))] pb-[max(2rem,env(safe-area-inset-bottom))] pl-[max(1.25rem,env(safe-area-inset-left))]">
       <div className="text-center">
         <p className="text-xs font-semibold tracking-[0.28em] text-navy uppercase">
           {copy.kicker}
@@ -32,11 +33,11 @@ export function TitleScreen({ progress, onPlay, headingRef }: Props) {
         <h1
           ref={headingRef}
           tabIndex={-1}
-          className="font-display mt-2 text-7xl leading-none text-cream drop-shadow-[0_2px_0_#0B1424] sm:text-8xl"
+          className="font-display mt-2 text-[clamp(3.25rem,18vw,4.5rem)] leading-none text-cream drop-shadow-[0_2px_0_#0B1424] sm:text-8xl"
         >
           {copy.wordmark}
         </h1>
-        <p className="mt-1 text-4xl font-semibold tracking-tight text-navy">{copy.wordmarkLine}</p>
+        <p className="mt-1 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">{copy.wordmarkLine}</p>
         <p className="mt-2 text-lg text-navy">{copy.subtitle}</p>
         <p className="mt-3 text-sm font-semibold tracking-[0.16em] text-navy/80 uppercase">
           {copy.careScore}
@@ -64,31 +65,13 @@ export function TitleScreen({ progress, onPlay, headingRef }: Props) {
             const time = progress.time[level]
             return (
               <li key={level}>
-                <button
-                  type="button"
-                  disabled={!open}
-                  onClick={() => start(level)}
-                  aria-label={
-                    open
-                      ? copy.playLevel(levelName(level))
-                      : copy.levelLocked(levelName(level - 1))
-                  }
-                  className="pressable spring panel min-h-11 w-full rounded-3xl border-4 border-navy bg-cream px-4 py-3 text-left text-navy disabled:opacity-50"
-                >
-                  <span className="block text-lg font-semibold">
-                    {level}. {levelName(level)}
-                  </span>
-                  <span className="block text-sm text-navy/75">{copy.levelBlurb[level - 1]}</span>
-                  {open && quality > 0 ? (
-                    <span className="mt-1 block text-sm font-semibold">
-                      {copy.bestScore(quality)}
-                      {time !== null ? ` · ${copy.bestTimeValue(formatRaceTime(time))}` : ''}
-                    </span>
-                  ) : null}
-                  {!open ? (
-                    <span className="mt-1 block text-sm">{copy.levelLocked(levelName(level - 1))}</span>
-                  ) : null}
-                </button>
+                <LevelButton
+                  open={open}
+                  level={level}
+                  quality={quality}
+                  time={time}
+                  onStart={() => start(level)}
+                />
               </li>
             )
           })}
@@ -110,6 +93,52 @@ export function TitleScreen({ progress, onPlay, headingRef }: Props) {
         </a>
       </div>
     </div>
+  )
+}
+
+function LevelButton({
+  open,
+  level,
+  quality,
+  time,
+  onStart,
+}: {
+  open: boolean
+  level: LevelId
+  quality: number
+  time: number | null
+  onStart: () => void
+}) {
+  const { pressed, pressProps } = usePressed()
+
+  return (
+    <button
+      type="button"
+      disabled={!open}
+      {...pressProps}
+      data-pressed={pressed ? 'true' : 'false'}
+      onClick={onStart}
+      aria-label={
+        open
+          ? copy.playLevel(levelName(level))
+          : copy.levelLocked(levelName(level - 1))
+      }
+      className="hit-target pressable spring panel min-h-12 w-full rounded-3xl border-4 border-navy bg-cream px-4 py-3 text-left text-navy disabled:opacity-50"
+    >
+      <span className="block text-lg font-semibold">
+        {level}. {levelName(level)}
+      </span>
+      <span className="block text-sm text-navy/75">{copy.levelBlurb[level - 1]}</span>
+      {open && quality > 0 ? (
+        <span className="mt-1 block text-sm font-semibold">
+          {copy.bestScore(quality)}
+          {time !== null ? ` · ${copy.bestTimeValue(formatRaceTime(time))}` : ''}
+        </span>
+      ) : null}
+      {!open ? (
+        <span className="mt-1 block text-sm">{copy.levelLocked(levelName(level - 1))}</span>
+      ) : null}
+    </button>
   )
 }
 
@@ -145,7 +174,7 @@ function HowToPlay() {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-navy/70" />
-        <Dialog.Content className="panel fixed inset-x-4 top-1/2 z-50 mx-auto max-h-[80dvh] max-w-md -translate-y-1/2 overflow-y-auto rounded-3xl bg-cream p-6 text-navy shadow-xl">
+        <Dialog.Content className="panel fixed inset-x-4 top-1/2 z-50 mx-auto max-h-[min(80dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] max-w-md -translate-y-1/2 overflow-y-auto rounded-3xl bg-cream p-6 text-navy shadow-xl">
           <Dialog.Title className="text-2xl font-semibold">{copy.howTo}</Dialog.Title>
           <Dialog.Description className="sr-only">
             How to play Shinkei Care

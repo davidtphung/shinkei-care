@@ -24,11 +24,11 @@ export function StageHeader({
   return (
     <header className="space-y-2">
       <div className="flex items-center justify-between gap-3">
-        <p className={`text-xs font-semibold tracking-[0.22em] uppercase ${mute}`}>
+        <p className={`text-[0.7rem] font-semibold tracking-[0.22em] uppercase sm:text-xs ${mute}`}>
           {copy.stageOf(stage)}
         </p>
         {combo > 0 ? (
-          <p className={`text-xs font-semibold tracking-[0.16em] uppercase ${ink}`}>
+          <p className={`text-[0.7rem] font-semibold tracking-[0.16em] uppercase sm:text-xs ${ink}`}>
             {copy.comboCount(combo)}
           </p>
         ) : null}
@@ -36,11 +36,11 @@ export function StageHeader({
       <h1
         ref={headingRef}
         tabIndex={-1}
-        className={`text-3xl font-semibold tracking-tight sm:text-4xl ${ink}`}
+        className={`text-[1.65rem] font-semibold tracking-tight sm:text-4xl ${ink}`}
       >
         {title}
       </h1>
-      {teach ? <p className={`max-w-xl text-base ${ink}`}>{teach}</p> : null}
+      {teach ? <p className={`stage-teach max-w-xl text-base ${ink}`}>{teach}</p> : null}
     </header>
   )
 }

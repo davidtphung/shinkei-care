@@ -5,6 +5,7 @@ import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { StageHeader } from '@/components/StageHeader.tsx'
+import { haptic } from '@/lib/haptics.ts'
 import { usePressed } from '@/hooks/usePressed.ts'
 import { cn } from '@/lib/utils.ts'
 
@@ -43,7 +44,7 @@ export function StagePlate({
   }, [onSeal])
 
   return (
-    <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-5 px-5 pb-8">
+    <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full flex-col gap-4 sm:gap-5">
       <StageHeader
         stage={3}
         title={copy.l3PlateLead}
@@ -52,15 +53,18 @@ export function StagePlate({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
-      <p className="text-sm text-navy/80">{copy.l3PlateHint}</p>
+      <p className="stage-hint text-sm text-navy/80">{copy.l3PlateHint}</p>
       <button
         type="button"
         {...pressProps}
         data-pressed={pressed ? 'true' : 'false'}
-        onClick={onSeal}
+        onClick={() => {
+          haptic('success')
+          onSeal()
+        }}
         aria-label={copy.l3PlateAction}
         className={cn(
-          'pressable spring panel mx-auto flex min-h-[220px] w-full max-w-sm flex-col items-center justify-center gap-3 rounded-[2rem] border-4 px-6 py-8 text-navy',
+          'hit-target pressable spring panel mx-auto flex min-h-[220px] w-full max-w-sm flex-col items-center justify-center gap-3 rounded-[2rem] border-4 px-6 py-8 text-navy max-sm:min-h-[240px]',
           held ? 'border-cool bg-cream' : 'border-navy bg-cream',
         )}
       >
@@ -69,7 +73,13 @@ export function StagePlate({
         <span className="text-sm">{held ? copy.l3PlateHeld : copy.l3PlateSoft}</span>
       </button>
       <FreshnessMeter value={freshness} max={freshnessMax} />
-      <Button className="w-full" onClick={onSeal}>
+      <Button
+        className="w-full"
+        onClick={() => {
+          haptic('success')
+          onSeal()
+        }}
+      >
         {copy.l3PlateAction}
       </Button>
     </div>

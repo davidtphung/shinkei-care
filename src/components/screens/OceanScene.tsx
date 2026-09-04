@@ -14,7 +14,7 @@ export function OceanScene({ headingRef, onContinue }: Props) {
   return (
     <div className="on-ink relative isolate min-h-[100dvh] overflow-hidden text-cream">
       <BrandBackground variant="ocean" />
-      <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between px-5 pb-8">
+      <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between">
         <header className="space-y-2">
           <p className="text-xs font-semibold tracking-[0.22em] text-cream/75 uppercase">
             {copy.oceanLead}

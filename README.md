@@ -50,8 +50,9 @@ npm run preview
 
 ## Accessibility
 
-- Hit targets are at least 44px. Drop zones are large.
-- Pointer-down press feedback. Springs are critically damped (no bounce, about 0.36s).
+- Hit targets are at least 44px, and larger on small screens. Drop zones are large.
+- Ice and lot tokens use `touch-action: none`, pointer capture plus window tracking, and no transform spring while dragging so one finger stays sticky on phone Safari and Chrome.
+- Pointer-down press feedback. Springs are critically damped (no bounce, about 0.36s). Drag tokens skip that spring until you let go.
 - Only `transform` and `opacity` animate.
 - `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim or flail overshoot. The spike window stays open. Sound starts quiet and can still be unmuted.
 - `prefers-reduced-transparency`: solid cream or navy fills.
@@ -59,7 +60,7 @@ npm run preview
 - Visible focus rings. Every control has a name, role, and state.
 - Live region announces hits, misses, and the open window.
 - Color is never the only clue. Cool-blue is paired with a shape and a word label.
-- Mobile first from 375px, plus desktop. Safe-area insets. No horizontal trap.
+- Mobile first from 375px, plus desktop. Safe-area insets. No horizontal trap. Play stages lock page scroll so a drag does not steal the cabinet.
 - Skip to game is the first focusable control.
 
 ## Brand tokens
@@ -85,6 +86,6 @@ Contrast: navy on cream, cream on navy, and navy on `#FF4400` meet WCAG 2.2 AA. 
 
 Static Vite build. GitHub Pages builds from `.github/workflows/pages.yml` with `BASE_PATH=/shinkei-care/`. A push to `main` runs that workflow, builds `dist`, and deploys it. That is what serves **https://davidtphung.github.io/shinkei-care/**.
 
-The `published/` folder is a leftover snapshot in the repo. Pages does not deploy from `published/` or from jsDelivr. After this branch merges to `main`, wait for the Pages workflow to finish. Then the live URL gets the new arcade. Soft-refresh if an old tab still shows the three cream cards.
+Fallback static copies of the same `BASE_PATH=/shinkei-care/` build live in `published/` and `docs/`. If the Actions Pages source is blocked, the owner can point Pages at `main` → `/docs`. After a merge to `main`, refresh those folders so https://davidtphung.github.io/shinkei-care/ can update without waiting on the workflow. Soft-refresh if an old tab still shows a stale cabinet.
 
 Vercel and Origin previews use `/`.

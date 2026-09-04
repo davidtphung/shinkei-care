@@ -12,7 +12,7 @@ export function FreshnessMeter({ value, max, className }: Props) {
   const word = freshnessWord(value, max)
 
   return (
-    <div className={cn('panel w-full rounded-2xl bg-cream px-4 py-3 text-navy', className)}>
+    <div className={cn('fresh-meter panel w-full rounded-2xl bg-cream px-4 py-3 text-navy', className)}>
       <div className="mb-2 flex items-baseline justify-between gap-3">
         <p className="text-sm font-semibold tracking-[0.16em] uppercase">{copy.freshness}</p>
         <p className="text-sm font-medium">{copy.of(value, max)}</p>

@@ -33,7 +33,7 @@ export function RoundEnd({
   const label = rankLabel(score)
 
   return (
-    <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center gap-5 px-5 pb-8">
+    <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center gap-5">
       <p className="text-center text-xs font-semibold tracking-[0.24em] text-navy uppercase">
         {levelName(level)} · {copy.careScore}
       </p>

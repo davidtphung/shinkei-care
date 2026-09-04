@@ -5,6 +5,7 @@ import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { StageHeader } from '@/components/StageHeader.tsx'
+import { haptic } from '@/lib/haptics.ts'
 import { usePressed } from '@/hooks/usePressed.ts'
 import { cn } from '@/lib/utils.ts'
 
@@ -48,7 +49,7 @@ export function StageGates({
   }, [current, onGate])
 
   return (
-    <div className="play-pad relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col gap-5 px-5 pb-8">
+    <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full flex-col gap-4 sm:gap-5">
       <StageHeader
         stage={1}
         title={copy.l3GatesLead}
@@ -57,7 +58,7 @@ export function StageGates({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
-      <p className="text-sm text-navy/80">{copy.l3GatesHint}</p>
+      <p className="stage-hint text-sm text-navy/80">{copy.l3GatesHint}</p>
       <ul className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
         {GATES.map((id, index) => (
           <li key={id}>
@@ -65,7 +66,10 @@ export function StageGates({
               id={id}
               live={index === current}
               done={index < current}
-              onPick={() => onGate(index)}
+              onPick={() => {
+                haptic(index === current ? 'success' : 'miss')
+                onGate(index)
+              }}
             />
           </li>
         ))}
@@ -97,7 +101,7 @@ function GateCard({
       data-pressed={pressed ? 'true' : 'false'}
       aria-label={live ? `${name}. ${copy.now}.` : `${name}. ${copy.looksSteady}`}
       className={cn(
-        'pressable spring panel flex min-h-[168px] w-full flex-col items-center justify-center gap-3 rounded-3xl border-4 bg-cream px-4 py-5 text-navy',
+        'hit-target pressable spring panel flex min-h-[180px] w-full flex-col items-center justify-center gap-3 rounded-3xl border-4 bg-cream px-4 py-5 text-navy max-sm:min-h-[196px]',
         live ? 'cycle-pulse border-cool' : 'border-navy',
       )}
     >
