@@ -8,10 +8,11 @@ This is a skill game. The mascot is an abstract friendly fish. After the round i
 
 ## Live URL
 
-Play now: **https://davidtphung.github.io/shinkei-care/**
+Play now: **https://sere.davidtphung.com/**
 
 - GitHub source: https://github.com/davidtphung/shinkei-care
-- Hosted on David T Phung's user GitHub Pages (`davidtphung.github.io/shinkei-care/`)
+- Custom domain on project Pages (`main` → `/docs`)
+- Fallback path: https://davidtphung.github.io/shinkei-care/
 - Origin (source of truth): https://origin.cursor.com/git/davidtphung/tmp-7b8db1b6a14c8783.git
 
 GitHub is the public mirror.
@@ -84,8 +85,10 @@ Contrast: navy on cream, cream on navy, and navy on `#FF4400` meet WCAG 2.2 AA. 
 
 ## Deploy
 
-Static Vite build. GitHub Pages builds from `.github/workflows/pages.yml` with `BASE_PATH=/shinkei-care/`. A push to `main` runs that workflow, builds `dist`, and deploys it. That is what serves **https://davidtphung.github.io/shinkei-care/**.
+Static Vite build. GitHub Pages should use **Deploy from a branch → `main` → `/docs`** with custom domain `sere.davidtphung.com`. `docs/CNAME` holds that host. Asset paths in `docs/index.html` are root-absolute (`/assets/...`) so the arcade loads at the custom-domain root.
 
-Fallback static copies of the same `BASE_PATH=/shinkei-care/` build live in `published/` and `docs/`. If the Actions Pages source is blocked, the owner can point Pages at `main` → `/docs`. After a merge to `main`, refresh those folders so https://davidtphung.github.io/shinkei-care/ can update without waiting on the workflow. Soft-refresh if an old tab still shows a stale cabinet.
+`.github/workflows/pages.yml` tries to enable that branch source and set the custom domain. If the API only allows GitHub Actions, it publishes the already-built `docs/` folder (not a `/shinkei-care/` rebuild).
+
+`published/` remains a copy of the older project-Pages build. Soft-refresh if an old tab still shows a stale cabinet.
 
 Vercel and Origin previews use `/`.

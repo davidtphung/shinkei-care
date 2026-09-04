@@ -1,8 +1,6 @@
-# Builds with BASE_PATH=/shinkei-care/ and deploys the dist artifact.
-# If deploy fails with 404 / "Resource not accessible":
-#   Settings → Pages → Build and deployment → Source: GitHub Actions
-# Fallback static copies (same build) live in published/ and docs/.
-# Owner can instead choose Deploy from a branch → main → /docs.
+# Prefer Deploy from a branch → main → /docs (custom domain root).
+# If that API is denied, fall back to GitHub Actions and publish docs/.
+# Do not rebuild with BASE_PATH=/shinkei-care/ — sere.davidtphung.com is the site root.
 name: GitHub Pages
 
 on:
@@ -20,38 +18,71 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  enable-pages:
+  configure:
     runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.pick.outputs.mode }}
     steps:
-      - name: Enable GitHub Pages with Actions source
-        continue-on-error: true
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
-  build:
-    needs: enable-pages
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm install
-      - run: npm run build
+      - name: Enable Pages from main /docs and set custom domain
+        id: pick
         env:
-          BASE_PATH: /shinkei-care/
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          repo="${{ github.repository }}"
+          mode="unknown"
+
+          gh api -X POST "repos/${repo}/pages" \
+            -f build_type='legacy' \
+            -F source[branch]='main' \
+            -F source[path]='/docs' \
+            -f cname='sere.davidtphung.com'
+          create_status=$?
+
+          if [ "$create_status" -ne 0 ]; then
+            gh api -X PUT "repos/${repo}/pages" \
+              -f build_type='legacy' \
+              -F source[branch]='main' \
+              -F source[path]='/docs' \
+              -f cname='sere.davidtphung.com'
+            update_status=$?
+            if [ "$update_status" -ne 0 ]; then
+              echo "Legacy source denied; trying Actions enablement"
+            fi
+          fi
+
+          # Fallback so Actions deploy can work if the owner enables Pages that way
+          echo "Trying configure-pages enablement as a fallback"
+          gh api -X POST "repos/${repo}/pages" -f build_type='workflow' || true
+
+          gh api -X PUT "repos/${repo}/pages" -f cname='sere.davidtphung.com' || true
+          gh api -X PUT "repos/${repo}/pages" -F https_enforced=true || true
+
+          pages_json="$(gh api "repos/${repo}/pages" 2>/dev/null || true)"
+          echo "$pages_json"
+          if echo "$pages_json" | grep -q '"build_type": "legacy"'; then
+            mode="legacy"
+          elif echo "$pages_json" | grep -q '"build_type": "workflow"'; then
+            mode="workflow"
+          fi
+          echo "mode=${mode}" >> "$GITHUB_OUTPUT"
 
   deploy:
-    needs: build
+    needs: configure
+    if: needs.configure.outputs.mode != 'legacy'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        continue-on-error: true
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
       - id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true

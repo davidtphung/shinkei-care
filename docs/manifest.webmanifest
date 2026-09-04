@@ -1,7 +1,7 @@
 {
-  "name": "Shinkei Care",
-  "short_name": "Shinkei Care",
-  "description": "A Six Seconds ikejime arcade. Spike, gill, ice.",
+  "name": "Sere",
+  "short_name": "Sere",
+  "description": "Sere is a Six Seconds ikejime arcade. Spike, gill, ice.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
