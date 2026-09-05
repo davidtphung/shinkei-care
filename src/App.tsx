@@ -32,6 +32,14 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    const canonical = hashForMode(mode)
+    if (mode === 'hub') return
+    if (window.location.hash !== canonical) {
+      window.history.replaceState(null, '', canonical)
+    }
+  }, [mode])
+
+  useEffect(() => {
     if (mode === 'hub' || mode === 'leaderboard') setBoards(readBoards())
   }, [mode])
 
