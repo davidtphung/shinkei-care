@@ -1,4 +1,6 @@
-import type { Dir, Ghost, MazeState } from '@/maze/types.ts'
+import { mazeCopy, packLabel } from '@/maze/copy.ts'
+import { fishPos } from '@/maze/engine.ts'
+import { INTAKE, MACHINE, OCEAN, OUTPUT, PACK_BAY, type CatchState, type PackNeed } from '@/maze/types.ts'
 
 const NAVY = '#0b1424'
 const INK = '#070c14'
@@ -6,206 +8,270 @@ const CREAM = '#ffebd0'
 const ACCENT = '#ff4400'
 const COOL = '#3d8fb5'
 const BAND = '#ff8a3d'
-const WALL = '#15253c'
-const WALL_LINE = '#3d8fb5'
+const SEA = '#102033'
+const SEA_LINE = '#1b334d'
 
-const GHOST_FILL: Record<Ghost['kind'], string> = {
-  heat: ACCENT,
-  delay: BAND,
-  bacteria: COOL,
-  rough: '#c4a882',
-}
-
-export function drawMaze(ctx: CanvasRenderingContext2D, state: MazeState, width: number, height: number): void {
-  const tile = Math.min(width / state.grid.cols, height / state.grid.rows)
-  const ox = (width - state.grid.cols * tile) / 2
-  const oy = (height - state.grid.rows * tile) / 2
+export function drawCatch(ctx: CanvasRenderingContext2D, state: CatchState, width: number, height: number): void {
   ctx.clearRect(0, 0, width, height)
   ctx.fillStyle = INK
   ctx.fillRect(0, 0, width, height)
-  ctx.save()
-  ctx.translate(ox, oy)
-
-  drawWalls(ctx, state, tile)
-  drawPickups(ctx, state, tile)
-  for (const ghost of state.ghosts) drawGhost(ctx, state, ghost, tile)
-  drawPlayer(ctx, state, tile)
-  ctx.restore()
-}
-
-function drawWalls(ctx: CanvasRenderingContext2D, state: MazeState, tile: number): void {
-  const { cols, rows, cells } = state.grid
-  ctx.fillStyle = WALL
-  ctx.strokeStyle = WALL_LINE
-  ctx.lineWidth = Math.max(1, tile * 0.08)
-  for (let y = 0; y < rows; y += 1) {
-    for (let x = 0; x < cols; x += 1) {
-      if (cells[y][x] !== 'wall') continue
-      const pad = tile * 0.08
-      roundRect(ctx, x * tile + pad, y * tile + pad, tile - pad * 2, tile - pad * 2, tile * 0.18)
-      ctx.fill()
-      if (open(state, x, y - 1) || open(state, x, y + 1) || open(state, x - 1, y) || open(state, x + 1, y)) {
-        ctx.stroke()
-      }
-    }
+  drawOcean(ctx, width, height, state)
+  drawMachine(ctx, width, height, state)
+  drawPackBay(ctx, width, height, state)
+  for (const fish of state.fish) {
+    if (!fish.alive) continue
+    const pos = fishPos(state, fish)
+    drawFish(ctx, pos.x * width, pos.y * height, width * 0.034, fish.kind === 'ice' ? COOL : ACCENT, labelFor(fish.gate), state)
   }
-}
-
-function open(state: MazeState, x: number, y: number): boolean {
-  if (y < 0 || y >= state.grid.rows || x < 0 || x >= state.grid.cols) return false
-  return state.grid.cells[y][x] !== 'wall'
-}
-
-function drawPickups(ctx: CanvasRenderingContext2D, state: MazeState, tile: number): void {
-  for (let y = 0; y < state.grid.rows; y += 1) {
-    for (let x = 0; x < state.grid.cols; x += 1) {
-      const pickup = state.grid.pickups[y][x]
-      if (!pickup) continue
-      const cx = (x + 0.5) * tile
-      const cy = (y + 0.5) * tile
-      if (pickup === 'dot') {
-        ctx.fillStyle = CREAM
-        ctx.beginPath()
-        ctx.arc(cx, cy, tile * 0.1, 0, Math.PI * 2)
-        ctx.fill()
-      } else if (pickup === 'ice') {
-        drawDiamond(ctx, cx, cy, tile * 0.32, COOL)
-      } else if (pickup === 'spike') {
-        drawSpike(ctx, cx, cy, tile * 0.34, ACCENT)
-      } else if (pickup === 'chain') {
-        ctx.strokeStyle = COOL
-        ctx.lineWidth = Math.max(1.5, tile * 0.1)
-        ctx.beginPath()
-        ctx.arc(cx, cy, tile * 0.22, 0, Math.PI * 2)
-        ctx.stroke()
-      } else if (pickup === 'gate') {
-        ctx.fillStyle = BAND
-        ctx.beginPath()
-        ctx.arc(cx, cy, tile * 0.22, 0, Math.PI * 2)
-        ctx.fill()
-        ctx.fillStyle = NAVY
-        ctx.font = `600 ${Math.max(8, tile * 0.42)}px Outfit, sans-serif`
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        const id = state.grid.gates[y][x] ?? ''
-        ctx.fillText(id.toUpperCase(), cx, cy + 0.5)
-      }
-    }
+  if (state.special?.live) {
+    drawFish(ctx, state.special.x * width, state.special.y * height, width * 0.03, COOL, 'ICE', state)
   }
+  for (const payload of state.payloads) {
+    drawFish(ctx, payload.x * width, payload.y * height, width * 0.028, payload.kind === 'ice' ? COOL : ACCENT, '', state)
+  }
+  if (state.scoop.live) drawScoop(ctx, state.scoop.x * width, state.scoop.y * height, width * 0.038)
+  drawBoat(ctx, state, width, height)
 }
 
-function drawPlayer(ctx: CanvasRenderingContext2D, state: MazeState, tile: number): void {
-  const { x, y, dir } = state.player
-  const cx = (x + 0.5) * tile
-  const cy = (y + 0.5) * tile
-  const r = tile * 0.42
-  const ang = angleFor(dir)
-  const hitFlash = state.hitLeft > 0 && !state.reduced && Math.floor(state.elapsed / 80) % 2 === 0
-  ctx.fillStyle = hitFlash ? CREAM : ACCENT
-  ctx.beginPath()
-  ctx.arc(cx, cy, r, 0, Math.PI * 2)
+function drawOcean(ctx: CanvasRenderingContext2D, width: number, height: number, state: CatchState): void {
+  const x = OCEAN.x0 * width
+  const y = OCEAN.y0 * height
+  const w = (OCEAN.x1 - OCEAN.x0) * width
+  const h = (OCEAN.y1 - OCEAN.y0) * height
+  ctx.fillStyle = SEA
+  roundRect(ctx, x, y, w, h, 16)
+  ctx.fill()
+  ctx.strokeStyle = SEA_LINE
+  ctx.lineWidth = 2
+  ctx.stroke()
+  ctx.strokeStyle = 'rgba(61, 143, 181, 0.28)'
+  ctx.lineWidth = 1.2
+  const waves = 5
+  for (let i = 0; i < waves; i += 1) {
+    const wy = y + h * (0.18 + i * 0.14)
+    ctx.beginPath()
+    for (let px = 0; px <= 12; px += 1) {
+      const xx = x + 8 + (w - 16) * (px / 12)
+      const yy = wy + Math.sin(px * 0.9 + state.elapsed / 420 + i) * (state.reduced ? 0 : 3)
+      if (px === 0) ctx.moveTo(xx, yy)
+      else ctx.lineTo(xx, yy)
+    }
+    ctx.stroke()
+  }
+  ctx.fillStyle = 'rgba(255, 235, 208, 0.35)'
+  ctx.font = '600 11px Outfit, sans-serif'
+  ctx.textAlign = 'left'
+  ctx.fillText('OCEAN', x + 10, y + 16)
+}
+
+function drawMachine(ctx: CanvasRenderingContext2D, width: number, height: number, state: CatchState): void {
+  const x = MACHINE.x * width
+  const y = MACHINE.y * height
+  const w = MACHINE.w * width
+  const h = MACHINE.h * height
+  const glow = state.machineGlow > 0 || state.jobs.length > 0
+  ctx.fillStyle = glow ? '#15253c' : NAVY
+  roundRect(ctx, x, y, w, h, 18)
+  ctx.fill()
+  ctx.strokeStyle = glow ? COOL : CREAM
+  ctx.lineWidth = 3
+  ctx.stroke()
+
+  ctx.fillStyle = ACCENT
+  ctx.fillRect(x + 8, y + 10, w - 16, 8)
+
+  ctx.fillStyle = CREAM
+  ctx.font = '700 12px Outfit, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('CARE', x + w / 2, y + 36)
+
+  const mouthX = INTAKE.x * width - 10
+  const mouthY = INTAKE.y * height
+  const open = glow && !state.reduced ? 10 + Math.sin(state.chew * Math.PI * 2) * 6 : 12
+  ctx.fillStyle = INK
+  roundRect(ctx, x - 8, mouthY - open, 22, open * 2, 8)
   ctx.fill()
   ctx.strokeStyle = CREAM
-  ctx.lineWidth = Math.max(1.2, tile * 0.08)
+  ctx.lineWidth = 2
   ctx.stroke()
-  ctx.fillStyle = NAVY
-  ctx.beginPath()
-  ctx.arc(cx + Math.cos(ang - 0.9) * r * 0.28, cy + Math.sin(ang - 0.9) * r * 0.28, r * 0.16, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.fillStyle = hitFlash ? ACCENT : CREAM
-  ctx.beginPath()
-  ctx.moveTo(cx + Math.cos(ang) * r * 0.15, cy + Math.sin(ang) * r * 0.15)
-  ctx.lineTo(cx + Math.cos(ang + 0.55) * r * 0.55, cy + Math.sin(ang + 0.55) * r * 0.55)
-  ctx.lineTo(cx + Math.cos(ang) * (r + tile * 0.18), cy + Math.sin(ang) * (r + tile * 0.18))
-  ctx.lineTo(cx + Math.cos(ang - 0.55) * r * 0.55, cy + Math.sin(ang - 0.55) * r * 0.55)
-  ctx.closePath()
-  ctx.fill()
-}
 
-function drawGhost(ctx: CanvasRenderingContext2D, state: MazeState, ghost: Ghost, tile: number): void {
-  const cx = (ghost.x + 0.5) * tile
-  const cy = (ghost.y + 0.5) * tile
-  const r = tile * 0.36
-  const fright = state.frightenLeft > 0 && !ghost.eaten
-  const flash = fright && state.frightenLeft < 1.4 && !state.reduced && Math.floor(state.elapsed / 120) % 2 === 0
-  ctx.fillStyle = ghost.eaten ? 'transparent' : fright ? (flash ? CREAM : NAVY) : GHOST_FILL[ghost.kind]
-  ctx.beginPath()
-  ctx.arc(cx, cy - r * 0.12, r, Math.PI, 0)
-  ctx.lineTo(cx + r, cy + r * 0.7)
-  const waves = 3
-  for (let i = waves; i >= 0; i -= 1) {
-    const wx = cx - r + (i / waves) * r * 2
-    const wy = cy + r * (i % 2 === 0 ? 0.72 : 0.42)
-    ctx.lineTo(wx, wy)
+  const beat = state.jobs[0]
+  if (beat) {
+    const t = 1 - beat.left / beat.total
+    ctx.fillStyle = t < 0.33 ? ACCENT : t < 0.66 ? COOL : CREAM
+    ctx.beginPath()
+    ctx.arc(x + w / 2, y + h * 0.48, 16, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = NAVY
+    ctx.font = '700 9px Outfit, sans-serif'
+    ctx.fillText(t < 0.33 ? 'SPIKE' : t < 0.66 ? 'GILL' : 'ICE', x + w / 2, y + h * 0.49)
+  } else {
+    ctx.strokeStyle = 'rgba(255, 235, 208, 0.45)'
+    ctx.beginPath()
+    ctx.arc(x + w / 2, y + h * 0.48, 14, 0, Math.PI * 2)
+    ctx.stroke()
   }
+
+  ctx.fillStyle = BAND
+  const chuteX = OUTPUT.x * width
+  const chuteY = OUTPUT.y * height
+  ctx.beginPath()
+  ctx.moveTo(x + w - 4, chuteY - 10)
+  ctx.lineTo(chuteX + 8, chuteY - 6)
+  ctx.lineTo(chuteX + 8, chuteY + 10)
+  ctx.lineTo(x + w - 4, chuteY + 14)
   ctx.closePath()
-  if (!ghost.eaten) ctx.fill()
+  ctx.fill()
 
-  const eye = fright ? CREAM : '#fff'
-  const pupil = fright ? CREAM : NAVY
-  const look = DIR_VEC_SAFE(ghost.dir)
-  drawEye(ctx, cx - r * 0.28, cy - r * 0.12, r * 0.2, eye, pupil, look.x, look.y)
-  drawEye(ctx, cx + r * 0.28, cy - r * 0.12, r * 0.2, eye, pupil, look.x, look.y)
+  ctx.fillStyle = CREAM
+  ctx.font = '600 10px Outfit, sans-serif'
+  ctx.fillText('INTAKE', mouthX - 18, mouthY + open + 14)
 }
 
-function DIR_VEC_SAFE(dir: Dir): { x: number; y: number } {
-  if (dir === 'left') return { x: -1, y: 0 }
-  if (dir === 'right') return { x: 1, y: 0 }
-  if (dir === 'up') return { x: 0, y: -1 }
-  return { x: 0, y: 1 }
+function drawPackBay(ctx: CanvasRenderingContext2D, width: number, height: number, state: CatchState): void {
+  const x = PACK_BAY.x0 * width
+  const y = PACK_BAY.y0 * height
+  const w = (PACK_BAY.x1 - PACK_BAY.x0) * width
+  const h = (PACK_BAY.y1 - PACK_BAY.y0) * height
+  ctx.fillStyle = '#141c28'
+  roundRect(ctx, x, y, w, h, 16)
+  ctx.fill()
+  ctx.strokeStyle = BAND
+  ctx.lineWidth = 2
+  ctx.stroke()
+  ctx.fillStyle = CREAM
+  ctx.font = '600 11px Outfit, sans-serif'
+  ctx.textAlign = 'left'
+  ctx.fillText('PACK', x + 10, y + 16)
+
+  if (state.pack.length === 0) {
+    ctx.fillStyle = 'rgba(255, 235, 208, 0.45)'
+    ctx.font = '500 11px Outfit, sans-serif'
+    ctx.fillText('Bay clear', x + 10, y + 40)
+    return
+  }
+  const slotH = Math.min(64, (h - 32) / Math.max(state.pack.length, 1) - 6)
+  state.pack.forEach((lot, index) => {
+    const sy = y + 26 + index * (slotH + 6)
+    ctx.fillStyle = index === 0 ? CREAM : 'rgba(255, 235, 208, 0.72)'
+    roundRect(ctx, x + 8, sy, w - 16, slotH, 10)
+    ctx.fill()
+    ctx.fillStyle = NAVY
+    ctx.font = '700 12px Outfit, sans-serif'
+    ctx.textAlign = 'left'
+    const need = lot.needs[lot.step] ?? lot.needs[0]
+    ctx.fillText(packLabel(need), x + 16, sy + slotH / 2 + 4)
+    drawNeedDots(ctx, x + w - 28, sy + slotH / 2, lot.needs, lot.step)
+  })
 }
 
-function drawEye(
+function drawNeedDots(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  needs: PackNeed[],
+  step: number,
+): void {
+  needs.forEach((need, index) => {
+    ctx.fillStyle = index < step ? COOL : index === step ? ACCENT : NAVY
+    ctx.beginPath()
+    ctx.arc(x, y - (needs.length - 1) * 5 + index * 10, 3.2, 0, Math.PI * 2)
+    ctx.fill()
+    void need
+  })
+}
+
+function drawBoat(ctx: CanvasRenderingContext2D, state: CatchState, width: number, height: number): void {
+  const x = state.playerX * width
+  const y = 0.86 * height
+  const hit = state.hitLeft > 0 && !state.reduced && Math.floor(state.elapsed / 80) % 2 === 0
+  ctx.fillStyle = hit ? CREAM : ACCENT
+  ctx.beginPath()
+  ctx.moveTo(x - 28, y)
+  ctx.lineTo(x + 28, y)
+  ctx.lineTo(x + 20, y + 14)
+  ctx.lineTo(x - 20, y + 14)
+  ctx.closePath()
+  ctx.fill()
+  ctx.fillStyle = NAVY
+  ctx.fillRect(x - 8, y - 12, 16, 12)
+  ctx.fillStyle = CREAM
+  ctx.fillRect(x - 4, y - 8, 8, 6)
+  state.hold.forEach((held, index) => {
+    drawFish(
+      ctx,
+      x - 10 + index * 18,
+      y - 18,
+      width * 0.018,
+      held.kind === 'ice' ? COOL : ACCENT,
+      '',
+      state,
+    )
+  })
+}
+
+function drawScoop(ctx: CanvasRenderingContext2D, x: number, y: number, r: number): void {
+  ctx.strokeStyle = CREAM
+  ctx.lineWidth = 3
+  ctx.beginPath()
+  ctx.arc(x, y, r, Math.PI * 0.15, Math.PI - Math.PI * 0.15)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(x - r * 0.7, y)
+  ctx.lineTo(x - r * 0.2, y + r * 0.85)
+  ctx.lineTo(x + r * 0.2, y + r * 0.85)
+  ctx.lineTo(x + r * 0.7, y)
+  ctx.stroke()
+}
+
+function drawFish(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   r: number,
-  eye: string,
-  pupil: string,
-  lx: number,
-  ly: number,
+  fill: string,
+  label: string,
+  state: CatchState,
 ): void {
-  ctx.fillStyle = eye
+  const flip = state.formDir < 0 ? -1 : 1
+  ctx.save()
+  ctx.translate(x, y)
+  ctx.scale(flip, 1)
+  ctx.fillStyle = NAVY
   ctx.beginPath()
-  ctx.arc(x, y, r, 0, Math.PI * 2)
+  ctx.ellipse(0, 0, r * 1.15, r * 0.72, 0, 0, Math.PI * 2)
   ctx.fill()
-  ctx.fillStyle = pupil
-  ctx.beginPath()
-  ctx.arc(x + lx * r * 0.35, y + ly * r * 0.35, r * 0.45, 0, Math.PI * 2)
-  ctx.fill()
-}
-
-function drawDiamond(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string): void {
   ctx.fillStyle = fill
   ctx.beginPath()
-  ctx.moveTo(x, y - r)
-  ctx.lineTo(x + r * 0.72, y)
-  ctx.lineTo(x, y + r)
-  ctx.lineTo(x - r * 0.72, y)
-  ctx.closePath()
+  ctx.ellipse(0, 0, r, r * 0.58, 0, 0, Math.PI * 2)
   ctx.fill()
-}
-
-function drawSpike(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string): void {
+  ctx.fillStyle = CREAM
+  ctx.beginPath()
+  ctx.ellipse(-r * 0.18, -r * 0.06, r * 0.32, r * 0.22, 0, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = NAVY
+  ctx.beginPath()
+  ctx.arc(-r * 0.28, -r * 0.06, r * 0.1, 0, Math.PI * 2)
+  ctx.fill()
   ctx.fillStyle = fill
   ctx.beginPath()
-  ctx.moveTo(x, y - r)
-  ctx.lineTo(x + r * 0.22, y - r * 0.22)
-  ctx.lineTo(x + r, y)
-  ctx.lineTo(x + r * 0.22, y + r * 0.22)
-  ctx.lineTo(x, y + r)
-  ctx.lineTo(x - r * 0.22, y + r * 0.22)
-  ctx.lineTo(x - r, y)
-  ctx.lineTo(x - r * 0.22, y - r * 0.22)
+  ctx.moveTo(r * 0.85, 0)
+  ctx.lineTo(r * 1.45, -r * 0.42)
+  ctx.lineTo(r * 1.45, r * 0.42)
   ctx.closePath()
   ctx.fill()
+  ctx.restore()
+  if (label) {
+    ctx.fillStyle = CREAM
+    ctx.font = `700 ${Math.max(8, r * 0.55)}px Outfit, sans-serif`
+    ctx.textAlign = 'center'
+    ctx.fillText(label, x, y - r - 4)
+  }
 }
 
-function angleFor(dir: Dir): number {
-  if (dir === 'right') return 0
-  if (dir === 'down') return Math.PI / 2
-  if (dir === 'left') return Math.PI
-  return -Math.PI / 2
+function labelFor(gate: CatchState['fish'][number]['gate']): string {
+  if (!gate) return ''
+  return mazeCopy.gateNames[gate].slice(0, 1)
 }
 
 function roundRect(

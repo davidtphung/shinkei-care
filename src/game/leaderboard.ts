@@ -176,7 +176,7 @@ export function overallBest(boards: Boards = readBoards()): { game: BoardId; ent
 export function formatBoardText(boards: Boards = readBoards()): string {
   const lines = ['Sere leaderboard', '']
   for (const game of ['care', 'maze'] as const) {
-    lines.push(game === 'care' ? 'Care' : 'Maze')
+    lines.push(game === 'care' ? 'Care' : 'Catch')
     const rows = boardOf(boards, game)
     if (rows.length === 0) {
       lines.push('No scores yet.')

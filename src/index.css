@@ -60,22 +60,13 @@ html.play-locked body {
 }
 
 .maze-window {
-  aspect-ratio: 19 / 15;
+  aspect-ratio: 4 / 3;
   width: 100%;
   min-height: 16rem;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .maze-pad {
-    display: none;
-  }
+  flex-shrink: 0;
 }
 
 @media (max-height: 640px) {
-  .maze-pad {
-    display: none;
-  }
-
   .maze-window {
     min-height: 11rem;
   }

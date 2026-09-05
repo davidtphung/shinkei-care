@@ -1,79 +1,118 @@
 import type { LevelId } from '@/game/types.ts'
 
-export type Dir = 'up' | 'down' | 'left' | 'right'
-
-export type GhostKind = 'heat' | 'delay' | 'bacteria' | 'rough'
-
-export type CellKind = 'wall' | 'path' | 'pen' | 'door'
-
-export type Pickup = 'dot' | 'ice' | 'spike' | 'chain' | 'gate'
-
-export type Actor = {
-  x: number
-  y: number
-  dir: Dir
-}
-
-export type Ghost = Actor & {
-  kind: GhostKind
-  homeX: number
-  homeY: number
-  eaten: boolean
-  leaveIn: number
-}
-
-export type MazeGrid = {
-  cols: number
-  rows: number
-  cells: CellKind[][]
-  pickups: (Pickup | null)[][]
-  gates: (string | null)[][]
-  gateOrder: string[]
-  player: { x: number; y: number }
-  ghosts: { x: number; y: number; kind: GhostKind }[]
-}
-
+export type Dir = 'left' | 'right'
+export type PackNeed = 'ice' | 'seal' | 'band' | 'crate'
+export type GateId = 'boat' | 'auction' | 'truck' | 'kitchen' | 'plate'
+export type FishKind = 'lot' | 'ice' | 'gate'
 export type Phase = 'ready' | 'play' | 'hit' | 'clear' | 'over' | 'pause'
 
-export type MazeState = {
+export type OceanFish = {
+  id: number
+  col: number
+  row: number
+  kind: FishKind
+  gate: GateId | null
+  alive: boolean
+}
+
+export type Scoop = {
+  x: number
+  y: number
+  live: boolean
+}
+
+export type HeldFish = {
+  id: number
+  kind: FishKind
+  gate: GateId | null
+  wait: number
+}
+
+export type Payload = {
+  id: number
+  x: number
+  y: number
+  kind: FishKind
+  gate: GateId | null
+}
+
+export type MachineJob = {
+  id: number
+  kind: FishKind
+  gate: GateId | null
+  left: number
+  total: number
+}
+
+export type PackLot = {
+  id: number
+  needs: PackNeed[]
+  step: number
+  wait: number
+}
+
+export type Special = {
+  x: number
+  y: number
+  vx: number
+  live: boolean
+}
+
+export type CatchState = {
   level: LevelId
-  grid: MazeGrid
-  player: Actor
-  desired: Dir
-  ghosts: Ghost[]
+  phase: Phase
+  announcement: string
   freshness: number
   freshnessMax: number
   score: number
   combo: number
-  ghostChain: number
   elapsed: number
-  phase: Phase
-  announcement: string
-  frightenLeft: number
-  iceSlowLeft: number
-  chainLeft: number
-  hitLeft: number
-  drainAcc: number
-  nextGate: number
-  dotsLeft: number
-  dotsTotal: number
-  gatesLeft: number
-  ignoreTile: string | null
   reduced: boolean
+  playerX: number
+  desiredX: number
+  scoop: Scoop
+  scoopCool: number
+  hold: HeldFish[]
+  payloads: Payload[]
+  jobs: MachineJob[]
+  pack: PackLot[]
+  fish: OceanFish[]
+  cols: number
+  rows: number
+  formX: number
+  formY: number
+  formDir: 1 | -1
+  dropPending: boolean
+  special: Special | null
+  specialIn: number
+  nextGate: number
+  drainAcc: number
+  hitLeft: number
+  machineGlow: number
+  chew: number
+  nextId: number
 }
 
-export const DIRS: Dir[] = ['up', 'left', 'down', 'right']
+export const GATES: GateId[] = ['boat', 'auction', 'truck', 'kitchen', 'plate']
 
-export const DIR_VEC: Record<Dir, { x: number; y: number }> = {
-  up: { x: 0, y: -1 },
-  down: { x: 0, y: 1 },
-  left: { x: -1, y: 0 },
-  right: { x: 1, y: 0 },
+export const PACK_KEYS: Record<string, PackNeed> = {
+  '1': 'ice',
+  i: 'ice',
+  I: 'ice',
+  '2': 'seal',
+  e: 'seal',
+  E: 'seal',
+  '3': 'band',
+  b: 'band',
+  B: 'band',
+  '4': 'crate',
+  c: 'crate',
+  C: 'crate',
 }
 
-export const OPPOSITE: Record<Dir, Dir> = {
-  up: 'down',
-  down: 'up',
-  left: 'right',
-  right: 'left',
-}
+export const OCEAN = { x0: 0.03, x1: 0.56, y0: 0.05, y1: 0.93 }
+export const BOAT_Y = 0.86
+export const INTAKE = { x: 0.6, y: 0.7 }
+export const OUTPUT = { x: 0.745, y: 0.4 }
+export const MACHINE = { x: 0.575, y: 0.16, w: 0.17, h: 0.68 }
+export const PACK_BAY = { x0: 0.76, x1: 0.975, y0: 0.1, y1: 0.9 }

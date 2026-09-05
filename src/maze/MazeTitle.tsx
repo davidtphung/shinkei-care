@@ -16,7 +16,7 @@ type Props = {
 
 export function MazeTitle({ progress, onPlay, onHub }: Props) {
   return (
-    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg min-w-0 flex-col justify-between overflow-x-hidden pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.25rem))] pr-[max(1.25rem,env(safe-area-inset-right))] pb-[max(2rem,env(safe-area-inset-bottom))] pl-[max(1.25rem,env(safe-area-inset-left))]">
+    <div className="relative z-20 mx-auto flex min-h-0 w-full max-w-lg min-w-0 flex-col justify-start gap-8 overflow-x-hidden pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.25rem))] pr-[max(1.25rem,env(safe-area-inset-right))] pb-[max(2rem,env(safe-area-inset-bottom))] pl-[max(1.25rem,env(safe-area-inset-left))]">
       <div className="text-center">
         <p className="text-xs font-semibold tracking-[0.28em] text-navy uppercase">{mazeCopy.kicker}</p>
         <p className="wordmark font-display mt-2 text-[clamp(3.25rem,16vw,4.5rem)] leading-none text-cream drop-shadow-[0_2px_0_#0B1424] outline-none">

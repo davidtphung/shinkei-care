@@ -35,11 +35,6 @@ export default function App() {
     if (mode === 'hub' || mode === 'leaderboard') setBoards(readBoards())
   }, [mode])
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('play-locked', mode === 'maze')
-    return () => document.documentElement.classList.remove('play-locked')
-  }, [mode])
-
   const refreshBoards = () => setBoards(readBoards())
 
   return (
