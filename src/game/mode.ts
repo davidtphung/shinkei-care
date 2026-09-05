@@ -10,5 +10,6 @@ export function parseModeHash(hash: string): ArcadeMode {
 
 export function hashForMode(mode: ArcadeMode): string {
   if (mode === 'hub') return '#'
+  if (mode === 'maze') return '#catch'
   return `#${mode}`
 }

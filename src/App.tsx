@@ -26,7 +26,15 @@ export default function App() {
   }
 
   useEffect(() => {
-    const sync = () => setModeState(parseModeHash(window.location.hash))
+    const sync = () => {
+      const next = parseModeHash(window.location.hash)
+      setModeState(next)
+      const canonical = hashForMode(next)
+      if (next !== 'hub' && window.location.hash !== canonical) {
+        window.history.replaceState(null, '', canonical)
+      }
+    }
+    sync()
     window.addEventListener('hashchange', sync)
     return () => window.removeEventListener('hashchange', sync)
   }, [])

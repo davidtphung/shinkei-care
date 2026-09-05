@@ -6,7 +6,7 @@ Wordmark: **Sere**. Brand: [Shinkei Systems](https://shinkei.systems). Hub cards
 
 This is a skill game. The mascot is an abstract friendly fish. After a Care round it rests on ice. There is no gore and no photoreal slaughter.
 
-Hash routes: `#` hub, `#care`, `#maze` or `#catch`, `#leaderboard`.
+Hash routes: `#` hub, `#care`, `#catch` (also `#maze`, `#run`, `#ocean`), `#leaderboard`.
 
 ## Live URL
 
