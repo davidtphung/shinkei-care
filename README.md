@@ -1,17 +1,19 @@
-# Shinkei Care
+# Sere
 
-A short ikejime arcade. Playable in the browser on phone and desktop.
+A two-cabinet ikejime arcade. Playable in the browser on phone and desktop.
 
-Wordmark: **Shinkei Care**. Subtitle: **Six Seconds**. Brand: [Shinkei Systems](https://shinkei.systems)
+Wordmark: **Sere**. Brand: [Shinkei Systems](https://shinkei.systems). Hub cards open **Care**, **Maze**, and the **Leaderboard**.
 
-This is a skill game. The mascot is an abstract friendly fish. After the round it rests on ice. There is no gore and no photoreal slaughter.
+This is a skill game. The mascot is an abstract friendly fish. After a Care round it rests on ice. There is no gore and no photoreal slaughter.
+
+Hash routes: `#` hub, `#care`, `#maze`, `#leaderboard`.
 
 ## Live URL
 
 Play now: **https://sere.davidtphung.com/**
 
 - GitHub source: https://github.com/davidtphung/shinkei-care
-- Live host: user Pages (`davidtphung.github.io`, branch `claw`) with CNAME `sere.davidtphung.com` — project Pages on this repo is still off (Actions cannot create the site)
+- Live host: user Pages (`davidtphung.github.io`, branch `claw`) with CNAME `sere.davidtphung.com`. Project Pages on this repo is still off (Actions cannot create the site).
 - This repo is ready for **Deploy from a branch → main → /docs** if the owner enables Pages here later (remove the user-site CNAME first)
 - Fallback path: https://davidtphung.github.io/shinkei-care/
 - Origin (source of truth): https://origin.cursor.com/git/davidtphung/tmp-7b8db1b6a14c8783.git
@@ -20,7 +22,11 @@ GitHub is the public mirror.
 
 ## How to play
 
-Each round has three short arcade stages. Same cream cards, pixel tiles, and cooler drop as the live cabinet. Juice is timing, combo, and a six-second pulse.
+The hub is the title. Pick Care or Maze. Esc or Hub returns to the title. Mute stays on this device.
+
+### Care
+
+Each Care round has three short arcade stages. Same cream cards, pixel tiles, and cooler drop as the live cabinet. Juice is timing, combo, and a six-second pulse.
 
 1. **Spike.** One cream card holds a silvery side-view fish with a readable eye and gill plate. The brain mark sits slightly behind and above the eye, toward the center of the head, where the gill-shaped bone meets the lateral line. A cool-blue ring, a Brain / Now label, and a six-second pulse fill that mark. Hit it when it says Now. A clean hit opens the mouth, then a short wiggle settles it, fins flare, and the fish goes still. A miss says Early, Late, High, or Try that window. Freshness drops. The fish stays intact.
 2. **Gill.** Same cream-card grammar on the fish. Tap the Gill ring on the membrane (cool-blue ring plus a word label). Cut the gill so blood does not sit in the flesh. One line notes that traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.
@@ -33,6 +39,23 @@ Then a freshness seal, a rest on ice, and a **Seremoni quality** result. That is
 There are three levels. Craft is open first. A first clear of Craft opens Systems. A first clear of Systems opens Chain. Each level stores its own Best quality and Best time. The race clock starts on Play and stops on the result screen. Misses still count.
 
 First-try hits build Combo. Best quality and Best time stay in `localStorage` on this device. No accounts.
+
+### Maze
+
+A Pacman-style window. Arrows or WASD. On a phone, use the pad.
+
+1. Collect cream freshness dots. Clear the maze to seal the lot.
+2. Ice tokens restore freshness and slow spoilage.
+3. A spike token is brief invulnerability. Eat Heat, Delay, Bacteria, and Rough.
+4. A cold-chain token is a speed buffer. Ghosts scatter.
+5. Touch a ghost without a spike and freshness drops. Zero ends the run.
+6. Craft, Systems, and Chain map boat deck, cold loop, then boat to plate. On Chain, take gates in order: boat, auction, truck, kitchen, plate.
+
+**MDA.** Mechanics: grid move, dots, ice, spike, cold chain, four spoilage ghosts. Dynamics: Heat chases, Delay aims ahead, Bacteria flees when close, Rough reads the gap. Aesthetics: care at speed. Seremoni quality is the grade.
+
+### Leaderboard
+
+Top 10 each for Care and Maze. Rank, name (3 to 12 characters), quality, time, level, date. Initials prompt after a personal best. Scores stay in `localStorage` on this device. Copy results exports plain text.
 
 Built by [David T Phung](https://x.com/davidtphung).
 
@@ -58,7 +81,7 @@ npm run preview
 - Only `transform` and `opacity` animate.
 - `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim or flail overshoot. The spike window stays open. Sound starts quiet and can still be unmuted.
 - `prefers-reduced-transparency`: solid cream or navy fills.
-- Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter.
+- Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter. Maze uses arrows and WASD. Esc opens Hub or a pause card.
 - Visible focus rings. Every control has a name, role, and state.
 - Live region announces hits, misses, and the open window.
 - Color is never the only clue. Cool-blue is paired with a shape and a word label.

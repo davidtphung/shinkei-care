@@ -52,6 +52,29 @@ html.play-locked body {
   outline-offset: 3px;
 }
 
+.wordmark,
+.wordmark:focus,
+.wordmark:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.maze-window {
+  aspect-ratio: 19 / 15;
+  width: 100%;
+  min-height: 16rem;
+}
+
+@media (max-height: 640px) {
+  .maze-pad {
+    display: none;
+  }
+
+  .maze-window {
+    min-height: 11rem;
+  }
+}
+
 .on-ink :focus-visible {
   outline-color: var(--color-cream);
 }

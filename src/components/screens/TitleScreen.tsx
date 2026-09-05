@@ -13,10 +13,11 @@ import { usePressed } from '@/hooks/usePressed.ts'
 type Props = {
   progress: Progress
   onPlay: (level: LevelId) => void
+  onHub?: () => void
   headingRef: Ref<HTMLHeadingElement>
 }
 
-export function TitleScreen({ progress, onPlay, headingRef }: Props) {
+export function TitleScreen({ progress, onPlay, onHub, headingRef }: Props) {
   const start = (level: LevelId) => {
     void unlockAudio().then((ok) => {
       if (ok && !isMuted()) playConfirm()
@@ -30,13 +31,12 @@ export function TitleScreen({ progress, onPlay, headingRef }: Props) {
         <p className="text-xs font-semibold tracking-[0.28em] text-navy uppercase">
           {copy.kicker}
         </p>
-        <h1
-          ref={headingRef}
-          tabIndex={-1}
-          className="font-display mt-2 text-[clamp(3.25rem,18vw,4.5rem)] leading-none text-cream drop-shadow-[0_2px_0_#0B1424] outline-none focus:outline-none focus-visible:outline-none sm:text-8xl"
-        >
-          {copy.wordmark}
+        <h1 ref={headingRef} className="sr-only">
+          {copy.title}
         </h1>
+        <p className="wordmark font-display mt-2 text-[clamp(3.25rem,18vw,4.5rem)] leading-none text-cream drop-shadow-[0_2px_0_#0B1424] outline-none sm:text-8xl">
+          {copy.wordmark}
+        </p>
         <p className="mt-1 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">{copy.wordmarkLine}</p>
         <p className="mt-2 text-lg text-navy">{copy.subtitle}</p>
         <p className="mt-3 text-sm font-semibold tracking-[0.16em] text-navy/80 uppercase">
@@ -77,6 +77,11 @@ export function TitleScreen({ progress, onPlay, headingRef }: Props) {
           })}
         </ul>
         <HowToPlay />
+        {onHub ? (
+          <Button variant="outline" className="w-full" onClick={onHub}>
+            {copy.backToHub}
+          </Button>
+        ) : null}
         <a
           className="block text-center text-sm font-semibold text-navy underline decoration-navy/40 underline-offset-4"
           href={copy.brandUrl}
