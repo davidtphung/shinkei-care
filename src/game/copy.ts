@@ -120,6 +120,7 @@ export const copy = {
   levelLocked: (need: string) => `Clear ${need} to open this level.`,
   playLevel: (name: string) => `Play ${name}`,
   backToLevels: 'Levels',
+  backToHub: 'Hub',
 
   l2SpikeLead: 'Cut the stress loop.',
   l2SpikeTeach: 'Stress feeds a loop. Spike the brain. That is the leverage point.',

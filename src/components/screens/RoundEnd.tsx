@@ -1,4 +1,4 @@
-import type { Ref } from 'react'
+import type { ReactNode, Ref } from 'react'
 import { copy, levelName, rankLabel } from '@/game/copy.ts'
 import { formatRaceTime } from '@/game/time.ts'
 import type { LevelId } from '@/game/types.ts'
@@ -16,6 +16,8 @@ type Props = {
   headingRef: Ref<HTMLHeadingElement>
   onAgain: () => void
   onLevels: () => void
+  onHub?: () => void
+  namePrompt?: ReactNode
 }
 
 export function RoundEnd({
@@ -29,6 +31,8 @@ export function RoundEnd({
   headingRef,
   onAgain,
   onLevels,
+  onHub,
+  namePrompt,
 }: Props) {
   const label = rankLabel(score)
 
@@ -72,12 +76,18 @@ export function RoundEnd({
           {copy.newBest}
         </p>
       ) : null}
+      {namePrompt}
       <Button className="w-full text-lg" onClick={onAgain}>
         {copy.playAgain}
       </Button>
       <Button variant="outline" className="w-full" onClick={onLevels}>
         {copy.backToLevels}
       </Button>
+      {onHub ? (
+        <Button variant="outline" className="w-full" onClick={onHub}>
+          {copy.backToHub}
+        </Button>
+      ) : null}
     </div>
   )
 }
