@@ -42,13 +42,13 @@ function processTime(level: LevelId): number {
 }
 
 function formSpeed(level: LevelId, alive: number, total: number, pressure: number): number {
-  const base = level === 1 ? 0.07 : level === 2 ? 0.095 : 0.12
-  const thin = 1 + (1 - alive / Math.max(1, total)) * 0.7
+  const base = level === 1 ? 0.042 : level === 2 ? 0.07 : 0.09
+  const thin = 1 + (1 - alive / Math.max(1, total)) * 0.55
   return base * thin * pressure
 }
 
 function dropStep(level: LevelId): number {
-  return level === 3 ? 0.038 : 0.032
+  return level === 3 ? 0.028 : 0.02
 }
 
 function drainEvery(level: LevelId): number {
@@ -82,7 +82,7 @@ function cellSize(state: CatchState): { cw: number; ch: number } {
   const span = OCEAN.x1 - OCEAN.x0 - 0.04
   return {
     cw: span / Math.max(state.cols, 1),
-    ch: 0.1,
+    ch: 0.085,
   }
 }
 
@@ -127,7 +127,7 @@ export function createCatch(level: LevelId, reduced: boolean): CatchState {
     cols,
     rows,
     formX: OCEAN.x0 + 0.04,
-    formY: 0.12,
+    formY: 0.08,
     formDir: 1,
     dropPending: false,
     special: null,
@@ -461,12 +461,10 @@ function stepFormation(state: CatchState, dt: number, pressure: number): void {
 
   let minX = 1
   let maxX = 0
-  let maxY = 0
   for (const fish of alive) {
     const pos = fishPos(state, fish)
     minX = Math.min(minX, pos.x)
     maxX = Math.max(maxX, pos.x)
-    maxY = Math.max(maxY, pos.y)
   }
   if (maxX > OCEAN.x1 - 0.03) {
     state.formX -= maxX - (OCEAN.x1 - 0.03)
@@ -477,8 +475,12 @@ function stepFormation(state: CatchState, dt: number, pressure: number): void {
     state.formDir = 1
     state.dropPending = true
   }
-  if (maxY >= BOAT_Y - 0.06) {
-    loseFreshness(state, state.level === 1 ? 1 : 2, mazeCopy.missSchool)
+  for (const fish of alive) {
+    const pos = fishPos(state, fish)
+    if (pos.y < BOAT_Y - 0.05) continue
+    fish.alive = false
+    loseFreshness(state, 1, mazeCopy.missSchool)
+    return
   }
 }
 
@@ -542,3 +544,9 @@ const _chain = createCatch(3, true)
 if (_chain.fish.filter((fish) => fish.kind === 'gate').length !== 5) {
   throw new Error('Chain needs five gate fish')
 }
+const _rail = createCatch(1, true)
+startRun(_rail)
+_rail.formY = 0.9
+stepCatch(_rail, 0.016)
+if (_rail.freshness !== 5) throw new Error('A rail miss should drain one freshness')
+if (_rail.fish.filter((fish) => fish.alive).length !== 9) throw new Error('A rail miss should take one fish')

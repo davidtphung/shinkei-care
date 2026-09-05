@@ -258,7 +258,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
       <p className="stage-announce min-h-11 rounded-2xl bg-cream px-4 py-2 text-center text-base font-semibold text-navy" aria-live="polite">
         {hud?.announcement ?? ''}
       </p>
-      <div className="maze-window relative overflow-hidden rounded-3xl border-4 border-navy bg-ink shadow-xl">
+      <div className="maze-window relative overflow-hidden rounded-3xl border-4 border-cream bg-ink shadow-xl">
         <canvas
           ref={canvasRef}
           className="block h-full w-full touch-none"
