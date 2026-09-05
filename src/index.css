@@ -65,6 +65,12 @@ html.play-locked body {
   min-height: 16rem;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .maze-pad {
+    display: none;
+  }
+}
+
 @media (max-height: 640px) {
   .maze-pad {
     display: none;
