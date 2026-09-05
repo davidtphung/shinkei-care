@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
 import { RaceClock } from '@/components/RaceClock.tsx'
 import { Button } from '@/components/ui/button.tsx'
@@ -9,12 +9,23 @@ import { formatRaceTime } from '@/game/time.ts'
 import type { LevelId } from '@/game/types.ts'
 import { NamePrompt } from '@/hub/NamePrompt.tsx'
 import { usePrefersReducedMotion } from '@/hooks/usePrefers.ts'
-import { mazeCopy, mazeLevelName, mazeRankLabel } from '@/maze/copy.ts'
-import { drawMaze } from '@/maze/draw.ts'
-import { createMaze, qualityFor, queueDir, startRun, stepMaze, togglePause } from '@/maze/engine.ts'
+import { mazeCopy, mazeLegend, mazeLevelName, mazeRankLabel } from '@/maze/copy.ts'
+import { drawCatch } from '@/maze/draw.ts'
+import {
+  aimBoat,
+  createCatch,
+  feedHold,
+  fireScoop,
+  moveBoat,
+  packLot,
+  qualityFor,
+  startRun,
+  stepCatch,
+  togglePause,
+} from '@/maze/engine.ts'
 import { MazeTitle } from '@/maze/MazeTitle.tsx'
 import { readMazeProgress, writeMazeQuality, writeMazeTime, type MazeProgress } from '@/maze/progress.ts'
-import type { Dir, MazeState } from '@/maze/types.ts'
+import { PACK_KEYS, type CatchState, type PackNeed } from '@/maze/types.ts'
 import { cn } from '@/lib/utils.ts'
 
 type Screen = 'title' | 'play' | 'score'
@@ -23,9 +34,12 @@ type Hud = {
   freshness: number
   freshnessMax: number
   announcement: string
-  phase: MazeState['phase']
+  phase: CatchState['phase']
   elapsed: number
   combo: number
+  hold: number
+  pack: number
+  nextPack: PackNeed | null
 }
 
 type Props = {
@@ -33,25 +47,10 @@ type Props = {
   onBoardChange: () => void
 }
 
-const KEY_DIR: Record<string, Dir> = {
-  ArrowUp: 'up',
-  ArrowDown: 'down',
-  ArrowLeft: 'left',
-  ArrowRight: 'right',
-  w: 'up',
-  W: 'up',
-  a: 'left',
-  A: 'left',
-  s: 'down',
-  S: 'down',
-  d: 'right',
-  D: 'right',
-}
-
 export function MazeApp({ onHub, onBoardChange }: Props) {
   const reduced = usePrefersReducedMotion()
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const frameRef = useRef<MazeState | null>(null)
+  const frameRef = useRef<CatchState | null>(null)
   const lastRef = useRef(0)
   const rafRef = useRef(0)
   const endedRef = useRef(false)
@@ -75,7 +74,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
     frameRef.current = null
   }
 
-  const finish = (state: MazeState) => {
+  const finish = (state: CatchState) => {
     if (endedRef.current) return
     endedRef.current = true
     const scored = qualityFor(state)
@@ -83,8 +82,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
     const quality = writeMazeQuality(state.level, scored)
     const time = writeMazeTime(state.level, ms)
     setProgress(time.progress)
-    const prompt =
-      (quality.isNew || time.isNew || qualifiesForBoard('maze', scored)) && scored > 0
+    const prompt = (quality.isNew || time.isNew || qualifiesForBoard('maze', scored)) && scored > 0
     setResult({
       score: scored,
       elapsed: ms,
@@ -105,7 +103,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
     endedRef.current = false
     setLevel(nextLevel)
     setResult(null)
-    const state = createMaze(nextLevel, reduced)
+    const state = createCatch(nextLevel, reduced)
     frameRef.current = state
     lastRef.current = 0
     lastCueRef.current = state.announcement
@@ -125,24 +123,11 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
       const dt = (now - lastRef.current) / 1000
       lastRef.current = now
       const before = state.announcement
-      const dots = state.dotsLeft
-      const fright = state.frightenLeft
-      stepMaze(state, dt)
-      if (state.announcement !== before || state.dotsLeft !== dots) {
-        if (state.announcement !== lastCueRef.current) {
-          lastCueRef.current = state.announcement
-          if (state.announcement === mazeCopy.collectIce || state.announcement === mazeCopy.collectDot) playCue('ice')
-          else if (state.announcement === mazeCopy.collectSpike) playCue('spike')
-          else if (state.announcement === mazeCopy.collectChain) playCue('combo')
-          else if (state.announcement === mazeCopy.eatGhost) playCue('combo')
-          else if (state.announcement === mazeCopy.hit || state.announcement === mazeCopy.drain) playCue('miss')
-          else if (state.announcement === mazeCopy.gateMiss) playCue('miss')
-          else if ((mazeCopy.collectGate as readonly string[]).includes(state.announcement)) {
-            playCue('gill')
-          }
-        }
+      stepCatch(state, dt)
+      if (state.announcement !== before && state.announcement !== lastCueRef.current) {
+        lastCueRef.current = state.announcement
+        cueFor(state.announcement)
       }
-      if (fright > 0 && state.frightenLeft === 0) playCue('window')
       const rect = canvas.getBoundingClientRect()
       const dpr = Math.min(2, window.devicePixelRatio || 1)
       canvas.width = Math.max(1, Math.floor(rect.width * dpr))
@@ -150,7 +135,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
       const ctx = canvas.getContext('2d')
       if (ctx) {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-        drawMaze(ctx, state, rect.width, rect.height)
+        drawCatch(ctx, state, rect.width, rect.height)
       }
       if (now % 3 < 16) setHud(snapshot(state))
       if (state.phase === 'clear' || state.phase === 'over') {
@@ -181,24 +166,57 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
         setHud(snapshot(state))
         return
       }
-      const dir = KEY_DIR[event.key]
-      if (!dir) return
-      event.preventDefault()
+      if (screen !== 'play') return
       const state = frameRef.current
-      if (!state || screen !== 'play') return
-      queueDir(state, dir)
+      if (!state) return
+      if (event.key === 'ArrowLeft' || event.key === 'a' || event.key === 'A') {
+        event.preventDefault()
+        moveBoat(state, -1)
+        setHud(snapshot(state))
+        return
+      }
+      if (event.key === 'ArrowRight' || event.key === 'd' || event.key === 'D') {
+        event.preventDefault()
+        moveBoat(state, 1)
+        setHud(snapshot(state))
+        return
+      }
+      if (event.key === ' ' || event.key === 'w' || event.key === 'W' || event.key === 'ArrowUp') {
+        event.preventDefault()
+        void unlockAudio()
+        fireScoop(state)
+        setHud(snapshot(state))
+        return
+      }
+      if (event.key === 'f' || event.key === 'F' || event.key === 'ArrowDown' || event.key === 'Enter') {
+        event.preventDefault()
+        void unlockAudio()
+        feedHold(state)
+        setHud(snapshot(state))
+        return
+      }
+      const pack = PACK_KEYS[event.key]
+      if (!pack) return
+      event.preventDefault()
+      void unlockAudio()
+      packLot(state, pack)
       setHud(snapshot(state))
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [screen, onHub])
 
-  const steer = (dir: Dir) => {
+  const pointBoat = (event: PointerEvent<HTMLCanvasElement>) => {
     const state = frameRef.current
-    if (!state) return
-    void unlockAudio()
-    queueDir(state, dir)
-    setHud(snapshot(state))
+    const canvas = canvasRef.current
+    if (!state || !canvas) return
+    const rect = canvas.getBoundingClientRect()
+    const x = (event.clientX - rect.left) / rect.width
+    if (x <= 0.58) {
+      void unlockAudio()
+      aimBoat(state, x)
+      setHud(snapshot(state))
+    }
   }
 
   if (screen === 'title') {
@@ -220,7 +238,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
   }
 
   return (
-    <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col gap-2">
+    <div className="play-pad cabinet relative z-20 mx-auto flex min-h-0 w-full max-w-3xl flex-col gap-2 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       <div className="flex items-start justify-between gap-3">
         {hud ? <RaceClock elapsed={hud.elapsed} /> : <span />}
         <Button variant="outline" className="min-h-11 px-4 text-xs tracking-[0.12em] uppercase" onClick={onHub}>
@@ -236,16 +254,22 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
         </div>
         <p className="text-3xl font-semibold text-navy tabular-nums">{hud?.score ?? 0}</p>
       </div>
-      {hud ? (
-        <FreshnessMeter value={hud.freshness} max={hud.freshnessMax} />
-      ) : null}
-      <p className="stage-announce min-h-12 rounded-2xl bg-cream px-4 py-3 text-center text-base font-semibold text-navy" aria-live="polite">
+      {hud ? <FreshnessMeter value={hud.freshness} max={hud.freshnessMax} /> : null}
+      <p className="stage-announce min-h-11 rounded-2xl bg-cream px-4 py-2 text-center text-base font-semibold text-navy" aria-live="polite">
         {hud?.announcement ?? ''}
       </p>
       <div className="maze-window relative overflow-hidden rounded-3xl border-4 border-navy bg-ink shadow-xl">
-        <canvas ref={canvasRef} className="block h-full w-full touch-none" />
+        <canvas
+          ref={canvasRef}
+          className="block h-full w-full touch-none"
+          onPointerDown={pointBoat}
+          onPointerMove={(event) => {
+            if (event.buttons === 0) return
+            pointBoat(event)
+          }}
+        />
         {hud?.phase === 'ready' ? (
-          <div className="absolute inset-0 flex flex-col justify-end bg-navy/55 p-4">
+          <div className="absolute inset-0 flex flex-col justify-end overflow-y-auto bg-navy/55 p-4">
             <div className="rounded-3xl bg-cream p-4 text-navy">
               <p className="text-lg font-semibold">{mazeCopy.readyLead[level - 1]}</p>
               <p className="mt-2 text-sm">{mazeCopy.readyTeach[level - 1]}</p>
@@ -265,7 +289,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
           </div>
         ) : null}
         {hud?.phase === 'pause' ? (
-          <div className="absolute inset-0 flex flex-col justify-end bg-navy/55 p-4">
+          <div className="absolute inset-0 flex flex-col justify-end overflow-y-auto bg-navy/55 p-4">
             <div className="rounded-3xl bg-cream p-4 text-navy">
               <p className="text-lg font-semibold">{mazeCopy.paused}</p>
               <Button
@@ -286,8 +310,44 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
           </div>
         ) : null}
       </div>
-      <p className="text-center text-xs text-navy/70">{mazeCopy.legend}</p>
-      <DPad onSteer={steer} />
+      <p className="text-center text-xs text-navy/70">{mazeLegend(level)}</p>
+      <CatchPad
+        level={level}
+        nextPack={hud?.nextPack ?? null}
+        onLeft={() => {
+          const state = frameRef.current
+          if (!state) return
+          moveBoat(state, -1)
+          setHud(snapshot(state))
+        }}
+        onRight={() => {
+          const state = frameRef.current
+          if (!state) return
+          moveBoat(state, 1)
+          setHud(snapshot(state))
+        }}
+        onCatch={() => {
+          const state = frameRef.current
+          if (!state) return
+          void unlockAudio()
+          fireScoop(state)
+          setHud(snapshot(state))
+        }}
+        onFeed={() => {
+          const state = frameRef.current
+          if (!state) return
+          void unlockAudio()
+          feedHold(state)
+          setHud(snapshot(state))
+        }}
+        onPack={(need) => {
+          const state = frameRef.current
+          if (!state) return
+          void unlockAudio()
+          packLot(state, need)
+          setHud(snapshot(state))
+        }}
+      />
     </div>
   )
 }
@@ -327,7 +387,7 @@ function MazeScore({
   }
 
   return (
-    <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center gap-5">
+    <div className="play-pad cabinet relative z-20 mx-auto flex w-full max-w-lg flex-col justify-start gap-5">
       <p className="text-center text-xs font-semibold tracking-[0.24em] text-navy uppercase">
         {mazeLevelName(level)} · {mazeCopy.quality}
       </p>
@@ -361,48 +421,101 @@ function MazeScore({
   )
 }
 
-function DPad({ onSteer }: { onSteer: (dir: Dir) => void }) {
+function CatchPad({
+  level,
+  nextPack,
+  onLeft,
+  onRight,
+  onCatch,
+  onFeed,
+  onPack,
+}: {
+  level: LevelId
+  nextPack: PackNeed | null
+  onLeft: () => void
+  onRight: () => void
+  onCatch: () => void
+  onFeed: () => void
+  onPack: (need: PackNeed) => void
+}) {
+  const packs: PackNeed[] = level === 1 ? ['ice'] : level === 2 ? ['ice', 'seal'] : ['ice', 'band', 'crate']
   return (
-    <div className="maze-pad mx-auto grid w-[12.5rem] grid-cols-3 grid-rows-3 gap-1.5" aria-label={mazeCopy.pad}>
-      <span />
-      <PadButton label={mazeCopy.up} onHold={() => onSteer('up')}>
-        ↑
-      </PadButton>
-      <span />
-      <PadButton label={mazeCopy.left} onHold={() => onSteer('left')}>
-        ←
-      </PadButton>
-      <span />
-      <PadButton label={mazeCopy.right} onHold={() => onSteer('right')}>
-        →
-      </PadButton>
-      <span />
-      <PadButton label={mazeCopy.down} onHold={() => onSteer('down')}>
-        ↓
-      </PadButton>
+    <div className="space-y-2" aria-label={mazeCopy.pad}>
+      <div className="grid grid-cols-4 gap-1.5">
+        <PadButton className="maze-move" label={mazeCopy.left} repeat onHold={onLeft}>
+          ←
+        </PadButton>
+        <PadButton label={mazeCopy.catch} onHold={onCatch}>
+          {mazeCopy.catch}
+        </PadButton>
+        <PadButton label={mazeCopy.feed} onHold={onFeed}>
+          {mazeCopy.feed}
+        </PadButton>
+        <PadButton className="maze-move" label={mazeCopy.right} repeat onHold={onRight}>
+          →
+        </PadButton>
+      </div>
+      <div className={cn('grid gap-1.5', packs.length === 1 ? 'grid-cols-1' : packs.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
+        {packs.map((need) => (
+          <PadButton
+            key={need}
+            label={packButtonLabel(need)}
+            onHold={() => onPack(need)}
+            hot={nextPack === need}
+          >
+            {packButtonLabel(need)}
+          </PadButton>
+        ))}
+      </div>
     </div>
   )
+}
+
+function packButtonLabel(need: PackNeed): string {
+  if (need === 'seal') return mazeCopy.packSeal
+  if (need === 'band') return mazeCopy.packBand
+  if (need === 'crate') return mazeCopy.packCrate
+  return mazeCopy.packIce
 }
 
 function PadButton({
   label,
   onHold,
   children,
+  className,
+  hot = false,
+  repeat = false,
 }: {
   label: string
   onHold: () => void
   children: string
+  className?: string
+  hot?: boolean
+  repeat?: boolean
 }) {
   return (
     <button
       type="button"
       aria-label={label}
       className={cn(
-        'hit-target min-h-12 rounded-2xl border-2 border-navy bg-cream text-xl font-semibold text-navy',
+        'hit-target min-h-12 rounded-2xl border-2 border-navy bg-cream px-2 text-sm font-semibold text-navy',
+        hot && 'bg-accent',
+        className,
       )}
       onPointerDown={(event) => {
         event.preventDefault()
         onHold()
+        if (!repeat) return
+        const button = event.currentTarget
+        button.setPointerCapture(event.pointerId)
+        const tick = window.setInterval(onHold, 90)
+        const stop = () => {
+          window.clearInterval(tick)
+          button.removeEventListener('pointerup', stop)
+          button.removeEventListener('pointercancel', stop)
+        }
+        button.addEventListener('pointerup', stop)
+        button.addEventListener('pointercancel', stop)
       }}
     >
       {children}
@@ -410,7 +523,8 @@ function PadButton({
   )
 }
 
-function snapshot(state: MazeState): Hud {
+function snapshot(state: CatchState): Hud {
+  const lot = state.pack[0]
   return {
     score: state.score,
     freshness: state.freshness,
@@ -419,5 +533,25 @@ function snapshot(state: MazeState): Hud {
     phase: state.phase,
     elapsed: state.elapsed,
     combo: state.combo,
+    hold: state.hold.length,
+    pack: state.pack.length,
+    nextPack: lot ? (lot.needs[lot.step] ?? null) : null,
   }
+}
+
+function cueFor(line: string): void {
+  if (line === mazeCopy.collectIce || line === mazeCopy.caught) playCue('ice')
+  else if (line === mazeCopy.fed || line === mazeCopy.processDone) playCue('gill')
+  else if (line === mazeCopy.packed || line === mazeCopy.packStep) playCue('combo')
+  else if ((mazeCopy.collectGate as readonly string[]).includes(line)) playCue('gill')
+  else if (
+    line === mazeCopy.hit ||
+    line === mazeCopy.drain ||
+    line === mazeCopy.gateMiss ||
+    line === mazeCopy.packMiss ||
+    line === mazeCopy.missSchool ||
+    line === mazeCopy.bayFull
+  ) {
+    playCue('miss')
+  } else if (line === mazeCopy.clear) playCue('seal')
 }

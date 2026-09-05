@@ -1,95 +1,153 @@
 import { FRESHNESS_MAX } from '@/game/puzzles.ts'
 import type { LevelId } from '@/game/types.ts'
-import { cloneGrid, ghostWalkable, loadMaze, playerWalkable, wrapX } from '@/maze/mazes.ts'
-import type { Actor, Dir, Ghost, MazeState } from '@/maze/types.ts'
-import { DIR_VEC, DIRS, OPPOSITE } from '@/maze/types.ts'
 import { mazeCopy } from '@/maze/copy.ts'
+import {
+  BOAT_Y,
+  GATES,
+  INTAKE,
+  OCEAN,
+  type CatchState,
+  type FishKind,
+  type GateId,
+  type HeldFish,
+  type OceanFish,
+  type PackNeed,
+} from '@/maze/types.ts'
 
-const PLAYER_SPEED = 6.2
-const CENTER = 0.16
-const HIT_RANGE = 0.48
-const FRIGHTEN = 6
-const ICE_SLOW = 5
-const CHAIN = 5
-const HIT_STUN = 1.35
+const BOAT_SPEED = 0.92
+const SCOOP_SPEED = 1.45
+const FEED_SPEED = 1.55
+const SCOOP_COOL = 0.28
+const HIT_STUN = 0.9
+const HOLD_WARM = 6.5
+const PACK_WARM = 5.5
+const SPECIAL_Y = 0.09
 
-function ghostSpeed(level: LevelId): number {
-  if (level === 1) return 3.8
-  if (level === 2) return 4.8
-  return 5.6
+function holdCap(level: LevelId): number {
+  return level === 1 ? 1 : 2
+}
+
+function jobCap(level: LevelId): number {
+  return level === 1 ? 2 : 2
+}
+
+function packCap(level: LevelId): number {
+  return level === 1 ? 4 : 3
+}
+
+function processTime(level: LevelId): number {
+  if (level === 1) return 0.62
+  if (level === 2) return 0.78
+  return 0.92
+}
+
+function formSpeed(level: LevelId, alive: number, total: number, pressure: number): number {
+  const base = level === 1 ? 0.07 : level === 2 ? 0.095 : 0.12
+  const thin = 1 + (1 - alive / Math.max(1, total)) * 0.7
+  return base * thin * pressure
+}
+
+function dropStep(level: LevelId): number {
+  return level === 3 ? 0.038 : 0.032
 }
 
 function drainEvery(level: LevelId): number {
   if (level === 1) return 0
-  if (level === 2) return 16
-  return 12
+  if (level === 2) return 15
+  return 11
 }
 
-function hitDrain(level: LevelId): number {
-  return level === 1 ? 1 : 2
+function gridFor(level: LevelId): { cols: number; rows: number } {
+  if (level === 1) return { cols: 5, rows: 2 }
+  if (level === 2) return { cols: 6, rows: 3 }
+  return { cols: 7, rows: 3 }
 }
 
-export function createMaze(level: LevelId, reduced: boolean): MazeState {
-  const grid = cloneGrid(loadMaze(level))
-  let dots = 0
-  let gates = 0
-  for (const row of grid.pickups) {
-    for (const pickup of row) {
-      if (pickup === 'dot') dots += 1
-      if (pickup === 'gate') gates += 1
+function kindAt(level: LevelId, col: number, row: number): { kind: FishKind; gate: GateId | null } {
+  if (level === 3 && row === 0) {
+    const gates: GateId[] = ['boat', 'auction', 'truck', 'kitchen', 'plate']
+    if (col >= 1 && col <= 5) return { kind: 'gate', gate: gates[col - 1] ?? null }
+  }
+  if (level >= 2 && (col + row) % 4 === 0) return { kind: 'ice', gate: null }
+  return { kind: 'lot', gate: null }
+}
+
+function needsFor(level: LevelId, kind: FishKind): PackNeed[] {
+  if (level === 1) return ['ice']
+  if (level === 2) return kind === 'ice' ? ['ice'] : ['seal']
+  return ['ice', 'band', 'crate']
+}
+
+function cellSize(state: CatchState): { cw: number; ch: number } {
+  const span = OCEAN.x1 - OCEAN.x0 - 0.04
+  return {
+    cw: span / Math.max(state.cols, 1),
+    ch: 0.1,
+  }
+}
+
+export function fishPos(state: CatchState, fish: OceanFish): { x: number; y: number } {
+  const { cw, ch } = cellSize(state)
+  return {
+    x: state.formX + fish.col * cw,
+    y: state.formY + fish.row * ch,
+  }
+}
+
+export function createCatch(level: LevelId, reduced: boolean): CatchState {
+  const { cols, rows } = gridFor(level)
+  const fish: OceanFish[] = []
+  let nextId = 1
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const spec = kindAt(level, col, row)
+      fish.push({ id: nextId, col, row, kind: spec.kind, gate: spec.gate, alive: true })
+      nextId += 1
     }
   }
-  const ghosts: Ghost[] = grid.ghosts.map((spawn, index) => ({
-    x: spawn.x,
-    y: spawn.y,
-    dir: 'up',
-    kind: spawn.kind,
-    homeX: spawn.x,
-    homeY: spawn.y,
-    eaten: false,
-    leaveIn: 1.6 + index * 1.6,
-  }))
-
   return {
     level,
-    grid,
-    player: { x: grid.player.x, y: grid.player.y, dir: 'left' },
-    desired: 'left',
-    ghosts,
+    phase: 'ready',
+    announcement: mazeCopy.readyLead[level - 1],
     freshness: FRESHNESS_MAX,
     freshnessMax: FRESHNESS_MAX,
     score: 0,
     combo: 0,
-    ghostChain: 0,
     elapsed: 0,
-    phase: 'ready',
-    announcement: mazeCopy.readyLead[level - 1],
-    frightenLeft: 0,
-    iceSlowLeft: 0,
-    chainLeft: 0,
-    hitLeft: 0,
-    drainAcc: 0,
-    nextGate: 0,
-    dotsLeft: dots,
-    dotsTotal: dots,
-    gatesLeft: gates,
-    ignoreTile: null,
     reduced,
+    playerX: (OCEAN.x0 + OCEAN.x1) / 2,
+    desiredX: (OCEAN.x0 + OCEAN.x1) / 2,
+    scoop: { x: 0.3, y: BOAT_Y, live: false },
+    scoopCool: 0,
+    hold: [],
+    payloads: [],
+    jobs: [],
+    pack: [],
+    fish,
+    cols,
+    rows,
+    formX: OCEAN.x0 + 0.04,
+    formY: 0.12,
+    formDir: 1,
+    dropPending: false,
+    special: null,
+    specialIn: level === 1 ? 18 : 10,
+    nextGate: 0,
+    drainAcc: 0,
+    hitLeft: 0,
+    machineGlow: 0,
+    chew: 0,
+    nextId,
   }
 }
 
-export function queueDir(state: MazeState, dir: Dir): void {
-  state.desired = dir
-  if (state.phase === 'ready') startRun(state)
-}
-
-export function startRun(state: MazeState): void {
+export function startRun(state: CatchState): void {
   if (state.phase !== 'ready') return
   state.phase = 'play'
   state.announcement = mazeCopy.readyTeach[state.level - 1]
 }
 
-export function togglePause(state: MazeState): void {
+export function togglePause(state: CatchState): void {
   if (state.phase === 'play') {
     state.phase = 'pause'
     return
@@ -97,10 +155,95 @@ export function togglePause(state: MazeState): void {
   if (state.phase === 'pause') state.phase = 'play'
 }
 
-export function stepMaze(state: MazeState, dt: number): void {
+export function moveBoat(state: CatchState, dir: 1 | -1): void {
+  if (state.phase === 'ready') startRun(state)
+  const next = state.desiredX + dir * 0.08
+  state.desiredX = clamp(next, OCEAN.x0 + 0.04, OCEAN.x1 - 0.04)
+}
+
+export function aimBoat(state: CatchState, x: number): void {
+  if (state.phase === 'ready') startRun(state)
+  state.desiredX = clamp(x, OCEAN.x0 + 0.04, OCEAN.x1 - 0.04)
+}
+
+export function fireScoop(state: CatchState): void {
+  if (state.phase === 'ready') startRun(state)
+  if (state.phase !== 'play') return
+  if (state.scoop.live || state.scoopCool > 0) return
+  if (state.hold.length >= holdCap(state.level)) {
+    state.announcement = mazeCopy.holdFull
+    return
+  }
+  state.scoop.live = true
+  state.scoop.x = state.playerX
+  state.scoop.y = BOAT_Y - 0.06
+  state.scoopCool = SCOOP_COOL
+}
+
+export function feedHold(state: CatchState): void {
+  if (state.phase === 'ready') startRun(state)
+  if (state.phase !== 'play') return
+  const held = state.hold[0]
+  if (!held) {
+    state.announcement = mazeCopy.emptyHold
+    return
+  }
+  if (state.jobs.length >= jobCap(state.level) && state.payloads.length >= 1) {
+    state.announcement = mazeCopy.machineFull
+    return
+  }
+  if (held.gate && state.level === 3) {
+    const expected = GATES[state.nextGate]
+    if (held.gate !== expected) {
+      state.hold.shift()
+      loseFreshness(state, 1, mazeCopy.gateMiss)
+      return
+    }
+  }
+  state.hold.shift()
+  state.payloads.push({
+    id: held.id,
+    x: state.playerX,
+    y: BOAT_Y - 0.04,
+    kind: held.kind,
+    gate: held.gate,
+  })
+  state.announcement = mazeCopy.fed
+}
+
+export function packLot(state: CatchState, need: PackNeed): void {
+  if (state.phase === 'ready') startRun(state)
+  if (state.phase !== 'play') return
+  const lot = state.pack[0]
+  if (!lot) {
+    state.announcement = mazeCopy.missFeed
+    return
+  }
+  const want = lot.needs[lot.step]
+  if (want !== need) {
+    loseFreshness(state, 1, mazeCopy.packMiss)
+    return
+  }
+  lot.step += 1
+  lot.wait = 0
+  state.combo += 1
+  state.score += 50 + state.combo * 8
+  if (lot.step >= lot.needs.length) {
+    state.pack.shift()
+    state.announcement = mazeCopy.packed
+    state.score += 20
+    return
+  }
+  state.announcement = nextPackLine(lot.needs[lot.step] ?? 'ice')
+}
+
+export function stepCatch(state: CatchState, dt: number): void {
   if (state.phase !== 'play' && state.phase !== 'hit') return
   const capped = Math.min(0.05, Math.max(0, dt))
   state.elapsed += capped * 1000
+  state.scoopCool = Math.max(0, state.scoopCool - capped)
+  state.machineGlow = Math.max(0, state.machineGlow - capped)
+  state.chew = (state.chew + capped * (state.jobs.length > 0 ? 3.2 : 0.6)) % 1
 
   if (state.phase === 'hit') {
     state.hitLeft -= capped
@@ -110,10 +253,6 @@ export function stepMaze(state: MazeState, dt: number): void {
     }
     return
   }
-
-  state.frightenLeft = Math.max(0, state.frightenLeft - capped)
-  state.iceSlowLeft = Math.max(0, state.iceSlowLeft - capped)
-  state.chainLeft = Math.max(0, state.chainLeft - capped)
 
   const drain = drainEvery(state.level)
   if (drain > 0) {
@@ -125,247 +264,248 @@ export function stepMaze(state: MazeState, dt: number): void {
     }
   }
 
-  const pSpeed = PLAYER_SPEED * (state.chainLeft > 0 ? 1.32 : 1)
-  stepActor(state, state.player, state.desired, pSpeed * capped, false)
-  collectAt(state)
+  const pressure = wavePressure(state)
+  stepBoat(state, capped)
+  stepScoop(state, capped)
+  stepSpecial(state, capped)
+  stepPayloads(state, capped)
+  stepJobs(state, capped)
+  stepHoldWarm(state, capped)
+  stepPackWarm(state, capped)
+  stepFormation(state, capped, pressure)
+  if (state.phase !== 'play') return
+  if (cleared(state)) finishClear(state)
+}
 
-  if (state.dotsLeft <= 0 && state.gatesLeft <= 0) {
-    finishClear(state)
+export function qualityFor(state: CatchState): number {
+  return state.score
+}
+
+export function wavePressure(state: CatchState): number {
+  let value = 1
+  if (state.pack.length >= 2) value += 0.22
+  if (state.pack.length >= packCap(state.level) - 1) value += 0.28
+  if (state.jobs.length >= jobCap(state.level)) value += 0.16
+  if (state.hold.length >= holdCap(state.level)) value += 0.1
+  return value
+}
+
+function stepBoat(state: CatchState, dt: number): void {
+  const delta = state.desiredX - state.playerX
+  const max = BOAT_SPEED * dt
+  if (Math.abs(delta) <= max) state.playerX = state.desiredX
+  else state.playerX += Math.sign(delta) * max
+  state.playerX = clamp(state.playerX, OCEAN.x0 + 0.04, OCEAN.x1 - 0.04)
+}
+
+function stepScoop(state: CatchState, dt: number): void {
+  if (!state.scoop.live) return
+  state.scoop.y -= SCOOP_SPEED * dt
+  if (state.scoop.y < OCEAN.y0) {
+    state.scoop.live = false
     return
   }
-
-  const base = ghostSpeed(state.level)
-  for (const ghost of state.ghosts) {
-    stepGhost(state, ghost, capped, base)
-  }
-
-  if (state.hitLeft > 0) return
-  resolveHits(state)
-}
-
-function stepActor(state: MazeState, actor: Actor, desired: Dir, dist: number, asGhost: boolean): void {
-  const centered = nearCenter(actor.x) && nearCenter(actor.y)
-  if (centered || desired === OPPOSITE[actor.dir]) {
-    if (canStep(state, actor, desired, asGhost)) actor.dir = desired
-  }
-  if (!canStep(state, actor, actor.dir, asGhost)) {
-    actor.x = Math.round(actor.x)
-    actor.y = Math.round(actor.y)
-    return
-  }
-  const vec = DIR_VEC[actor.dir]
-  if (vec.x !== 0) actor.y = Math.round(actor.y)
-  if (vec.y !== 0) actor.x = Math.round(actor.x)
-  actor.x += vec.x * dist
-  actor.y += vec.y * dist
-  wrapActor(state, actor)
-  stopAtWall(state, actor, asGhost)
-}
-
-function stopAtWall(state: MazeState, actor: Actor, asGhost: boolean): void {
-  const tx = Math.round(actor.x)
-  const ty = Math.round(actor.y)
-  const vec = DIR_VEC[actor.dir]
-  const aheadX = tx + vec.x
-  const aheadY = ty + vec.y
-  if (canEnter(state, aheadX, aheadY, asGhost)) return
-  if (vec.x > 0 && actor.x > tx) actor.x = tx
-  if (vec.x < 0 && actor.x < tx) actor.x = tx
-  if (vec.y > 0 && actor.y > ty) actor.y = ty
-  if (vec.y < 0 && actor.y < ty) actor.y = ty
-}
-
-function wrapActor(state: MazeState, actor: Actor): void {
-  const cols = state.grid.cols
-  if (actor.x < -0.5) actor.x += cols
-  if (actor.x > cols - 0.5) actor.x -= cols
-}
-
-function canStep(state: MazeState, actor: Actor, dir: Dir, asGhost: boolean): boolean {
-  const tx = Math.round(actor.x)
-  const ty = Math.round(actor.y)
-  const vec = DIR_VEC[dir]
-  return canEnter(state, tx + vec.x, ty + vec.y, asGhost)
-}
-
-function canEnter(state: MazeState, x: number, y: number, asGhost: boolean): boolean {
-  const wx = wrapX(state.grid, x, y)
-  if (wx === null || y < 0 || y >= state.grid.rows) return false
-  return asGhost ? ghostWalkable(state.grid, wx, y) : playerWalkable(state.grid, wx, y)
-}
-
-function nearCenter(value: number): boolean {
-  return Math.abs(value - Math.round(value)) <= CENTER
-}
-
-function collectAt(state: MazeState): void {
-  if (!nearCenter(state.player.x) || !nearCenter(state.player.y)) return
-  const x = Math.round(state.player.x)
-  const y = Math.round(state.player.y)
-  const wx = wrapX(state.grid, x, y)
-  if (wx === null) return
-  const tileKey = `${wx},${y}`
-  if (state.ignoreTile && state.ignoreTile !== tileKey) state.ignoreTile = null
-  const pickup = state.grid.pickups[y][wx]
-  if (!pickup) return
-  if (state.ignoreTile === tileKey) return
-
-  if (pickup === 'gate') {
-    const expected = state.grid.gateOrder[state.nextGate]
-    const actual = state.grid.gates[y][wx]
-    if (actual !== expected) {
-      state.combo = 0
-      state.ignoreTile = tileKey
-      state.freshness = Math.max(0, state.freshness - 1)
-      state.announcement = mazeCopy.gateMiss
-      if (state.freshness <= 0) {
-        state.phase = 'over'
-        state.announcement = mazeCopy.over
-      }
-      return
-    }
-    state.grid.pickups[y][wx] = null
-    state.grid.gates[y][wx] = null
-    state.nextGate += 1
-    state.gatesLeft = Math.max(0, state.gatesLeft - 1)
-    state.score += 100
-    state.combo += 1
-    state.announcement = mazeCopy.collectGate[state.nextGate - 1] ?? mazeCopy.collectGate[0]
-    return
-  }
-
-  state.grid.pickups[y][wx] = null
-  if (pickup === 'dot') {
-    state.dotsLeft = Math.max(0, state.dotsLeft - 1)
-    state.score += 10
-    state.announcement = mazeCopy.collectDot
-    return
-  }
-  if (pickup === 'ice') {
-    state.score += 50
+  if (state.special?.live && near(state.scoop.x, state.scoop.y, state.special.x, state.special.y, 0.045)) {
+    state.special.live = false
+    state.scoop.live = false
     state.freshness = Math.min(state.freshnessMax, state.freshness + 1)
-    state.iceSlowLeft = ICE_SLOW
+    state.score += 50
     state.combo += 1
     state.announcement = mazeCopy.collectIce
     return
   }
-  if (pickup === 'spike') {
-    state.score += 30
-    state.frightenLeft = FRIGHTEN
-    state.ghostChain = 0
-    state.combo += 1
-    state.announcement = mazeCopy.collectSpike
+  for (const fish of state.fish) {
+    if (!fish.alive) continue
+    const pos = fishPos(state, fish)
+    if (!near(state.scoop.x, state.scoop.y, pos.x, pos.y, 0.048)) continue
+    catchFish(state, fish)
     return
   }
-  state.score += 30
-  state.chainLeft = CHAIN
+}
+
+function catchFish(state: CatchState, fish: OceanFish): void {
+  state.scoop.live = false
+  if (state.hold.length >= holdCap(state.level)) {
+    state.announcement = mazeCopy.holdFull
+    return
+  }
+  fish.alive = false
+  const held: HeldFish = { id: fish.id, kind: fish.kind, gate: fish.gate, wait: 0 }
+  state.hold.push(held)
+  state.score += 12
   state.combo += 1
-  state.announcement = mazeCopy.collectChain
+  state.announcement = mazeCopy.caught
 }
 
-function stepGhost(state: MazeState, ghost: Ghost, dt: number, base: number): void {
-  if (ghost.leaveIn > 0 && !ghost.eaten) {
-    ghost.leaveIn -= dt
+function stepSpecial(state: CatchState, dt: number): void {
+  if (state.special?.live) {
+    state.special.x += state.special.vx * dt
+    if (state.special.x < OCEAN.x0 - 0.05 || state.special.x > OCEAN.x1 + 0.05) {
+      state.special.live = false
+    }
     return
   }
-  let speed = base
-  if (ghost.eaten) speed = base * 2.1
-  else if (state.frightenLeft > 0) speed = base * 0.52
-  else if (state.iceSlowLeft > 0) speed = base * 0.58
-  if (inTunnel(state, ghost)) speed *= 0.62
-
-  const target = ghostTarget(state, ghost)
-  const next = pickGhostDir(state, ghost, target)
-  stepActor(state, ghost, next, speed * dt, true)
-
-  if (ghost.eaten && Math.hypot(ghost.x - ghost.homeX, ghost.y - ghost.homeY) < 0.35) {
-    ghost.eaten = false
-    ghost.x = ghost.homeX
-    ghost.y = ghost.homeY
-    ghost.leaveIn = 0.8
+  state.specialIn -= dt
+  if (state.specialIn > 0) return
+  const left = Math.random() < 0.5
+  state.special = {
+    x: left ? OCEAN.x0 - 0.02 : OCEAN.x1 + 0.02,
+    y: SPECIAL_Y,
+    vx: left ? 0.22 : -0.22,
+    live: true,
   }
+  state.specialIn = state.level === 1 ? 20 : 12
 }
 
-function inTunnel(state: MazeState, actor: Actor): boolean {
-  const y = Math.round(actor.y)
-  const x = Math.round(actor.x)
-  return x <= 0 || x >= state.grid.cols - 1 || wrapX(state.grid, -1, y) !== null
-}
-
-function ghostTarget(state: MazeState, ghost: Ghost): { x: number; y: number } {
-  if (ghost.eaten) return { x: ghost.homeX, y: ghost.homeY }
-  const px = state.player.x
-  const py = state.player.y
-  const pdir = DIR_VEC[state.player.dir]
-  const scatter = scatterCorner(state, ghost.kind)
-  const frightened = state.frightenLeft > 0 && !ghost.eaten
-  if (frightened) return scatter
-  if (state.chainLeft > 0) return scatter
-
-  const cycle = state.elapsed / 1000
-  const scatterBeat = cycle < 6 || (cycle > 26 && cycle < 32)
-  if (scatterBeat) return scatter
-
-  if (ghost.kind === 'heat') return { x: px, y: py }
-  if (ghost.kind === 'delay') return { x: px + pdir.x * 4, y: py + pdir.y * 4 }
-  if (ghost.kind === 'bacteria') {
-    const dist = Math.hypot(ghost.x - px, ghost.y - py)
-    return dist > 8 ? { x: px, y: py } : scatter
-  }
-  const heat = state.ghosts.find((item) => item.kind === 'heat') ?? ghost
-  return { x: px * 2 - heat.x, y: py * 2 - heat.y }
-}
-
-function scatterCorner(state: MazeState, kind: Ghost['kind']): { x: number; y: number } {
-  const { cols, rows } = state.grid
-  if (kind === 'heat') return { x: cols - 2, y: 1 }
-  if (kind === 'delay') return { x: 1, y: 1 }
-  if (kind === 'bacteria') return { x: 1, y: rows - 2 }
-  return { x: cols - 2, y: rows - 2 }
-}
-
-function pickGhostDir(state: MazeState, ghost: Ghost, target: { x: number; y: number }): Dir {
-  const centered = nearCenter(ghost.x) && nearCenter(ghost.y)
-  if (!centered) return ghost.dir
-  const reverse = OPPOSITE[ghost.dir]
-  let best: Dir = ghost.dir
-  let bestDist = Number.POSITIVE_INFINITY
-  for (const dir of DIRS) {
-    if (dir === reverse && !ghost.eaten) continue
-    if (!canStep(state, ghost, dir, true)) continue
-    const vec = DIR_VEC[dir]
-    const nx = ghost.x + vec.x
-    const ny = ghost.y + vec.y
-    const dist = (nx - target.x) ** 2 + (ny - target.y) ** 2
-    if (dist < bestDist) {
-      bestDist = dist
-      best = dir
-    }
-  }
-  if (bestDist === Number.POSITIVE_INFINITY) return reverse
-  return best
-}
-
-function resolveHits(state: MazeState): void {
-  for (const ghost of state.ghosts) {
-    if (Math.hypot(ghost.x - state.player.x, ghost.y - state.player.y) > HIT_RANGE) continue
-    if (ghost.eaten) continue
-    if (state.frightenLeft > 0) {
-      ghost.eaten = true
-      state.ghostChain += 1
-      const prize = 200 * 2 ** Math.min(3, state.ghostChain - 1)
-      state.score += prize
-      state.combo += 1
-      state.announcement = mazeCopy.eatGhost
+function stepPayloads(state: CatchState, dt: number): void {
+  const keep: CatchState['payloads'] = []
+  for (const payload of state.payloads) {
+    const dx = INTAKE.x - payload.x
+    const dy = INTAKE.y - payload.y
+    const dist = Math.hypot(dx, dy)
+    const step = FEED_SPEED * dt
+    if (dist <= step + 0.02) {
+      intake(state, payload)
       continue
     }
-    loseFreshness(state, hitDrain(state.level), mazeCopy.hit)
-    ghost.eaten = true
+    payload.x += (dx / dist) * step
+    payload.y += (dy / dist) * step
+    keep.push(payload)
+  }
+  state.payloads = keep
+}
+
+function intake(state: CatchState, payload: CatchState['payloads'][number]): void {
+  if (state.jobs.length >= jobCap(state.level) && state.pack.length >= packCap(state.level)) {
+    loseFreshness(state, 1, mazeCopy.bayFull)
     return
+  }
+  if (payload.gate && state.level === 3 && payload.gate === GATES[state.nextGate]) {
+    state.nextGate += 1
+    state.score += 40
+    state.announcement = mazeCopy.collectGate[state.nextGate - 1] ?? mazeCopy.fed
+  }
+  const total = processTime(state.level)
+  state.jobs.push({
+    id: payload.id,
+    kind: payload.kind,
+    gate: payload.gate,
+    left: total,
+    total,
+  })
+  state.machineGlow = 0.45
+  state.score += 18
+}
+
+function stepJobs(state: CatchState, dt: number): void {
+  const keep: CatchState['jobs'] = []
+  for (const job of state.jobs) {
+    if (state.pack.length >= packCap(state.level)) {
+      keep.push(job)
+      if (state.announcement !== mazeCopy.bayFull) state.announcement = mazeCopy.bayFull
+      continue
+    }
+    job.left -= dt
+    if (job.left > 0) {
+      keep.push(job)
+      continue
+    }
+    state.pack.push({
+      id: job.id,
+      needs: needsFor(state.level, job.kind),
+      step: 0,
+      wait: 0,
+    })
+    state.score += 22
+    state.announcement = mazeCopy.processDone
+    state.machineGlow = 0.35
+  }
+  state.jobs = keep
+}
+
+function stepHoldWarm(state: CatchState, dt: number): void {
+  if (state.level === 1) return
+  for (const held of state.hold) {
+    held.wait += dt
+    if (held.wait >= HOLD_WARM) {
+      held.wait = 0
+      loseFreshness(state, 1, mazeCopy.drain)
+      return
+    }
   }
 }
 
-function loseFreshness(state: MazeState, amount: number, message: string): void {
+function stepPackWarm(state: CatchState, dt: number): void {
+  if (state.level === 1) return
+  for (const lot of state.pack) {
+    lot.wait += dt
+    if (lot.wait >= PACK_WARM) {
+      lot.wait = 0
+      loseFreshness(state, 1, mazeCopy.drain)
+      return
+    }
+  }
+}
+
+function stepFormation(state: CatchState, dt: number, pressure: number): void {
+  const alive = state.fish.filter((fish) => fish.alive)
+  if (alive.length === 0) return
+  const speed = formSpeed(state.level, alive.length, state.fish.length, pressure)
+  if (state.dropPending) {
+    state.formY += dropStep(state.level)
+    state.dropPending = false
+    warnPressure(state, pressure)
+  } else {
+    state.formX += state.formDir * speed * dt
+  }
+
+  let minX = 1
+  let maxX = 0
+  let maxY = 0
+  for (const fish of alive) {
+    const pos = fishPos(state, fish)
+    minX = Math.min(minX, pos.x)
+    maxX = Math.max(maxX, pos.x)
+    maxY = Math.max(maxY, pos.y)
+  }
+  if (maxX > OCEAN.x1 - 0.03) {
+    state.formX -= maxX - (OCEAN.x1 - 0.03)
+    state.formDir = -1
+    state.dropPending = true
+  } else if (minX < OCEAN.x0 + 0.03) {
+    state.formX += OCEAN.x0 + 0.03 - minX
+    state.formDir = 1
+    state.dropPending = true
+  }
+  if (maxY >= BOAT_Y - 0.06) {
+    loseFreshness(state, state.level === 1 ? 1 : 2, mazeCopy.missSchool)
+  }
+}
+
+function warnPressure(state: CatchState, pressure: number): void {
+  if (pressure >= 1.35 && state.pack.length >= 2) {
+    state.announcement = mazeCopy.pressure
+  }
+}
+
+function cleared(state: CatchState): boolean {
+  return (
+    state.fish.every((fish) => !fish.alive) &&
+    !state.scoop.live &&
+    state.hold.length === 0 &&
+    state.payloads.length === 0 &&
+    state.jobs.length === 0 &&
+    state.pack.length === 0
+  )
+}
+
+function finishClear(state: CatchState): void {
+  state.phase = 'clear'
+  state.score += state.freshness * 50 + state.level * 80
+  state.announcement = mazeCopy.clear
+}
+
+function loseFreshness(state: CatchState, amount: number, message: string): void {
   state.freshness = Math.max(0, state.freshness - amount)
   state.combo = 0
   state.announcement = message
@@ -374,12 +514,31 @@ function loseFreshness(state: MazeState, amount: number, message: string): void 
   if (state.phase === 'over') state.announcement = mazeCopy.over
 }
 
-function finishClear(state: MazeState): void {
-  state.phase = 'clear'
-  state.score += state.freshness * 50 + state.level * 80
-  state.announcement = mazeCopy.clear
+function nextPackLine(need: PackNeed): string {
+  if (need === 'seal') return mazeCopy.packSealNeed
+  if (need === 'band') return mazeCopy.packBandNeed
+  if (need === 'crate') return mazeCopy.packCrateNeed
+  return mazeCopy.packIceNeed
 }
 
-export function qualityFor(state: MazeState): number {
-  return state.score
+function near(ax: number, ay: number, bx: number, by: number, r: number): boolean {
+  return Math.hypot(ax - bx, ay - by) <= r
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value))
+}
+
+const _boot = createCatch(1, true)
+if (_boot.fish.length !== 10) throw new Error('Craft school should be 10 fish')
+startRun(_boot)
+fireScoop(_boot)
+if (!_boot.scoop.live) throw new Error('Scoop should fire')
+feedHold(_boot)
+if (_boot.payloads.length !== 0) throw new Error('Empty hold should not feed')
+const _sys = createCatch(2, true)
+if (_sys.fish.length !== 18) throw new Error('Systems school should be 18 fish')
+const _chain = createCatch(3, true)
+if (_chain.fish.filter((fish) => fish.kind === 'gate').length !== 5) {
+  throw new Error('Chain needs five gate fish')
 }

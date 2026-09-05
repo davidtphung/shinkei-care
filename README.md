@@ -2,11 +2,11 @@
 
 A two-cabinet ikejime arcade. Playable in the browser on phone and desktop.
 
-Wordmark: **Sere**. Brand: [Shinkei Systems](https://shinkei.systems). Hub cards open **Care**, **Maze**, and the **Leaderboard**.
+Wordmark: **Sere**. Brand: [Shinkei Systems](https://shinkei.systems). Hub cards open **Care**, **Catch**, and the **Leaderboard**.
 
 This is a skill game. The mascot is an abstract friendly fish. After a Care round it rests on ice. There is no gore and no photoreal slaughter.
 
-Hash routes: `#` hub, `#care`, `#maze`, `#leaderboard`.
+Hash routes: `#` hub, `#care`, `#maze` or `#catch`, `#leaderboard`.
 
 ## Live URL
 
@@ -22,7 +22,7 @@ GitHub is the public mirror.
 
 ## How to play
 
-The hub is the title. Pick Care or Maze. Esc or Hub returns to the title. Mute stays on this device.
+The hub is the title. Pick Care or Catch. Esc or Hub returns to the title. Mute stays on this device.
 
 ### Care
 
@@ -40,22 +40,22 @@ There are three levels. Craft is open first. A first clear of Craft opens System
 
 First-try hits build Combo. Best quality and Best time stay in `localStorage` on this device. No accounts.
 
-### Maze
+### Catch
 
-A Pacman-style window. Arrows or WASD. On a phone, use the pad.
+A Space Invaders-style ocean window. Arrows or A D move the boat. Space or W throws the net. F or Down feeds the machine. On a phone, use Catch, Feed, and the pack buttons.
 
-1. Collect cream freshness dots. Clear the maze to seal the lot.
-2. Ice tokens restore freshness and slow spoilage.
-3. A spike token is brief invulnerability. Eat Heat, Delay, Bacteria, and Rough.
-4. A cold-chain token is a speed buffer. Ghosts scatter.
-5. Touch a ghost without a spike and freshness drops. Zero ends the run.
-6. Craft, Systems, and Chain map boat deck, cold loop, then boat to plate. On Chain, take gates in order: boat, auction, truck, kitchen, plate.
+1. Net fish from the descending school. A clean catch lands them in the boat hold.
+2. Feed held fish into the machine intake. The cabinet runs a short spike, gill, ice beat.
+3. Fish come out the other side. Pack the oldest lot before the bay backs up.
+4. Craft packs Ice. Systems packs Ice or Seal as labeled. Chain packs Ice, then Band, then Crate.
+5. A missed school, a wrong pack, or a warm hold drops freshness. Zero ends the run.
+6. If packaging lags, the school speeds up. That is the bottleneck. On Chain, feed gate fish in order: boat, auction, truck, kitchen, plate.
 
-**MDA.** Mechanics: grid move, dots, ice, spike, cold chain, four spoilage ghosts. Dynamics: Heat chases, Delay aims ahead, Bacteria flees when close, Rough reads the gap. Aesthetics: care at speed. Seremoni quality is the grade.
+**MDA.** Mechanics: move, net, feed, care beat, pack tokens. Dynamics: invaders cadence plus a two-sided handoff. Aesthetics: care at speed. Seremoni quality is the grade.
 
 ### Leaderboard
 
-Top 10 each for Care and Maze. Rank, name (3 to 12 characters), quality, time, level, date. Initials prompt after a personal best. Scores stay in `localStorage` on this device. Copy results exports plain text.
+Top 10 each for Care and Catch. Rank, name (3 to 12 characters), quality, time, level, date. Initials prompt after a personal best. Scores stay in `localStorage` on this device. Copy results exports plain text.
 
 Built by [David T Phung](https://x.com/davidtphung).
 
@@ -81,11 +81,11 @@ npm run preview
 - Only `transform` and `opacity` animate.
 - `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim or flail overshoot. The spike window stays open. Sound starts quiet and can still be unmuted.
 - `prefers-reduced-transparency`: solid cream or navy fills.
-- Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter. Maze uses arrows and WASD. Esc opens Hub or a pause card.
+- Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter. Catch uses arrows or A D, Space to net, F to feed, and 1 to 4 to pack. Esc opens Hub or a pause card.
 - Visible focus rings. Every control has a name, role, and state.
 - Live region announces hits, misses, and the open window.
 - Color is never the only clue. Cool-blue is paired with a shape and a word label.
-- Mobile first from 375px, plus desktop. Safe-area insets. No horizontal trap. Play stages lock page scroll so a drag does not steal the cabinet.
+- Mobile first from 375px, plus desktop. Safe-area insets. No horizontal trap. Care ice and drag stages lock page scroll so a drag does not steal the cabinet. Catch title and score stay scrollable so level buttons stay reachable.
 - Skip to game is the first focusable control.
 
 ## Brand tokens
