@@ -23,9 +23,18 @@ import {
   stepCatch,
   togglePause,
 } from '@/maze/engine.ts'
+import {
+  CATCH_SHORTCUT,
+  FEED_SHORTCUT,
+  LEFT_SHORTCUT,
+  packBadge,
+  packShortcut,
+  readMazeKey,
+  RIGHT_SHORTCUT,
+} from '@/maze/keys.ts'
 import { MazeTitle } from '@/maze/MazeTitle.tsx'
 import { readMazeProgress, writeMazeQuality, writeMazeTime, type MazeProgress } from '@/maze/progress.ts'
-import { PACK_KEYS, type CatchState, type PackNeed } from '@/maze/types.ts'
+import type { CatchState, PackNeed } from '@/maze/types.ts'
 import { cn } from '@/lib/utils.ts'
 
 type Screen = 'title' | 'play' | 'score'
@@ -150,7 +159,8 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      const read = readMazeKey(event)
+      if (read.action?.kind === 'escape') {
         event.preventDefault()
         if (screen === 'title' || screen === 'score') {
           onHub()
@@ -167,39 +177,21 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
         return
       }
       if (screen !== 'play') return
+      if (read.preventDefault) event.preventDefault()
+      const action = read.action
+      if (!action) return
       const state = frameRef.current
       if (!state) return
-      if (event.key === 'ArrowLeft' || event.key === 'a' || event.key === 'A') {
-        event.preventDefault()
-        moveBoat(state, -1)
+      if (action.kind === 'move') {
+        moveBoat(state, action.dir)
         setHud(snapshot(state))
         return
       }
-      if (event.key === 'ArrowRight' || event.key === 'd' || event.key === 'D') {
-        event.preventDefault()
-        moveBoat(state, 1)
-        setHud(snapshot(state))
-        return
-      }
-      if (event.key === ' ' || event.key === 'w' || event.key === 'W' || event.key === 'ArrowUp') {
-        event.preventDefault()
-        void unlockAudio()
-        fireScoop(state)
-        setHud(snapshot(state))
-        return
-      }
-      if (event.key === 'f' || event.key === 'F' || event.key === 'ArrowDown' || event.key === 'Enter') {
-        event.preventDefault()
-        void unlockAudio()
-        feedHold(state)
-        setHud(snapshot(state))
-        return
-      }
-      const pack = PACK_KEYS[event.key]
-      if (!pack) return
-      event.preventDefault()
       void unlockAudio()
-      packLot(state, pack)
+      if (action.kind === 'catch') fireScoop(state)
+      else if (action.kind === 'feed') feedHold(state)
+      else if (action.kind === 'pack') packLot(state, action.need)
+      else packNext(state)
       setHud(snapshot(state))
     }
     window.addEventListener('keydown', onKey)
@@ -442,30 +434,35 @@ function CatchPad({
   return (
     <div className="space-y-2" aria-label={mazeCopy.pad}>
       <div className="grid grid-cols-4 gap-1.5">
-        <PadButton className="maze-move" label={mazeCopy.left} repeat onHold={onLeft}>
+        <PadButton className="maze-move" label={mazeCopy.left} shortcut={LEFT_SHORTCUT} badge="A" repeat onHold={onLeft}>
           ←
         </PadButton>
-        <PadButton label={mazeCopy.catch} onHold={onCatch}>
+        <PadButton label={mazeCopy.catch} shortcut={CATCH_SHORTCUT} badge="C" onHold={onCatch}>
           {mazeCopy.catch}
         </PadButton>
-        <PadButton label={mazeCopy.feed} onHold={onFeed}>
+        <PadButton label={mazeCopy.feed} shortcut={FEED_SHORTCUT} badge="I" onHold={onFeed}>
           {mazeCopy.feed}
         </PadButton>
-        <PadButton className="maze-move" label={mazeCopy.right} repeat onHold={onRight}>
+        <PadButton className="maze-move" label={mazeCopy.right} shortcut={RIGHT_SHORTCUT} badge="D" repeat onHold={onRight}>
           →
         </PadButton>
       </div>
       <div className={cn('grid gap-1.5', packs.length === 1 ? 'grid-cols-1' : packs.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
-        {packs.map((need) => (
-          <PadButton
-            key={need}
-            label={packButtonLabel(need)}
-            onHold={() => onPack(need)}
-            hot={nextPack === need}
-          >
-            {packButtonLabel(need)}
-          </PadButton>
-        ))}
+        {packs.map((need) => {
+          const next = nextPack === need
+          return (
+            <PadButton
+              key={need}
+              label={packButtonLabel(need)}
+              shortcut={packShortcut(need, next)}
+              badge={packBadge(need, next)}
+              onHold={() => onPack(need)}
+              hot={next}
+            >
+              {packButtonLabel(need)}
+            </PadButton>
+          )
+        })}
       </div>
     </div>
   )
@@ -480,6 +477,8 @@ function packButtonLabel(need: PackNeed): string {
 
 function PadButton({
   label,
+  shortcut,
+  badge,
   onHold,
   children,
   className,
@@ -487,6 +486,8 @@ function PadButton({
   repeat = false,
 }: {
   label: string
+  shortcut: string
+  badge: string
   onHold: () => void
   children: string
   className?: string
@@ -496,9 +497,10 @@ function PadButton({
   return (
     <button
       type="button"
-      aria-label={label}
+      aria-label={hot ? `${label}, next needed` : label}
+      aria-keyshortcuts={shortcut}
       className={cn(
-        'hit-target min-h-12 rounded-2xl border-2 border-navy bg-cream px-2 text-sm font-semibold text-navy',
+        'hit-target inline-flex min-h-12 items-center justify-center gap-1 rounded-2xl border-2 border-navy bg-cream px-2 text-sm font-semibold text-navy',
         hot && 'bg-accent',
         className,
       )}
@@ -518,9 +520,22 @@ function PadButton({
         button.addEventListener('pointercancel', stop)
       }}
     >
-      {children}
+      <span className="maze-key" aria-hidden="true">
+        {badge}
+      </span>
+      <span>{children}</span>
     </button>
   )
+}
+
+function packNext(state: CatchState): void {
+  const lot = state.pack[0]
+  const need = lot ? (lot.needs[lot.step] ?? null) : null
+  if (need) {
+    packLot(state, need)
+    return
+  }
+  if (!lot) packLot(state, 'ice')
 }
 
 function snapshot(state: CatchState): Hud {

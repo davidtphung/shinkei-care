@@ -97,8 +97,6 @@ export const GATES: GateId[] = ['boat', 'auction', 'truck', 'kitchen', 'plate']
 
 export const PACK_KEYS: Record<string, PackNeed> = {
   '1': 'ice',
-  i: 'ice',
-  I: 'ice',
   '2': 'seal',
   e: 'seal',
   E: 'seal',
@@ -106,8 +104,6 @@ export const PACK_KEYS: Record<string, PackNeed> = {
   b: 'band',
   B: 'band',
   '4': 'crate',
-  c: 'crate',
-  C: 'crate',
 }
 
 export const OCEAN = { x0: 0.03, x1: 0.56, y0: 0.05, y1: 0.93 }

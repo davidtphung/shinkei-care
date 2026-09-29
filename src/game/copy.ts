@@ -91,6 +91,7 @@ export const copy = {
   skipToGame: 'Skip to game',
 
   howToBody: [
+    'Hit the brain mark, cut the gill, ice the hold.',
     'Hit the brain mark in the six-second window. Aim slightly behind and above the eye, where the gill bone meets the lateral line.',
     'Cut the gill so blood does not sit in the flesh. Poseidon skips the spinal wire.',
     'Ice now. Hold the quality you just protected.',

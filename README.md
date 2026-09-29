@@ -42,7 +42,7 @@ First-try hits build Combo. Best quality and Best time stay in `localStorage` on
 
 ### Catch
 
-A Space Invaders-style ocean window. Arrows or A D move the boat. Space or W throws the net. F or Down feeds the machine. On a phone, use Catch, Feed, and the pack buttons.
+A Space Invaders-style ocean window. Arrows or A D move the boat. Space or C throws the net. F or I feeds the machine. P packs the next item. 1 to 4 pack ice, seal, band, or crate. On a phone, use Catch, Feed, and the pack buttons.
 
 1. Net fish from the descending school. A clean catch lands them in the boat hold.
 2. Feed held fish into the machine intake. The cabinet runs a short spike, gill, ice beat.
@@ -81,7 +81,7 @@ npm run preview
 - Only `transform` and `opacity` animate.
 - `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim or flail overshoot. The spike window stays open. Sound starts quiet and can still be unmuted.
 - `prefers-reduced-transparency`: solid cream or navy fills.
-- Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter. Catch uses arrows or A D, Space to net, F to feed, and 1 to 4 to pack. Esc opens Hub or a pause card.
+- Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter. Catch uses arrows or A D, Space or C to net, F or I to feed, P to pack the next item, and 1 to 4 to pack ice, seal, band, or crate. Esc opens Hub or a pause card.
 - Visible focus rings. Every control has a name, role, and state.
 - Live region announces hits, misses, and the open window.
 - Color is never the only clue. Cool-blue is paired with a shape and a word label.

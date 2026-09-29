@@ -27,7 +27,7 @@ export const hubCopy = {
   howGamesTitle: 'Cabinets',
   howGames: [
     'Care: hit the brain mark, cut the gill, ice the hold. Craft, Systems, Chain.',
-    'Catch: arrows or A D to move. Space nets the school. F feeds the intake. Pack ice, seal, band, or crate on the bay.',
+    'Catch: arrows or A D to move. Space or C nets the school. F or I feeds the intake. P packs the next item. Ice, seal, band, or crate on the bay with 1 to 4.',
   ],
   howTo: 'How to play',
   howToClose: 'Close how to play',

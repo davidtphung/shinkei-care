@@ -145,6 +145,28 @@ html.play-locked body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.maze-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  min-height: 1.15rem;
+  padding: 0 0.22rem;
+  border: 1px solid currentColor;
+  border-radius: 0.28rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .maze-key {
+    display: none;
+  }
+}
+
 .hit-target-drag {
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
