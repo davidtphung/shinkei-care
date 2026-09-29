@@ -2,6 +2,17 @@ import { FRESHNESS_MAX } from '@/game/puzzles.ts'
 import type { LevelId } from '@/game/types.ts'
 import { mazeCopy } from '@/maze/copy.ts'
 import {
+  bayPressureBand,
+  decayPressure,
+  doneLotCount,
+  openLotCount,
+  packCap,
+  pressureTarget,
+  shipMotion,
+  shippedStatus,
+  shouldAutoShip,
+} from '@/maze/ship.ts'
+import {
   BOAT_Y,
   GATES,
   INTAKE,
@@ -29,10 +40,6 @@ function holdCap(level: LevelId): number {
 
 function jobCap(level: LevelId): number {
   return level === 1 ? 2 : 2
-}
-
-function packCap(level: LevelId): number {
-  return level === 1 ? 4 : 3
 }
 
 function processTime(level: LevelId): number {
@@ -123,6 +130,12 @@ export function createCatch(level: LevelId, reduced: boolean): CatchState {
     payloads: [],
     jobs: [],
     pack: [],
+    ship: null,
+    shipped: 0,
+    shipSerial: 0,
+    shipLive: '',
+    pressure: 1,
+    bayNoted: 'ok',
     fish,
     cols,
     rows,
@@ -196,7 +209,7 @@ export function feedHold(state: CatchState): void {
     const expected = GATES[state.nextGate]
     if (held.gate !== expected) {
       state.hold.shift()
-      loseFreshness(state, 1, mazeCopy.gateMiss)
+      loseFreshness(state, 1, mazeCopy.gateAgain)
       return
     }
   }
@@ -213,15 +226,15 @@ export function feedHold(state: CatchState): void {
 
 export function packLot(state: CatchState, need: PackNeed): void {
   if (state.phase === 'ready') startRun(state)
-  if (state.phase !== 'play') return
-  const lot = state.pack[0]
+  if (state.phase !== 'play' || state.ship) return
+  const lot = state.pack.find((item) => !item.done)
   if (!lot) {
-    state.announcement = mazeCopy.missFeed
+    state.announcement = state.pack.length > 0 ? mazeCopy.shipReady : mazeCopy.feedFirst
     return
   }
   const want = lot.needs[lot.step]
   if (want !== need) {
-    loseFreshness(state, 1, mazeCopy.packMiss)
+    loseFreshness(state, 1, mazeCopy.packAgain)
     return
   }
   lot.step += 1
@@ -229,12 +242,24 @@ export function packLot(state: CatchState, need: PackNeed): void {
   state.combo += 1
   state.score += 50 + state.combo * 8
   if (lot.step >= lot.needs.length) {
-    state.pack.shift()
+    lot.done = true
     state.announcement = mazeCopy.packed
     state.score += 20
+    noteBay(state)
+    tryAutoShip(state)
     return
   }
   state.announcement = nextPackLine(lot.needs[lot.step] ?? 'ice')
+}
+
+export function requestShip(state: CatchState): void {
+  if (state.phase === 'ready') startRun(state)
+  if (state.phase !== 'play' || state.ship) return
+  if (doneLotCount(state.pack) === 0) {
+    state.announcement = mazeCopy.shipWait
+    return
+  }
+  beginShip(state)
 }
 
 export function stepCatch(state: CatchState, dt: number): void {
@@ -264,7 +289,7 @@ export function stepCatch(state: CatchState, dt: number): void {
     }
   }
 
-  const pressure = wavePressure(state)
+  state.pressure = decayPressure(state.pressure, pressureTarget(pressureInput(state)), capped)
   stepBoat(state, capped)
   stepScoop(state, capped)
   stepSpecial(state, capped)
@@ -272,8 +297,11 @@ export function stepCatch(state: CatchState, dt: number): void {
   stepJobs(state, capped)
   stepHoldWarm(state, capped)
   stepPackWarm(state, capped)
-  stepFormation(state, capped, pressure)
+  stepFormation(state, capped, state.pressure)
   if (state.phase !== 'play') return
+  tryAutoShip(state)
+  stepShip(state)
+  if (state.ship) return
   if (cleared(state)) finishClear(state)
 }
 
@@ -281,13 +309,17 @@ export function qualityFor(state: CatchState): number {
   return state.score
 }
 
+function pressureInput(state: CatchState) {
+  return {
+    open: openLotCount(state.pack),
+    cap: packCap(state.level),
+    jobsFull: state.jobs.length >= jobCap(state.level),
+    holdFull: state.hold.length >= holdCap(state.level),
+  }
+}
+
 export function wavePressure(state: CatchState): number {
-  let value = 1
-  if (state.pack.length >= 2) value += 0.22
-  if (state.pack.length >= packCap(state.level) - 1) value += 0.28
-  if (state.jobs.length >= jobCap(state.level)) value += 0.16
-  if (state.hold.length >= holdCap(state.level)) value += 0.1
-  return value
+  return state.pressure
 }
 
 function stepBoat(state: CatchState, dt: number): void {
@@ -376,8 +408,8 @@ function stepPayloads(state: CatchState, dt: number): void {
 }
 
 function intake(state: CatchState, payload: CatchState['payloads'][number]): void {
-  if (state.jobs.length >= jobCap(state.level) && state.pack.length >= packCap(state.level)) {
-    loseFreshness(state, 1, mazeCopy.bayFull)
+  if (state.jobs.length >= jobCap(state.level) && openLotCount(state.pack) >= packCap(state.level)) {
+    loseFreshness(state, 1, mazeCopy.bayHolding)
     return
   }
   if (payload.gate && state.level === 3 && payload.gate === GATES[state.nextGate]) {
@@ -400,9 +432,9 @@ function intake(state: CatchState, payload: CatchState['payloads'][number]): voi
 function stepJobs(state: CatchState, dt: number): void {
   const keep: CatchState['jobs'] = []
   for (const job of state.jobs) {
-    if (state.pack.length >= packCap(state.level)) {
+    if (openLotCount(state.pack) >= packCap(state.level)) {
       keep.push(job)
-      if (state.announcement !== mazeCopy.bayFull) state.announcement = mazeCopy.bayFull
+      noteBay(state)
       continue
     }
     job.left -= dt
@@ -415,10 +447,12 @@ function stepJobs(state: CatchState, dt: number): void {
       needs: needsFor(state.level, job.kind),
       step: 0,
       wait: 0,
+      done: false,
     })
     state.score += 22
     state.announcement = mazeCopy.processDone
     state.machineGlow = 0.35
+    noteBay(state)
   }
   state.jobs = keep
 }
@@ -438,6 +472,7 @@ function stepHoldWarm(state: CatchState, dt: number): void {
 function stepPackWarm(state: CatchState, dt: number): void {
   if (state.level === 1) return
   for (const lot of state.pack) {
+    if (lot.done) continue
     lot.wait += dt
     if (lot.wait >= PACK_WARM) {
       lot.wait = 0
@@ -479,15 +514,84 @@ function stepFormation(state: CatchState, dt: number, pressure: number): void {
     const pos = fishPos(state, fish)
     if (pos.y < BOAT_Y - 0.05) continue
     fish.alive = false
-    loseFreshness(state, 1, mazeCopy.missSchool)
+    loseFreshness(state, 1, mazeCopy.railTouch)
     return
   }
 }
 
 function warnPressure(state: CatchState, pressure: number): void {
-  if (pressure >= 1.35 && state.pack.length >= 2) {
+  if (pressure >= 1.2 && openLotCount(state.pack) >= 2 && !state.ship) {
     state.announcement = mazeCopy.pressure
   }
+}
+
+function noteBay(state: CatchState): void {
+  const band = bayPressureBand(openLotCount(state.pack), packCap(state.level))
+  if (band === 'ok') {
+    state.bayNoted = 'ok'
+    return
+  }
+  if (state.bayNoted === band) return
+  state.bayNoted = band
+  state.announcement = band === 'one-left' ? mazeCopy.bayOneLeft : mazeCopy.bayHolding
+}
+
+function tryAutoShip(state: CatchState): void {
+  const cap = packCap(state.level)
+  if (
+    !shouldAutoShip({
+      done: doneLotCount(state.pack),
+      open: openLotCount(state.pack),
+      cap,
+      fishLeft: state.fish.filter((fish) => fish.alive).length,
+      hold: state.hold.length,
+      payloads: state.payloads.length,
+      jobs: state.jobs.length,
+      scoopLive: state.scoop.live,
+      shipping: state.ship !== null,
+    })
+  ) {
+    return
+  }
+  beginShip(state)
+}
+
+function beginShip(state: CatchState): void {
+  const done = state.pack.filter((lot) => lot.done)
+  if (done.length === 0 || state.ship) return
+  const clearBay = openLotCount(state.pack) === 0
+  const note = shippedStatus(done.length, clearBay)
+  state.ship = {
+    ids: done.map((lot) => lot.id),
+    count: done.length,
+    started: state.elapsed,
+    clearBay,
+    note,
+    settled: false,
+  }
+  state.shipped += done.length
+  state.shipSerial += 1
+  state.shipLive = note
+  state.announcement = note
+}
+
+function stepShip(state: CatchState): void {
+  if (!state.ship) return
+  const motion = shipMotion({
+    elapsed: state.elapsed,
+    started: state.ship.started,
+    count: state.ship.count,
+    reduced: state.reduced,
+    clearBay: state.ship.clearBay,
+  })
+  if (!motion.done) return
+  if (!state.ship.settled) {
+    state.ship.settled = true
+    return
+  }
+  const ids = new Set(state.ship.ids)
+  state.pack = state.pack.filter((lot) => !ids.has(lot.id))
+  state.ship = null
 }
 
 function cleared(state: CatchState): boolean {
@@ -497,7 +601,8 @@ function cleared(state: CatchState): boolean {
     state.hold.length === 0 &&
     state.payloads.length === 0 &&
     state.jobs.length === 0 &&
-    state.pack.length === 0
+    state.pack.length === 0 &&
+    state.ship === null
   )
 }
 
@@ -548,5 +653,18 @@ const _rail = createCatch(1, true)
 startRun(_rail)
 _rail.formY = 0.9
 stepCatch(_rail, 0.016)
-if (_rail.freshness !== 5) throw new Error('A rail miss should drain one freshness')
-if (_rail.fish.filter((fish) => fish.alive).length !== 9) throw new Error('A rail miss should take one fish')
+if (_rail.freshness !== 5) throw new Error('A fish at the rail should lower freshness by one')
+if (_rail.fish.filter((fish) => fish.alive).length !== 9) throw new Error('A fish at the rail should leave the school')
+const _bay = createCatch(1, true)
+startRun(_bay)
+for (let i = 0; i < 4; i += 1) {
+  _bay.pack.push({ id: 100 + i, needs: ['ice'], step: 1, wait: 0, done: true })
+}
+stepCatch(_bay, 0.016)
+if (!_bay.ship || _bay.ship.count !== 4 || _bay.shipped !== 4) throw new Error('A bay of done lots should ship together')
+const _last = createCatch(1, true)
+startRun(_last)
+for (const fish of _last.fish) fish.alive = false
+_last.pack.push({ id: 7, needs: ['ice'], step: 1, wait: 0, done: true })
+stepCatch(_last, 0.016)
+if (!_last.ship || _last.ship.count !== 1) throw new Error('The last packed fish should ship the bay')

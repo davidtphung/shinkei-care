@@ -49,7 +49,19 @@ export type PackLot = {
   needs: PackNeed[]
   step: number
   wait: number
+  done: boolean
 }
+
+export type ShipRun = {
+  ids: number[]
+  count: number
+  started: number
+  clearBay: boolean
+  note: string
+  settled: boolean
+}
+
+export type BayNote = 'ok' | 'one-left' | 'holding'
 
 export type Special = {
   x: number
@@ -76,6 +88,12 @@ export type CatchState = {
   payloads: Payload[]
   jobs: MachineJob[]
   pack: PackLot[]
+  ship: ShipRun | null
+  shipped: number
+  shipSerial: number
+  shipLive: string
+  pressure: number
+  bayNoted: BayNote
   fish: OceanFish[]
   cols: number
   rows: number

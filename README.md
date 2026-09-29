@@ -28,30 +28,31 @@ The hub is the title. Pick Care or Catch. Esc or Hub returns to the title. Mute 
 
 Each Care round has three short arcade stages. Same cream cards, pixel tiles, and cooler drop as the live cabinet. Juice is timing, combo, and a six-second pulse.
 
-1. **Spike.** One cream card holds a silvery side-view fish with a readable eye and gill plate. The brain mark sits slightly behind and above the eye, toward the center of the head, where the gill-shaped bone meets the lateral line. A cool-blue ring, a Brain / Now label, and a six-second pulse fill that mark. Hit it when it says Now. A clean hit opens the mouth, then a short wiggle settles it, fins flare, and the fish goes still. A miss says Early, Late, High, or Try that window. Freshness drops. The fish stays intact.
+1. **Spike.** One cream card holds a silvery side-view fish with a readable eye and gill plate. The brain mark sits slightly behind and above the eye, toward the center of the head, where the gill-shaped bone meets the lateral line. A cool-blue ring, a Brain / Now label, and a six-second pulse fill that mark. Hit it when it says Now. A clean hit opens the mouth, then a short wiggle settles it, fins flare, and the fish goes still. A gentle try says Early, Late, High, or Try that window. Freshness drops. The fish stays intact.
 2. **Gill.** Same cream-card grammar on the fish. Tap the Gill ring on the membrane (cool-blue ring plus a word label). Cut the gill so blood does not sit in the flesh. One line notes that traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.
 3. **Ice.** Ice tokens on the left. Dashed cooler drop zone. Drag ice onto the cooler, or tap ice then tap the cooler. Arrow keys choose a token. Enter places it. Ice now. Hold the quality you just protected.
 
-Arcade cues are original Web Audio ticks (window, spike, miss, gill, ice, combo, seal). Mute stays on this device. `prefers-reduced-motion` starts quiet and still lets you unmute.
+Arcade cues are original Web Audio ticks (window, spike, again, gill, ice, combo, seal, ship). Mute stays on this device. `prefers-reduced-motion` starts quiet and still lets you unmute.
 
 Then a freshness seal, a rest on ice, and a **Seremoni quality** result. That is Shinkei's own quality bar for the fish, not an outside certification. Rank labels stay kind: Clean Spike, Steady Hands, Six-Second Crew.
 
-There are three levels. Craft is open first. A first clear of Craft opens Systems. A first clear of Systems opens Chain. Each level stores its own Best quality and Best time. The race clock starts on Play and stops on the result screen. Misses still count.
+There are three levels. Craft is open first. A first clear of Craft opens Systems. A first clear of Systems opens Chain. Each level stores its own Best quality and Best time. The race clock starts on Play and stops on the result screen. A gentle try still changes the quality.
 
 First-try hits build Combo. Best quality and Best time stay in `localStorage` on this device. No accounts.
 
 ### Catch
 
-A Space Invaders-style ocean window. Arrows or A D move the boat. Space or C throws the net. F or I feeds the machine. P packs the next item. 1 to 4 pack ice, seal, band, or crate. On a phone, use Catch, Feed, and the pack buttons.
+A Space Invaders-style ocean window. Arrows or A D move the boat. Space or C throws the net. F or I feeds the machine. P packs the next item. S ships done lots. 1 to 4 pack ice, seal, band, or crate. On a phone, use Catch, Feed, Ship, and the pack buttons.
 
 1. Net fish from the descending school. A clean catch lands them in the boat hold.
 2. Feed held fish into the machine intake. The cabinet runs a short spike, gill, ice beat.
-3. Fish come out the other side. Pack the oldest lot before the bay backs up.
+3. Fish come out the other side. Pack the oldest open lot. Done lots stay in the bay.
 4. Craft packs Ice. Systems packs Ice or Seal as labeled. Chain packs Ice, then Band, then Crate.
-5. A missed school, a wrong pack, or a warm hold drops freshness. Zero ends the run.
-6. If packaging lags, the school speeds up. That is the bottleneck. On Chain, feed gate fish in order: boat, auction, truck, kitchen, plate.
+5. The bay ships on its own when every spot is a done lot, or when the last fish is packed. S or Ship sends the done lots together. A counter rises by that count.
+6. A fish at the rail, a different pack, or a warm hold lowers freshness. At zero, try that run again.
+7. A busy bay speeds the school a little, then the pace settles when you pack or ship. The bay shows its open spots, and warns when one spot is left. On Chain, feed gate fish in order: boat, auction, truck, kitchen, plate.
 
-**MDA.** Mechanics: move, net, feed, care beat, pack tokens. Dynamics: invaders cadence plus a two-sided handoff. Aesthetics: care at speed. Seremoni quality is the grade.
+**MDA.** Mechanics: move, net, feed, care beat, pack tokens, ship the done bay. Dynamics: invaders cadence plus a two-sided handoff. Aesthetics: care at speed. Seremoni quality is the grade.
 
 ### Leaderboard
 
@@ -81,9 +82,9 @@ npm run preview
 - Only `transform` and `opacity` animate.
 - `prefers-reduced-motion`: cross-fades, no full-viewport motion, no swim or flail overshoot. The spike window stays open. Sound starts quiet and can still be unmuted.
 - `prefers-reduced-transparency`: solid cream or navy fills.
-- Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter. Catch uses arrows or A D, Space or C to net, F or I to feed, P to pack the next item, and 1 to 4 to pack ice, seal, band, or crate. Esc opens Hub or a pause card.
+- Full keyboard path. Space or Enter spikes and cuts. Ice still uses arrows and Enter. Catch uses arrows or A D, Space or C to net, F or I to feed, P to pack the next item, S to ship done lots, and 1 to 4 to pack ice, seal, band, or crate. Esc opens Hub or a pause card.
 - Visible focus rings. Every control has a name, role, and state.
-- Live region announces hits, misses, and the open window.
+- Live region announces hits, a gentle try, the open window, and each Catch shipment once.
 - Color is never the only clue. Cool-blue is paired with a shape and a word label.
 - Mobile first from 375px, plus desktop. Safe-area insets. No horizontal trap. Care ice and drag stages lock page scroll so a drag does not steal the cabinet. Catch title and score stay scrollable so level buttons stay reachable.
 - Skip to game is the first focusable control.

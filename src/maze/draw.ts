@@ -1,5 +1,6 @@
 import { mazeCopy, packLabel } from '@/maze/copy.ts'
 import { fishPos } from '@/maze/engine.ts'
+import { openLotCount, packCap, shipMotion } from '@/maze/ship.ts'
 import { INTAKE, MACHINE, OCEAN, OUTPUT, PACK_BAY, type CatchState, type PackNeed } from '@/maze/types.ts'
 
 const NAVY = '#0b1424'
@@ -133,36 +134,108 @@ function drawPackBay(ctx: CanvasRenderingContext2D, width: number, height: numbe
   const y = PACK_BAY.y0 * height
   const w = (PACK_BAY.x1 - PACK_BAY.x0) * width
   const h = (PACK_BAY.y1 - PACK_BAY.y0) * height
+  const cap = packCap(state.level)
+  const open = openLotCount(state.pack)
+  const motion = state.ship
+    ? shipMotion({
+        elapsed: state.elapsed,
+        started: state.ship.started,
+        count: state.ship.count,
+        reduced: state.reduced,
+        clearBay: state.ship.clearBay,
+      })
+    : null
+  const slideFor = new Map<number, number>()
+  if (state.ship && motion) {
+    state.ship.ids.forEach((id, index) => {
+      slideFor.set(id, motion.slide[index] ?? 0)
+    })
+  }
+  const oneLeft = !state.ship && cap > 1 && open === cap - 1
+  const firstOpen = state.pack.findIndex((lot) => !lot.done)
+
   ctx.fillStyle = '#141c28'
   roundRect(ctx, x, y, w, h, 16)
   ctx.fill()
-  ctx.strokeStyle = BAND
+  if (motion && motion.glow > 0) {
+    ctx.strokeStyle = `rgba(255, 235, 208, ${0.35 + motion.glow * 0.65})`
+    ctx.lineWidth = 2 + motion.glow * 4
+    roundRect(ctx, x, y, w, h, 16)
+    ctx.stroke()
+  }
+  ctx.strokeStyle = oneLeft ? ACCENT : BAND
   ctx.lineWidth = 2
+  roundRect(ctx, x, y, w, h, 16)
   ctx.stroke()
+
+  ctx.save()
+  roundRect(ctx, x, y, w, h, 16)
+  ctx.clip()
+
+  const header = oneLeft ? 46 : 28
+  if (state.pack.length > 0) {
+    const slotH = Math.min(64, (h - header - 28) / Math.max(state.pack.length, 1) - 6)
+    state.pack.forEach((lot, index) => {
+      const slide = slideFor.get(lot.id) ?? 0
+      const sy = y + header + index * (slotH + 6)
+      ctx.save()
+      ctx.translate(slide * (w + 12), 0)
+      ctx.fillStyle = lot.done ? 'rgba(61, 143, 181, 0.92)' : index === firstOpen ? CREAM : 'rgba(255, 235, 208, 0.72)'
+      roundRect(ctx, x + 8, sy, w - 16, slotH, 10)
+      ctx.fill()
+      ctx.fillStyle = NAVY
+      ctx.font = '700 12px Outfit, sans-serif'
+      ctx.textAlign = 'left'
+      const need = lot.needs[lot.step] ?? lot.needs[0]
+      ctx.fillText(lot.done ? mazeCopy.bayDone : packLabel(need), x + 16, sy + slotH / 2 + 4)
+      if (!lot.done) drawNeedDots(ctx, x + w - 28, sy + slotH / 2, lot.needs, lot.step)
+      ctx.restore()
+    })
+  }
+
+  const clearAlpha = state.pack.length === 0 ? 1 : (motion?.bayClear ?? 0)
+  if (clearAlpha > 0) {
+    ctx.save()
+    ctx.globalAlpha = clearAlpha
+    ctx.fillStyle = 'rgba(255, 235, 208, 0.7)'
+    ctx.font = '500 11px Outfit, sans-serif'
+    ctx.textAlign = 'left'
+    ctx.fillText(mazeCopy.bayClear, x + 10, y + header + 14)
+    ctx.restore()
+  }
+
+  if (motion && motion.chipOpacity > 0 && motion.chipCount > 0) {
+    const label = mazeCopy.shippedCount(motion.chipCount)
+    ctx.save()
+    ctx.globalAlpha = motion.chipOpacity
+    ctx.font = '700 12px Outfit, sans-serif'
+    const chipW = ctx.measureText(label).width + 16
+    const chipH = 22
+    const chipX = x + (w - chipW) / 2
+    const chipY = y + h - chipH - 10
+    ctx.fillStyle = CREAM
+    roundRect(ctx, chipX, chipY, chipW, chipH, 11)
+    ctx.fill()
+    ctx.fillStyle = NAVY
+    ctx.textAlign = 'center'
+    ctx.fillText(label, chipX + chipW / 2, chipY + 15)
+    ctx.restore()
+  }
+
+  ctx.restore()
+
   ctx.fillStyle = CREAM
   ctx.font = '600 11px Outfit, sans-serif'
   ctx.textAlign = 'left'
   ctx.fillText('PACK', x + 10, y + 16)
-
-  if (state.pack.length === 0) {
-    ctx.fillStyle = 'rgba(255, 235, 208, 0.45)'
-    ctx.font = '500 11px Outfit, sans-serif'
-    ctx.fillText('Bay clear', x + 10, y + 40)
-    return
-  }
-  const slotH = Math.min(64, (h - 32) / Math.max(state.pack.length, 1) - 6)
-  state.pack.forEach((lot, index) => {
-    const sy = y + 26 + index * (slotH + 6)
-    ctx.fillStyle = index === 0 ? CREAM : 'rgba(255, 235, 208, 0.72)'
-    roundRect(ctx, x + 8, sy, w - 16, slotH, 10)
-    ctx.fill()
-    ctx.fillStyle = NAVY
-    ctx.font = '700 12px Outfit, sans-serif'
+  ctx.textAlign = 'right'
+  ctx.fillStyle = oneLeft ? ACCENT : CREAM
+  ctx.fillText(`${open}/${cap}`, x + w - 10, y + 16)
+  if (oneLeft) {
+    ctx.font = '600 10px Outfit, sans-serif'
     ctx.textAlign = 'left'
-    const need = lot.needs[lot.step] ?? lot.needs[0]
-    ctx.fillText(packLabel(need), x + 16, sy + slotH / 2 + 4)
-    drawNeedDots(ctx, x + w - 28, sy + slotH / 2, lot.needs, lot.step)
-  })
+    ctx.fillText('One left', x + 10, y + 32)
+  }
 }
 
 function drawNeedDots(

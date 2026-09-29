@@ -67,7 +67,7 @@ export function StageGates({
               live={index === current}
               done={index < current}
               onPick={() => {
-                haptic(index === current ? 'success' : 'miss')
+                haptic(index === current ? 'success' : 'again')
                 onGate(index)
               }}
             />

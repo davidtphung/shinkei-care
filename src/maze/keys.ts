@@ -4,6 +4,7 @@ export const CATCH_SHORTCUT = 'C Space W ArrowUp'
 export const FEED_SHORTCUT = 'I F ArrowDown Enter'
 export const LEFT_SHORTCUT = 'ArrowLeft A'
 export const RIGHT_SHORTCUT = 'ArrowRight D'
+export const SHIP_SHORTCUT = 'S'
 
 const PACK_NUMBER: Record<PackNeed, string> = {
   ice: '1',
@@ -24,6 +25,7 @@ export type MazeShortcut =
   | { kind: 'feed' }
   | { kind: 'pack'; need: PackNeed }
   | { kind: 'pack-next' }
+  | { kind: 'ship' }
 
 export type MazeKeyEvent = {
   key: string
@@ -63,13 +65,14 @@ function actionFor(key: string): MazeShortcut | null {
     return { kind: 'feed' }
   }
   if (key === 'p' || key === 'P') return { kind: 'pack-next' }
+  if (key === 's' || key === 'S') return { kind: 'ship' }
   const pack = PACK_KEYS[key]
   if (pack) return { kind: 'pack', need: pack }
   return null
 }
 
 // C catches and I feeds. Numbers 1 to 4 still pack ice, seal, band, and crate.
-// E still seals and B still bands. P packs the highlighted next item.
+// E still seals and B still bands. P packs the highlighted next item. S ships done lots.
 // A held move key repeats so the boat keeps steering. Other shortcuts do not repeat.
 export function readMazeKey(event: MazeKeyEvent): MazeKeyRead {
   if (event.metaKey || event.ctrlKey || event.altKey || typingTarget(event.target)) {

@@ -1,4 +1,4 @@
-export type HapticKind = 'start' | 'success' | 'miss'
+export type HapticKind = 'start' | 'success' | 'again'
 
 export function haptic(kind: HapticKind) {
   try {

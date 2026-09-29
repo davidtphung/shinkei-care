@@ -31,6 +31,9 @@ describe('Catch keyboard', () => {
     }
     assert.deepEqual(press('p').action, { kind: 'pack-next' })
     assert.deepEqual(press('P').action, { kind: 'pack-next' })
+    assert.deepEqual(press('s').action, { kind: 'ship' })
+    assert.deepEqual(press('S').action, { kind: 'ship' })
+    assert.equal(press('s', { repeat: true }).action, null)
     assert.equal(PACK_KEYS.c, undefined)
     assert.equal(PACK_KEYS.C, undefined)
     assert.equal(PACK_KEYS.i, undefined)

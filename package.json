@@ -7,7 +7,7 @@
     "dev": "vite --host --port 4721",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "test": "node --experimental-strip-types --test tests/maze-keys.test.ts",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
     "preview": "vite preview --host --port 4721"
   },
   "dependencies": {

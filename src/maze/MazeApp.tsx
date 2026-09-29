@@ -19,6 +19,7 @@ import {
   moveBoat,
   packLot,
   qualityFor,
+  requestShip,
   startRun,
   stepCatch,
   togglePause,
@@ -31,7 +32,9 @@ import {
   packShortcut,
   readMazeKey,
   RIGHT_SHORTCUT,
+  SHIP_SHORTCUT,
 } from '@/maze/keys.ts'
+import { shipMotion } from '@/maze/ship.ts'
 import { MazeTitle } from '@/maze/MazeTitle.tsx'
 import { readMazeProgress, writeMazeQuality, writeMazeTime, type MazeProgress } from '@/maze/progress.ts'
 import type { CatchState, PackNeed } from '@/maze/types.ts'
@@ -49,6 +52,8 @@ type Hud = {
   hold: number
   pack: number
   nextPack: PackNeed | null
+  shipped: number
+  shipReady: boolean
 }
 
 type Props = {
@@ -64,6 +69,8 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
   const rafRef = useRef(0)
   const endedRef = useRef(false)
   const lastCueRef = useRef('')
+  const lastShipRef = useRef(0)
+  const [shipNote, setShipNote] = useState({ serial: 0, text: '' })
   const [screen, setScreen] = useState<Screen>('title')
   const [level, setLevel] = useState<LevelId>(1)
   const [progress, setProgress] = useState<MazeProgress>(() => readMazeProgress())
@@ -101,7 +108,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
       newBestTime: time.isNew,
       prompt,
     })
-    playCue(state.phase === 'clear' ? 'seal' : 'miss')
+    playCue(state.phase === 'clear' ? 'seal' : 'again')
     setScreen('score')
     stopLoop()
   }
@@ -110,6 +117,8 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
     void unlockAudio()
     stopLoop()
     endedRef.current = false
+    lastShipRef.current = 0
+    setShipNote({ serial: 0, text: '' })
     setLevel(nextLevel)
     setResult(null)
     const state = createCatch(nextLevel, reduced)
@@ -136,6 +145,11 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
       if (state.announcement !== before && state.announcement !== lastCueRef.current) {
         lastCueRef.current = state.announcement
         cueFor(state.announcement)
+      }
+      if (state.shipSerial !== lastShipRef.current) {
+        lastShipRef.current = state.shipSerial
+        setShipNote({ serial: state.shipSerial, text: state.shipLive })
+        if (state.shipLive) playCue('ship')
       }
       const rect = canvas.getBoundingClientRect()
       const dpr = Math.min(2, window.devicePixelRatio || 1)
@@ -191,6 +205,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
       if (action.kind === 'catch') fireScoop(state)
       else if (action.kind === 'feed') feedHold(state)
       else if (action.kind === 'pack') packLot(state, action.need)
+      else if (action.kind === 'ship') requestShip(state)
       else packNext(state)
       setHud(snapshot(state))
     }
@@ -243,12 +258,16 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
             {mazeLevelName(level)}
           </p>
           <p className="text-xl font-semibold text-navy">{mazeCopy.quality}</p>
+          <p className="text-sm font-semibold text-navy tabular-nums">{mazeCopy.shippedCount(hud?.shipped ?? 0)}</p>
         </div>
         <p className="text-3xl font-semibold text-navy tabular-nums">{hud?.score ?? 0}</p>
       </div>
       {hud ? <FreshnessMeter value={hud.freshness} max={hud.freshnessMax} /> : null}
       <p className="stage-announce min-h-11 rounded-2xl bg-cream px-4 py-2 text-center text-base font-semibold text-navy" aria-live="polite">
         {hud?.announcement ?? ''}
+      </p>
+      <p key={shipNote.serial} className="sr-only" role="status" aria-live="polite">
+        {shipNote.text}
       </p>
       <div className="maze-window relative overflow-hidden rounded-3xl border-4 border-cream bg-ink shadow-xl">
         <canvas
@@ -306,6 +325,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
       <CatchPad
         level={level}
         nextPack={hud?.nextPack ?? null}
+        shipReady={hud?.shipReady ?? false}
         onLeft={() => {
           const state = frameRef.current
           if (!state) return
@@ -337,6 +357,13 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
           if (!state) return
           void unlockAudio()
           packLot(state, need)
+          setHud(snapshot(state))
+        }}
+        onShip={() => {
+          const state = frameRef.current
+          if (!state) return
+          void unlockAudio()
+          requestShip(state)
           setHud(snapshot(state))
         }}
       />
@@ -416,19 +443,23 @@ function MazeScore({
 function CatchPad({
   level,
   nextPack,
+  shipReady,
   onLeft,
   onRight,
   onCatch,
   onFeed,
   onPack,
+  onShip,
 }: {
   level: LevelId
   nextPack: PackNeed | null
+  shipReady: boolean
   onLeft: () => void
   onRight: () => void
   onCatch: () => void
   onFeed: () => void
   onPack: (need: PackNeed) => void
+  onShip: () => void
 }) {
   const packs: PackNeed[] = level === 1 ? ['ice'] : level === 2 ? ['ice', 'seal'] : ['ice', 'band', 'crate']
   return (
@@ -464,6 +495,17 @@ function CatchPad({
           )
         })}
       </div>
+      <PadButton
+        className="w-full"
+        label={mazeCopy.ship}
+        shortcut={SHIP_SHORTCUT}
+        badge="S"
+        onHold={onShip}
+        hot={shipReady}
+        hotSuffix=", ready"
+      >
+        {mazeCopy.ship}
+      </PadButton>
     </div>
   )
 }
@@ -483,6 +525,7 @@ function PadButton({
   children,
   className,
   hot = false,
+  hotSuffix = ', next needed',
   repeat = false,
 }: {
   label: string
@@ -492,12 +535,13 @@ function PadButton({
   children: string
   className?: string
   hot?: boolean
+  hotSuffix?: string
   repeat?: boolean
 }) {
   return (
     <button
       type="button"
-      aria-label={hot ? `${label}, next needed` : label}
+      aria-label={hot ? `${label}${hotSuffix}` : label}
       aria-keyshortcuts={shortcut}
       className={cn(
         'hit-target inline-flex min-h-12 items-center justify-center gap-1 rounded-2xl border-2 border-navy bg-cream px-2 text-sm font-semibold text-navy',
@@ -529,17 +573,29 @@ function PadButton({
 }
 
 function packNext(state: CatchState): void {
-  const lot = state.pack[0]
+  const lot = state.pack.find((item) => !item.done)
   const need = lot ? (lot.needs[lot.step] ?? null) : null
   if (need) {
     packLot(state, need)
     return
   }
-  if (!lot) packLot(state, 'ice')
+  packLot(state, 'ice')
+}
+
+function shownShipped(state: CatchState): number {
+  if (!state.ship) return state.shipped
+  const motion = shipMotion({
+    elapsed: state.elapsed,
+    started: state.ship.started,
+    count: state.ship.count,
+    reduced: state.reduced,
+    clearBay: state.ship.clearBay,
+  })
+  return state.shipped - state.ship.count + motion.chipCount
 }
 
 function snapshot(state: CatchState): Hud {
-  const lot = state.pack[0]
+  const lot = state.pack.find((item) => !item.done)
   return {
     score: state.score,
     freshness: state.freshness,
@@ -551,6 +607,8 @@ function snapshot(state: CatchState): Hud {
     hold: state.hold.length,
     pack: state.pack.length,
     nextPack: lot ? (lot.needs[lot.step] ?? null) : null,
+    shipped: shownShipped(state),
+    shipReady: state.ship === null && state.pack.some((item) => item.done),
   }
 }
 
@@ -562,11 +620,11 @@ function cueFor(line: string): void {
   else if (
     line === mazeCopy.hit ||
     line === mazeCopy.drain ||
-    line === mazeCopy.gateMiss ||
-    line === mazeCopy.packMiss ||
-    line === mazeCopy.missSchool ||
-    line === mazeCopy.bayFull
+    line === mazeCopy.packAgain ||
+    line === mazeCopy.gateAgain ||
+    line === mazeCopy.railTouch ||
+    line === mazeCopy.over
   ) {
-    playCue('miss')
+    playCue('again')
   } else if (line === mazeCopy.clear) playCue('seal')
 }

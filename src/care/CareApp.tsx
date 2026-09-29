@@ -178,7 +178,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
     if (spikeLock.current) return 'hit'
     const timing = judgeSpike(progressValue, reduced, onTarget)
     if (timing !== 'hit') {
-      playCue('miss')
+      playCue('again')
       setGame((prev) => ({
         ...prev,
         spikeAttempts: prev.spikeAttempts + 1,
@@ -242,7 +242,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
   }
 
   const gillMiss = () => {
-    playCue('miss')
+    playCue('again')
     setGame((prev) => ({
       ...prev,
       gillAttempts: prev.gillAttempts + 1,
@@ -295,7 +295,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
   }
 
   const missIce = () => {
-    playCue('miss')
+    playCue('again')
     setGame((prev) => ({
       ...prev,
       iceMisses: prev.iceMisses + 1,
@@ -345,7 +345,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
       }
     })
     if (missed) {
-      playCue('miss')
+      playCue('again')
       return
     }
     playCue('spike')
@@ -394,7 +394,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
   }
 
   const missLot = () => {
-    playCue('miss')
+    playCue('again')
     setGame((prev) => ({
       ...prev,
       freshness: Math.max(0, prev.freshness - drainFor(prev.level)),

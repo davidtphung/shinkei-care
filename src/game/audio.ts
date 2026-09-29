@@ -1,4 +1,4 @@
-export type Cue = 'confirm' | 'window' | 'spike' | 'miss' | 'gill' | 'ice' | 'combo' | 'seal'
+export type Cue = 'confirm' | 'window' | 'spike' | 'again' | 'gill' | 'ice' | 'combo' | 'seal' | 'ship'
 
 type Tone = {
   freq: number
@@ -101,9 +101,14 @@ export function playCue(cue: Cue): void {
       tone(ac, { freq: 523, dur: 0.11, type: 'triangle', gain: 0.22, at: t + 0.05 })
       tone(ac, { freq: 784, dur: 0.16, type: 'sine', gain: 0.2, at: t + 0.11 })
       break
-    case 'miss':
-      tone(ac, { freq: 196, dur: 0.16, type: 'square', gain: 0.18, at: t, slide: 110 })
-      tone(ac, { freq: 98, dur: 0.2, type: 'triangle', gain: 0.2, at: t + 0.02 })
+    case 'again':
+      tone(ac, { freq: 440, dur: 0.08, type: 'sine', gain: 0.12, at: t })
+      tone(ac, { freq: 554, dur: 0.11, type: 'sine', gain: 0.1, at: t + 0.07 })
+      break
+    case 'ship':
+      tone(ac, { freq: 392, dur: 0.1, type: 'sine', gain: 0.16, at: t })
+      tone(ac, { freq: 494, dur: 0.12, type: 'sine', gain: 0.16, at: t + 0.09 })
+      tone(ac, { freq: 587, dur: 0.16, type: 'triangle', gain: 0.18, at: t + 0.18 })
       break
     case 'gill':
       tone(ac, { freq: 698, dur: 0.07, type: 'sawtooth', gain: 0.14, at: t, slide: 420 })
