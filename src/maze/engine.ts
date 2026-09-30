@@ -1,3 +1,4 @@
+import { easeFreshness, lowerFreshness, raiseFreshness } from '@/game/freshness.ts'
 import { FRESHNESS_MAX } from '@/game/puzzles.ts'
 import type { LevelId } from '@/game/types.ts'
 import { mazeCopy } from '@/maze/copy.ts'
@@ -214,6 +215,7 @@ export function feedHold(state: CatchState): void {
     }
   }
   state.hold.shift()
+  state.freshness = raiseFreshness(state.freshness, state.freshnessMax, 1)
   state.payloads.push({
     id: held.id,
     x: state.playerX,
@@ -239,6 +241,7 @@ export function packLot(state: CatchState, need: PackNeed): void {
   }
   lot.step += 1
   lot.wait = 0
+  state.freshness = raiseFreshness(state.freshness, state.freshnessMax, 1)
   state.combo += 1
   state.score += 50 + state.combo * 8
   if (lot.step >= lot.needs.length) {
@@ -299,6 +302,14 @@ export function stepCatch(state: CatchState, dt: number): void {
   stepPackWarm(state, capped)
   stepFormation(state, capped, state.pressure)
   if (state.phase !== 'play') return
+  const warm = state.hold.some((held) => held.wait > 1) || state.pack.some((lot) => !lot.done && lot.wait > 1)
+  state.freshness = easeFreshness(state.freshness, state.freshnessMax, capped, warm)
+  if (state.freshness <= 0) {
+    state.freshness = 0
+    state.phase = 'over'
+    state.announcement = mazeCopy.over
+    return
+  }
   tryAutoShip(state)
   stepShip(state)
   if (state.ship) return
@@ -340,7 +351,7 @@ function stepScoop(state: CatchState, dt: number): void {
   if (state.special?.live && near(state.scoop.x, state.scoop.y, state.special.x, state.special.y, 0.045)) {
     state.special.live = false
     state.scoop.live = false
-    state.freshness = Math.min(state.freshnessMax, state.freshness + 1)
+    state.freshness = raiseFreshness(state.freshness, state.freshnessMax, 1)
     state.score += 50
     state.combo += 1
     state.announcement = mazeCopy.collectIce
@@ -364,6 +375,7 @@ function catchFish(state: CatchState, fish: OceanFish): void {
   fish.alive = false
   const held: HeldFish = { id: fish.id, kind: fish.kind, gate: fish.gate, wait: 0 }
   state.hold.push(held)
+  state.freshness = raiseFreshness(state.freshness, state.freshnessMax, 1)
   state.score += 12
   state.combo += 1
   state.announcement = mazeCopy.caught
@@ -613,7 +625,7 @@ function finishClear(state: CatchState): void {
 }
 
 function loseFreshness(state: CatchState, amount: number, message: string): void {
-  state.freshness = Math.max(0, state.freshness - amount)
+  state.freshness = lowerFreshness(state.freshness, state.freshnessMax, amount)
   state.combo = 0
   state.announcement = message
   state.hitLeft = HIT_STUN

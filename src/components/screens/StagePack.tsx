@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, type Ref } from 'react'
 import { FishPlayfield, type FishPose } from '@/components/FishPlayfield.tsx'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
+import { HitCue } from '@/components/HitCue.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
 import { StageHeader } from '@/components/StageHeader.tsx'
+import { StepMeter } from '@/components/StepMeter.tsx'
 import { copy } from '@/game/copy.ts'
 
 type Props = {
@@ -10,6 +12,8 @@ type Props = {
   freshness: number
   freshnessMax: number
   combo: number
+  stepsDone: number
+  stepsTotal: number
   headingRef: Ref<HTMLHeadingElement>
   lead?: string
   teach?: string
@@ -23,6 +27,8 @@ export function StagePack({
   freshness,
   freshnessMax,
   combo,
+  stepsDone,
+  stepsTotal,
   headingRef,
   lead = copy.gillLead,
   teach = copy.gillTeach,
@@ -77,6 +83,7 @@ export function StagePack({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
+      <HitCue text={copy.hitNow} />
       <p className="stage-hint text-sm text-navy/80">{hint}</p>
       <FishPlayfield
         mode="gill"
@@ -86,6 +93,7 @@ export function StagePack({
         onGillMiss={miss}
         targetRef={targetRef}
       />
+      <StepMeter done={stepsDone} total={stepsTotal} />
       <FreshnessMeter value={freshness} max={freshnessMax} />
     </div>
   )

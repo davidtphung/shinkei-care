@@ -10,6 +10,7 @@ type Props = {
   onSelect: () => void
   onPlace: () => void
   onMiss: () => void
+  hot?: boolean
   children: ReactNode
 }
 
@@ -20,6 +21,7 @@ export function DragToken({
   onSelect,
   onPlace,
   onMiss,
+  hot = false,
   children,
 }: Props) {
   const tokenRef = useRef<HTMLButtonElement>(null)
@@ -37,12 +39,12 @@ export function DragToken({
       ref={tokenRef}
       type="button"
       aria-pressed={selected}
-      aria-label={`${label}${selected ? ', selected' : ''}. ${copy.dragCue}.`}
+      aria-label={`${label}${selected ? ', selected' : ''}${hot ? `, ${copy.hitNow}` : ''}. ${copy.dragCue}.`}
       {...dragProps}
       data-pressed={dragging ? 'true' : 'false'}
       className={cn(
         'drag-token pressable spring flex min-h-24 min-w-24 flex-1 flex-col items-center justify-center gap-1 rounded-3xl border-4 bg-cream px-2 py-2 text-navy sm:min-h-28 sm:min-w-28 sm:flex-none sm:gap-2 sm:px-4 sm:py-3',
-        selected || overDrop ? 'border-cool' : 'border-navy',
+        hot ? 'cycle-pulse border-accent' : selected || overDrop ? 'border-cool' : 'border-navy',
         dragging ? 'is-dragging' : null,
         overDrop ? 'is-over-drop' : null,
       )}

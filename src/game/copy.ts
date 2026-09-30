@@ -25,6 +25,10 @@ export const copy = {
   windowClosed: 'Window closed.',
   cycleLabel: 'Six-second cycle',
   now: 'Now',
+  hitNow: 'Hit this now',
+  getReady: 'Get ready',
+  watchLoop: 'Watch the loop',
+  stepMeter: 'Steps',
 
   spikeName: 'Spike',
   spikeLead: 'Spike the brain first.',
@@ -101,7 +105,7 @@ export const copy = {
   howToMdaTitle: 'How the arcade thinks',
   howToMda: [
     'Mechanics: tap the Brain mark, cut the gill, ice the hold. Those are the moves.',
-    'Dynamics: a careful try keeps Seremoni quality. First-try hits build Combo. The clock never pauses.',
+    'Dynamics: a careful try keeps Seremoni quality. First-try hits build Combo. The clock starts after a short ready beat and stops when the last step is done.',
     'Aesthetics: care and stillness. The fish stays intact. The work is boat to plate.',
   ],
   howToLevelsTitle: 'Levels',

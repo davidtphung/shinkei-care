@@ -2,18 +2,21 @@ import { useEffect, type Ref } from 'react'
 import { copy } from '@/game/copy.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
+import { HitCue } from '@/components/HitCue.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
+import { StepMeter } from '@/components/StepMeter.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { StageHeader } from '@/components/StageHeader.tsx'
 import { haptic } from '@/lib/haptics.ts'
 import { usePressed } from '@/hooks/usePressed.ts'
-import { cn } from '@/lib/utils.ts'
 
 type Props = {
   announcement: string
   freshness: number
   freshnessMax: number
   combo: number
+  stepsDone: number
+  stepsTotal: number
   headingRef: Ref<HTMLHeadingElement>
   onSeal: () => void
 }
@@ -23,6 +26,8 @@ export function StagePlate({
   freshness,
   freshnessMax,
   combo,
+  stepsDone,
+  stepsTotal,
   headingRef,
   onSeal,
 }: Props) {
@@ -53,7 +58,9 @@ export function StagePlate({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
+      <HitCue text={copy.hitNow} />
       <p className="stage-hint text-sm text-navy/80">{copy.l3PlateHint}</p>
+      <StepMeter done={stepsDone} total={stepsTotal} />
       <button
         type="button"
         {...pressProps}
@@ -62,11 +69,8 @@ export function StagePlate({
           haptic('success')
           onSeal()
         }}
-        aria-label={copy.l3PlateAction}
-        className={cn(
-          'hit-target pressable spring panel mx-auto flex min-h-[220px] w-full max-w-sm flex-col items-center justify-center gap-3 rounded-[2rem] border-4 px-6 py-8 text-navy max-sm:min-h-[240px]',
-          held ? 'border-cool bg-cream' : 'border-navy bg-cream',
-        )}
+        aria-label={`${copy.l3PlateAction}. ${copy.hitNow}`}
+        className="hit-target pressable spring cycle-pulse panel mx-auto flex min-h-[220px] w-full max-w-sm flex-col items-center justify-center gap-3 rounded-[2rem] border-4 border-accent bg-cream px-6 py-8 text-navy max-sm:min-h-[240px]"
       >
         <PixelMatrix name="seal" size={96} />
         <span className="text-lg font-semibold">{copy.sealLabel}</span>

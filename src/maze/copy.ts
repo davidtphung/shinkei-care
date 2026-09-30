@@ -60,7 +60,7 @@ export const mazeCopy = {
     'The machine runs a short care beat. Fish come out the other side needing a pack.',
     'Pack the oldest open lot. Done lots stay in the bay. Craft uses Ice. Systems uses Ice or Seal. Chain uses Ice, then Band, then Crate.',
     'The bay ships on its own when every spot is a done lot, or when the last fish is packed. S or Ship sends the done lots together.',
-    'A fish at the rail, a different pack, or a warm hold lowers freshness. At zero, try that run again.',
+    'A careful catch, feed, or pack raises freshness. Waiting eases it down, and a warm hold eases it faster. A fish at the rail or a different pack lowers it. At zero, try that run again.',
     'On Chain, feed boat, auction, truck, kitchen, then plate. Keep that order.',
     'A busy bay speeds the school a little, then the pace settles when you pack or ship.',
   ],

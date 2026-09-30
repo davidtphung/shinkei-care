@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
+import { StepMeter } from '@/components/StepMeter.tsx'
 import { RaceClock } from '@/components/RaceClock.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { playCue, unlockAudio } from '@/game/audio.ts'
@@ -54,6 +55,8 @@ type Hud = {
   nextPack: PackNeed | null
   shipped: number
   shipReady: boolean
+  packStep: number
+  packNeeds: number
 }
 
 type Props = {
@@ -263,6 +266,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
         <p className="text-3xl font-semibold text-navy tabular-nums">{hud?.score ?? 0}</p>
       </div>
       {hud ? <FreshnessMeter value={hud.freshness} max={hud.freshnessMax} /> : null}
+      {hud && hud.packNeeds > 0 ? <StepMeter done={hud.packStep} total={hud.packNeeds} /> : null}
       <p className="stage-announce min-h-11 rounded-2xl bg-cream px-4 py-2 text-center text-base font-semibold text-navy" aria-live="polite">
         {hud?.announcement ?? ''}
       </p>
@@ -282,7 +286,8 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
         {hud?.phase === 'ready' ? (
           <div className="absolute inset-0 flex flex-col justify-end overflow-y-auto bg-navy/55 p-4">
             <div className="rounded-3xl bg-cream p-4 text-navy">
-              <p className="text-lg font-semibold">{mazeCopy.readyLead[level - 1]}</p>
+              <p className="text-lg font-semibold">{copy.hitNow}</p>
+              <p className="mt-2 text-lg font-semibold">{mazeCopy.readyLead[level - 1]}</p>
               <p className="mt-2 text-sm">{mazeCopy.readyTeach[level - 1]}</p>
               <p className="mt-2 text-sm text-navy/80">{mazeCopy.readyMda[level - 1]}</p>
               <Button
@@ -326,6 +331,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
         level={level}
         nextPack={hud?.nextPack ?? null}
         shipReady={hud?.shipReady ?? false}
+        catchHot={hud?.phase === 'ready'}
         onLeft={() => {
           const state = frameRef.current
           if (!state) return
@@ -444,6 +450,7 @@ function CatchPad({
   level,
   nextPack,
   shipReady,
+  catchHot,
   onLeft,
   onRight,
   onCatch,
@@ -454,6 +461,7 @@ function CatchPad({
   level: LevelId
   nextPack: PackNeed | null
   shipReady: boolean
+  catchHot: boolean
   onLeft: () => void
   onRight: () => void
   onCatch: () => void
@@ -468,7 +476,14 @@ function CatchPad({
         <PadButton className="maze-move" label={mazeCopy.left} shortcut={LEFT_SHORTCUT} badge="A" repeat onHold={onLeft}>
           ←
         </PadButton>
-        <PadButton label={mazeCopy.catch} shortcut={CATCH_SHORTCUT} badge="C" onHold={onCatch}>
+        <PadButton
+          label={mazeCopy.catch}
+          shortcut={CATCH_SHORTCUT}
+          badge="C"
+          onHold={onCatch}
+          hot={catchHot}
+          hotSuffix=", hit this now"
+        >
           {mazeCopy.catch}
         </PadButton>
         <PadButton label={mazeCopy.feed} shortcut={FEED_SHORTCUT} badge="I" onHold={onFeed}>
@@ -609,6 +624,8 @@ function snapshot(state: CatchState): Hud {
     nextPack: lot ? (lot.needs[lot.step] ?? null) : null,
     shipped: shownShipped(state),
     shipReady: state.ship === null && state.pack.some((item) => item.done),
+    packStep: lot ? lot.step : 0,
+    packNeeds: lot ? lot.needs.length : 0,
   }
 }
 

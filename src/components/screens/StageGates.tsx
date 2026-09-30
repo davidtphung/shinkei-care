@@ -1,8 +1,11 @@
 import { useEffect, type Ref } from 'react'
+import { useReadyArm } from '@/care/useReadyArm.ts'
 import { copy } from '@/game/copy.ts'
 import { GATES } from '@/game/puzzles.ts'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
+import { HitCue } from '@/components/HitCue.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
+import { StepMeter } from '@/components/StepMeter.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { StageHeader } from '@/components/StageHeader.tsx'
 import { haptic } from '@/lib/haptics.ts'
@@ -21,7 +24,10 @@ type Props = {
   freshness: number
   freshnessMax: number
   combo: number
+  stepsDone: number
+  stepsTotal: number
   headingRef: Ref<HTMLHeadingElement>
+  onReady: () => void
   onGate: (index: number) => void
 }
 
@@ -31,9 +37,14 @@ export function StageGates({
   freshness,
   freshnessMax,
   combo,
+  stepsDone,
+  stepsTotal,
   headingRef,
+  onReady,
   onGate,
 }: Props) {
+  const armed = useReadyArm(onReady)
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== ' ' && event.key !== 'Enter') return
@@ -58,13 +69,16 @@ export function StageGates({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
+      <HitCue text={armed ? copy.hitNow : copy.getReady} />
       <p className="stage-hint text-sm text-navy/80">{copy.l3GatesHint}</p>
+      <StepMeter done={stepsDone} total={stepsTotal} />
       <ul className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
         {GATES.map((id, index) => (
           <li key={id}>
             <GateCard
               id={id}
               live={index === current}
+              armed={armed}
               done={index < current}
               onPick={() => {
                 haptic(index === current ? 'success' : 'again')
@@ -82,11 +96,13 @@ export function StageGates({
 function GateCard({
   id,
   live,
+  armed,
   done,
   onPick,
 }: {
   id: (typeof GATES)[number]
   live: boolean
+  armed: boolean
   done: boolean
   onPick: () => void
 }) {
@@ -99,10 +115,10 @@ function GateCard({
       {...pressProps}
       onClick={onPick}
       data-pressed={pressed ? 'true' : 'false'}
-      aria-label={live ? `${name}. ${copy.now}.` : `${name}. ${copy.looksSteady}`}
+      aria-label={live ? `${name}. ${armed ? copy.hitNow : copy.getReady}` : `${name}. ${copy.looksSteady}`}
       className={cn(
         'hit-target pressable spring panel flex min-h-[180px] w-full flex-col items-center justify-center gap-3 rounded-3xl border-4 bg-cream px-4 py-5 text-navy max-sm:min-h-[196px]',
-        live ? 'cycle-pulse border-cool' : 'border-navy',
+        live ? 'cycle-pulse border-accent' : 'border-navy',
       )}
     >
       <PixelMatrix name={ICONS[id]} size={88} />

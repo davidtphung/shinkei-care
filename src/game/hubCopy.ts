@@ -21,7 +21,7 @@ export const hubCopy = {
   howTitle: 'How the arcade thinks',
   howMda: [
     'Mechanics: Care is a timing cabinet. Catch is a boat-to-lot run: net, feed, care beat, pack.',
-    'Dynamics: a warm hold or a busy bay lowers freshness. A clean catch, feed, pack, and ship raise Combo. The clock does not pause once a run starts.',
+    'Dynamics: a warm hold or a busy bay lowers freshness. A clean catch, feed, pack, and ship raise Combo and freshness. The Care clock starts after a short ready beat and stops when the last step is done.',
     'Aesthetics: care and stillness. The prize is a held lot, not a pile of points.',
   ],
   howGamesTitle: 'Cabinets',

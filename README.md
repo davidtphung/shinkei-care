@@ -36,7 +36,7 @@ Arcade cues are original Web Audio ticks (window, spike, again, gill, ice, combo
 
 Then a freshness seal, a rest on ice, and a **Seremoni quality** result. That is Shinkei's own quality bar for the fish, not an outside certification. Rank labels stay kind: Clean Spike, Steady Hands, Six-Second Crew.
 
-There are three levels. Craft is open first. A first clear of Craft opens Systems. A first clear of Systems opens Chain. Each level stores its own Best quality and Best time. The race clock starts on Play and stops on the result screen. A gentle try still changes the quality.
+There are three levels. Craft is open first. A first clear of Craft opens Systems. A first clear of Systems opens Chain. Each level stores its own Best quality and Best time. The race clock starts after a short ready beat and stops when the last step is done. Continue only moves you on. A gentle try still changes the quality.
 
 First-try hits build Combo. Best quality and Best time stay in `localStorage` on this device. No accounts.
 

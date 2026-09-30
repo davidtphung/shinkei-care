@@ -1,4 +1,5 @@
 import { copy, freshnessWord } from '@/game/copy.ts'
+import { clampFreshness, meterPercent } from '@/game/freshness.ts'
 import { cn } from '@/lib/utils.ts'
 
 type Props = {
@@ -8,14 +9,15 @@ type Props = {
 }
 
 export function FreshnessMeter({ value, max, className }: Props) {
-  const pct = max === 0 ? 0 : Math.round((value / max) * 100)
+  const shown = Math.round(clampFreshness(value, max))
+  const pct = meterPercent(value, max)
   const word = freshnessWord(value, max)
 
   return (
     <div className={cn('fresh-meter panel w-full rounded-2xl bg-cream px-4 py-3 text-navy', className)}>
       <div className="mb-2 flex items-baseline justify-between gap-3">
         <p className="text-sm font-semibold tracking-[0.16em] uppercase">{copy.freshness}</p>
-        <p className="text-sm font-medium">{copy.of(value, max)}</p>
+        <p className="text-sm font-medium">{copy.of(shown, max)}</p>
       </div>
       <div
         className="h-3 overflow-hidden rounded-full bg-navy/15"
@@ -23,8 +25,8 @@ export function FreshnessMeter({ value, max, className }: Props) {
         aria-label={copy.freshness}
         aria-valuemin={0}
         aria-valuemax={max}
-        aria-valuenow={value}
-        aria-valuetext={`${word}. ${copy.of(value, max)}`}
+        aria-valuenow={shown}
+        aria-valuetext={`${word}. ${copy.of(shown, max)}`}
       >
         <div
           className="spring h-full rounded-full bg-cool"

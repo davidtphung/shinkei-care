@@ -3,7 +3,9 @@ import { DragToken } from '@/components/DragToken.tsx'
 import { copy } from '@/game/copy.ts'
 import { ICE_GOAL } from '@/game/puzzles.ts'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
+import { HitCue } from '@/components/HitCue.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
+import { StepMeter } from '@/components/StepMeter.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 import { StageHeader } from '@/components/StageHeader.tsx'
 import { usePressed } from '@/hooks/usePressed.ts'
@@ -18,6 +20,8 @@ type Props = {
   freshness: number
   freshnessMax: number
   combo: number
+  stepsDone: number
+  stepsTotal: number
   headingRef: Ref<HTMLHeadingElement>
   lead?: string
   teach?: string
@@ -34,6 +38,8 @@ export function StageCool({
   freshness,
   freshnessMax,
   combo,
+  stepsDone,
+  stepsTotal,
   headingRef,
   lead = copy.coolLead,
   teach = copy.iceTeach,
@@ -77,7 +83,9 @@ export function StageCool({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement} />
+      <HitCue text={copy.hitNow} />
       <p className="stage-hint text-sm text-navy/80">{hint}</p>
+      <StepMeter done={stepsDone} total={stepsTotal} />
 
       <div className="drop-board grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_auto] items-center gap-3 sm:grid-cols-[1fr_auto_1fr] sm:grid-rows-1 sm:gap-4">
         <ul className="order-2 flex min-w-0 flex-row justify-center gap-2 sm:order-1 sm:flex-col sm:items-center sm:gap-3">
@@ -86,6 +94,7 @@ export function StageCool({
               <li key={id} className="flex min-w-0 flex-1 sm:flex-none">
                 <DragToken
                   selected={selected === id}
+                  hot={id === TOKENS.find((token) => !placed.includes(token))}
                   label={copy.itemNames.ice}
                   dropRef={dropRef}
                   onSelect={() => onSelect(id)}

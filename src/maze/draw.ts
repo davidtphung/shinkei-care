@@ -106,6 +106,12 @@ function drawMachine(ctx: CanvasRenderingContext2D, width: number, height: numbe
     ctx.fillStyle = NAVY
     ctx.font = '700 9px Outfit, sans-serif'
     ctx.fillText(t < 0.33 ? 'SPIKE' : t < 0.66 ? 'GILL' : 'ICE', x + w / 2, y + h * 0.49)
+    const barW = w - 24
+    const filled = barW * Math.min(1, Math.max(0, t))
+    ctx.fillStyle = 'rgba(255, 235, 208, 0.28)'
+    ctx.fillRect(x + 12, y + h * 0.72, barW, 8)
+    ctx.fillStyle = CREAM
+    ctx.fillRect(x + 12, y + h * 0.72, filled, 8)
   } else {
     ctx.strokeStyle = 'rgba(255, 235, 208, 0.45)'
     ctx.beginPath()
