@@ -196,7 +196,7 @@ function BrainTarget({
   const { pressed, pressProps } = usePressed()
   const r = 20
   const circ = 2 * Math.PI * r
-  const dash = Math.max(0.04, progress) * circ
+  const dash = Math.max(0, progress) * circ
 
   return (
     <div className="absolute top-[38%] left-[30%] z-20 -translate-x-1/2 -translate-y-1/2">
@@ -209,10 +209,10 @@ function BrainTarget({
           haptic('start')
           onSpike()
         }}
-        aria-label={`${copy.spikeTarget}. ${inWindow ? copy.windowOpen : copy.windowClosed}`}
+        aria-label={`${copy.spikeTarget}. ${inWindow ? copy.hitNow : copy.windowClosed}`}
         className={cn(
-          'hit-target hit-slop pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-1.5 py-1.5 max-sm:min-h-[4.75rem] max-sm:min-w-[4.75rem]',
-          inWindow ? 'cycle-pulse border-cool bg-cream text-navy' : 'border-cool bg-navy text-cream',
+          'hit-target hit-slop pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 border-accent bg-cream px-1.5 py-1.5 text-navy max-sm:min-h-[4.75rem] max-sm:min-w-[4.75rem]',
+          inWindow ? 'cycle-pulse' : null,
         )}
       >
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 48 48" aria-hidden>
@@ -272,7 +272,7 @@ function GillTarget({
           {...pressProps}
           data-pressed={pressed ? 'true' : 'false'}
           disabled={done}
-          aria-label={`${copy.gillTarget}. ${copy.gillAction}.`}
+          aria-label={done ? `${copy.gillTarget}. ${copy.gillAction}.` : `${copy.gillTarget}. ${copy.hitNow}`}
           onClick={onGill}
           onPointerDown={(event) => {
             pressProps.onPointerDown()
@@ -289,7 +289,7 @@ function GillTarget({
           }}
           className={cn(
             'hit-target-drag hit-slop pressable spring flex min-h-16 min-w-16 flex-col items-center justify-center rounded-full border-4 px-2 py-1.5 max-sm:min-h-[4.75rem] max-sm:min-w-[4.75rem]',
-            done ? 'border-cool bg-cool text-navy' : 'border-cool bg-navy text-cream',
+            done ? 'border-cool bg-cool text-navy' : 'cycle-pulse border-accent bg-cream text-navy',
           )}
         >
           <span className="text-[10px] font-semibold tracking-[0.12em] uppercase">{copy.clue.gill}</span>

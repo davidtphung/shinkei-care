@@ -21,13 +21,13 @@ export const hubCopy = {
   howTitle: 'How the arcade thinks',
   howMda: [
     'Mechanics: Care is a timing cabinet. Catch is a boat-to-lot run: net, feed, care beat, pack.',
-    'Dynamics: misses, a warm hold, and a backed-up bay drain freshness. Clean catch, feed, and pack raise Combo. The clock does not pause once a run starts.',
+    'Dynamics: a warm hold or a busy bay lowers freshness. A clean catch, feed, pack, and ship raise Combo and freshness. The Care clock starts after a short ready beat and stops when the last step is done.',
     'Aesthetics: care and stillness. The prize is a held lot, not a pile of points.',
   ],
   howGamesTitle: 'Cabinets',
   howGames: [
     'Care: hit the brain mark, cut the gill, ice the hold. Craft, Systems, Chain.',
-    'Catch: arrows or A D to move. Space nets the school. F feeds the intake. Pack ice, seal, band, or crate on the bay.',
+    'Catch: arrows or A D to move. Space or C nets the school. F or I feeds the intake. P packs the next item. S ships done lots. Ice, seal, band, or crate on the bay with 1 to 4.',
   ],
   howTo: 'How to play',
   howToClose: 'Close how to play',
@@ -40,7 +40,7 @@ export const hubCopy = {
   date: 'Date',
   copyBoard: 'Copy results',
   copied: 'Copied.',
-  copyFail: 'Copy failed. Select the text instead.',
+  copyFail: 'Copy did not land. Select the text instead.',
   overall: 'Best Sere run',
   overallLine: (game: string, name: string, score: number, time: string) =>
     `${name}  ${score}  ${time}  ${game}`,

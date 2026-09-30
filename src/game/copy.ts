@@ -25,6 +25,10 @@ export const copy = {
   windowClosed: 'Window closed.',
   cycleLabel: 'Six-second cycle',
   now: 'Now',
+  hitNow: 'Hit this now',
+  getReady: 'Get ready',
+  watchLoop: 'Watch the loop',
+  stepMeter: 'Steps',
 
   spikeName: 'Spike',
   spikeLead: 'Spike the brain first.',
@@ -43,7 +47,7 @@ export const copy = {
   bodyMiss: 'Fish body. Aim for the Brain mark slightly behind and above the eye.',
 
   gillName: 'Gill',
-  gillLead: 'Cut the gill. Bleed.',
+  gillLead: 'Cut the gill.',
   gillTeach: 'Cut the gill so blood does not sit in the flesh.',
   gillHint:
     'Traditional ikejime may also run a spinal wire (shinkei-jime). Poseidon skips the wire. Spike, gill, ice.',
@@ -91,16 +95,17 @@ export const copy = {
   skipToGame: 'Skip to game',
 
   howToBody: [
+    'Hit the brain mark, cut the gill, ice the hold.',
     'Hit the brain mark in the six-second window. Aim slightly behind and above the eye, where the gill bone meets the lateral line.',
     'Cut the gill so blood does not sit in the flesh. Poseidon skips the spinal wire.',
     'Ice now. Hold the quality you just protected.',
-    'A short wiggle after a hit means it settled. Space, Enter, or tap. Misses drop Freshness.',
+    'A short wiggle after a hit means it settled. Space, Enter, or tap. A gentle try keeps Freshness.',
   ],
 
   howToMdaTitle: 'How the arcade thinks',
   howToMda: [
     'Mechanics: tap the Brain mark, cut the gill, ice the hold. Those are the moves.',
-    'Dynamics: misses drain Seremoni quality. First-try hits build Combo. The clock never pauses.',
+    'Dynamics: a careful try keeps Seremoni quality. First-try hits build Combo. The clock starts after a short ready beat and stops when the last step is done.',
     'Aesthetics: care and stillness. The fish stays intact. The work is boat to plate.',
   ],
   howToLevelsTitle: 'Levels',
@@ -133,7 +138,7 @@ export const copy = {
 
   l3GatesLead: 'Keep the gates in order.',
   l3GatesTeach: 'Harvest, bleed, chill. The order is the system.',
-  l3GatesHint: 'Tap the gate that says Now. A wrong gate breaks the chain.',
+  l3GatesHint: 'Tap the gate that says Now. That order keeps the chain.',
   l3HandoffLead: 'Hand the lot forward.',
   l3HandoffTeach: 'Boat to cooler to hold. Do not break the cold chain.',
   l3HandoffHint: 'Hold and drag a lot onto Hold, or tap a lot then tap Hold. Arrows pick a lot. Enter places it.',

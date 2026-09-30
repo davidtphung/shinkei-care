@@ -4,22 +4,26 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefers.ts'
 
 export function useCycle(active: boolean) {
   const reduced = usePrefersReducedMotion()
-  const [progress, setProgress] = useState(reduced ? 0.7 : 0)
-  const startRef = useRef(typeof performance === 'undefined' ? 0 : performance.now())
+  const [progress, setProgress] = useState(0)
+  const startRef = useRef(0)
 
   const reset = useCallback(() => {
     startRef.current = performance.now()
-    setProgress(reduced ? 0.7 : 0)
+    setProgress(reduced ? 1 : 0)
   }, [reduced])
 
   useEffect(() => {
-    if (!active) return
+    if (!active) {
+      setProgress(0)
+      return
+    }
     if (reduced) {
-      setProgress(0.7)
+      setProgress(1)
       return
     }
 
     startRef.current = performance.now()
+    setProgress(0)
     let frame = 0
     const tick = (now: number) => {
       const elapsed = (now - startRef.current) % CYCLE_MS
@@ -30,7 +34,8 @@ export function useCycle(active: boolean) {
     return () => cancelAnimationFrame(frame)
   }, [active, reduced])
 
-  const inWindow = reduced || (progress >= WINDOW_START && progress < WINDOW_END)
+  const shown = active ? progress : 0
+  const inWindow = active && (reduced || (shown >= WINDOW_START && shown < WINDOW_END))
 
-  return { progress, inWindow, reduced, reset }
+  return { progress: shown, inWindow, reduced, reset }
 }

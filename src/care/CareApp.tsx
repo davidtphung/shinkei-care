@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { careSteps, freezeClockMs } from '@/care/round.ts'
 import { RaceClock } from '@/components/RaceClock.tsx'
 import { OceanScene } from '@/components/screens/OceanScene.tsx'
 import { PackSeal } from '@/components/screens/PackSeal.tsx'
@@ -12,6 +13,7 @@ import { StagePlate } from '@/components/screens/StagePlate.tsx'
 import { TitleScreen } from '@/components/screens/TitleScreen.tsx'
 import { playCue, unlockAudio } from '@/game/audio.ts'
 import { copy } from '@/game/copy.ts'
+import { easeFreshness, lowerFreshness, raiseFreshness } from '@/game/freshness.ts'
 import { readProgress, writeLevelQuality, writeLevelTime, type Progress } from '@/game/progress.ts'
 import { comboBonus, drainForLevel, firstTryPoints, FRESHNESS_MAX, GATES, HANDOFF_GOAL, ICE_GOAL, judgeSpike } from '@/game/puzzles.ts'
 import { qualifiesForBoard, submitScore } from '@/game/leaderboard.ts'
@@ -37,6 +39,7 @@ type Game = {
   gateIndex: number
   lotsPlaced: string[]
   lotSelected: string | null
+  plateSealed: boolean
 }
 
 function firstScreen(level: LevelId): Screen {
@@ -59,7 +62,27 @@ function freshRound(level: LevelId): Game {
     gateIndex: 0,
     lotsPlaced: [],
     lotSelected: null,
+    plateSealed: false,
   }
+}
+
+function gainFresh(value: number): number {
+  return raiseFreshness(value, FRESHNESS_MAX, 1)
+}
+
+function loseCare(value: number, level: LevelId): number {
+  return lowerFreshness(value, FRESHNESS_MAX, drainForLevel(level))
+}
+
+function careLive(screen: Screen): boolean {
+  return (
+    screen === 'spike' ||
+    screen === 'gill' ||
+    screen === 'ice' ||
+    screen === 'gates' ||
+    screen === 'handoff' ||
+    screen === 'plate'
+  )
 }
 
 function missCopy(kind: 'early' | 'late' | 'high' | 'window' | 'gill' | 'ice' | 'gate' | 'handoff'): string {
@@ -87,6 +110,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
   const holdTimer = useRef(0)
   const beatTimer = useRef(0)
   const clockStart = useRef<number | null>(null)
+  const frozenMs = useRef<number | null>(null)
   const [elapsed, setElapsed] = useState(0)
   const [progress, setProgress] = useState<Progress>(() => readProgress())
   const [newBestQuality, setNewBestQuality] = useState(false)
@@ -130,11 +154,42 @@ export function CareApp({ onHub, onBoardChange }: Props) {
     }
   }, [])
 
+  const armClock = useCallback(() => {
+    if (clockStart.current != null) return
+    clockStart.current = performance.now()
+    setElapsed(0)
+  }, [])
+
+  const freezeClock = useCallback(() => {
+    if (frozenMs.current != null) return
+    const ms = freezeClockMs(clockStart.current, performance.now(), null)
+    frozenMs.current = ms
+    setElapsed(ms)
+  }, [])
+
+  useEffect(() => {
+    if (game.screen === 'seal' || game.screen === 'rest') freezeClock()
+  }, [game.screen, freezeClock])
+
   useEffect(() => {
     if (!running) return
     let frame = 0
-    const tick = () => {
-      if (clockStart.current != null) setElapsed(performance.now() - clockStart.current)
+    let last = performance.now()
+    const tick = (now: number) => {
+      if (frozenMs.current != null) {
+        setElapsed(frozenMs.current)
+        return
+      }
+      if (clockStart.current != null) setElapsed(now - clockStart.current)
+      const dt = Math.min(0.05, Math.max(0, (now - last) / 1000))
+      last = now
+      setGame((prev) => {
+        if (!careLive(prev.screen) || frozenMs.current != null) return prev
+        const warm = prev.level >= 2 && (prev.screen === 'ice' || prev.screen === 'handoff')
+        const next = easeFreshness(prev.freshness, FRESHNESS_MAX, dt, warm)
+        if (next === prev.freshness) return prev
+        return { ...prev, freshness: next }
+      })
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
@@ -155,7 +210,8 @@ export function CareApp({ onHub, onBoardChange }: Props) {
 
   const begin = (level: LevelId) => {
     void unlockAudio()
-    clockStart.current = performance.now()
+    clockStart.current = null
+    frozenMs.current = null
     restLock.current = false
     plateLock.current = false
     setElapsed(0)
@@ -164,8 +220,6 @@ export function CareApp({ onHub, onBoardChange }: Props) {
     setPromptName(false)
     setGame(freshRound(level))
   }
-
-  const drainFor = (level: LevelId) => drainForLevel(level)
 
   const cheer = (combo: number) => {
     if (combo >= 2) {
@@ -178,11 +232,11 @@ export function CareApp({ onHub, onBoardChange }: Props) {
     if (spikeLock.current) return 'hit'
     const timing = judgeSpike(progressValue, reduced, onTarget)
     if (timing !== 'hit') {
-      playCue('miss')
+      playCue('again')
       setGame((prev) => ({
         ...prev,
         spikeAttempts: prev.spikeAttempts + 1,
-        freshness: Math.max(0, prev.freshness - drainFor(prev.level)),
+        freshness: loseCare(prev.freshness, prev.level),
         combo: 0,
         announcement: missCopy(timing === 'early' || timing === 'late' || timing === 'high' ? timing : 'window'),
       }))
@@ -202,6 +256,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
         spikeAttempts: attempts,
         combo,
         score: prev.score + firstTryPoints(attempts, 100) + comboBonus(combo),
+        freshness: gainFresh(prev.freshness),
         announcement: copy.spikeHit,
       }
     })
@@ -232,6 +287,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
         gillAttempts: attempts,
         combo,
         score: prev.score + firstTryPoints(attempts, 100) + comboBonus(combo),
+        freshness: gainFresh(prev.freshness),
         announcement: copy.gillSuccess,
       }
     })
@@ -242,11 +298,11 @@ export function CareApp({ onHub, onBoardChange }: Props) {
   }
 
   const gillMiss = () => {
-    playCue('miss')
+    playCue('again')
     setGame((prev) => ({
       ...prev,
       gillAttempts: prev.gillAttempts + 1,
-      freshness: Math.max(0, prev.freshness - drainFor(prev.level)),
+      freshness: loseCare(prev.freshness, prev.level),
       combo: 0,
       announcement: prev.gillAttempts >= 2 ? copy.gillMissHigh : copy.gillMiss,
     }))
@@ -279,6 +335,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
           iceSelected: null,
           combo,
           score: nextScore + comboBonus(combo),
+          freshness: gainFresh(prev.freshness),
           announcement: copy.coolSuccess,
           screen: 'seal',
         }
@@ -288,18 +345,22 @@ export function CareApp({ onHub, onBoardChange }: Props) {
         icePlaced: placed,
         iceSelected: null,
         score: nextScore,
+        freshness: gainFresh(prev.freshness),
         announcement: copy.keepCool,
       }
     })
-    if (finished) cheer(nextCombo)
+    if (finished) {
+      cheer(nextCombo)
+      freezeClock()
+    }
   }
 
   const missIce = () => {
-    playCue('miss')
+    playCue('again')
     setGame((prev) => ({
       ...prev,
       iceMisses: prev.iceMisses + 1,
-      freshness: Math.max(0, prev.freshness - drainFor(prev.level)),
+      freshness: loseCare(prev.freshness, prev.level),
       combo: 0,
       announcement: copy.iceMiss,
     }))
@@ -316,7 +377,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
         missed = true
         return {
           ...prev,
-          freshness: Math.max(0, prev.freshness - drainFor(prev.level)),
+          freshness: loseCare(prev.freshness, prev.level),
           combo: 0,
           announcement: missCopy('gate'),
         }
@@ -331,6 +392,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
           gateIndex: nextIndex,
           combo,
           score: prev.score + 100 + comboBonus(combo),
+          freshness: gainFresh(prev.freshness),
           announcement: copy.coolSuccess,
           screen: 'handoff',
         }
@@ -341,11 +403,12 @@ export function CareApp({ onHub, onBoardChange }: Props) {
         gateIndex: nextIndex,
         combo,
         score: prev.score + 34,
+        freshness: gainFresh(prev.freshness),
         announcement: `${copy.l3GateNames[gate]}. ${copy.now}`,
       }
     })
     if (missed) {
-      playCue('miss')
+      playCue('again')
       return
     }
     playCue('spike')
@@ -378,6 +441,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
           lotSelected: null,
           combo,
           score: nextScore + comboBonus(combo),
+          freshness: gainFresh(prev.freshness),
           announcement: copy.coolSuccess,
           screen: 'plate',
         }
@@ -387,6 +451,7 @@ export function CareApp({ onHub, onBoardChange }: Props) {
         lotsPlaced: placed,
         lotSelected: null,
         score: nextScore,
+        freshness: gainFresh(prev.freshness),
         announcement: copy.keepCool,
       }
     })
@@ -394,10 +459,10 @@ export function CareApp({ onHub, onBoardChange }: Props) {
   }
 
   const missLot = () => {
-    playCue('miss')
+    playCue('again')
     setGame((prev) => ({
       ...prev,
-      freshness: Math.max(0, prev.freshness - drainFor(prev.level)),
+      freshness: loseCare(prev.freshness, prev.level),
       combo: 0,
       announcement: missCopy('handoff'),
     }))
@@ -408,8 +473,11 @@ export function CareApp({ onHub, onBoardChange }: Props) {
     if (plateLock.current) return
     plateLock.current = true
     playCue('seal')
+    freezeClock()
     setGame((prev) => ({
       ...prev,
+      plateSealed: true,
+      freshness: gainFresh(prev.freshness),
       score: prev.score + (prev.freshness >= 4 ? 80 : 40),
       announcement: prev.freshness >= 4 ? copy.l3PlateHeld : copy.l3PlateSoft,
     }))
@@ -422,7 +490,8 @@ export function CareApp({ onHub, onBoardChange }: Props) {
     if (game.screen !== 'rest' || restLock.current) return
     restLock.current = true
     const scored = game.score + game.freshness * 8
-    const ms = clockStart.current != null ? performance.now() - clockStart.current : elapsed
+    if (frozenMs.current == null) freezeClock()
+    const ms = frozenMs.current ?? elapsed
     setElapsed(ms)
     const quality = writeLevelQuality(game.level, scored)
     const time = writeLevelTime(game.level, ms)
@@ -455,6 +524,15 @@ export function CareApp({ onHub, onBoardChange }: Props) {
         iceTeach: copy.iceTeach,
       }
 
+  const steps = careSteps({
+    level: game.level,
+    screen: game.screen,
+    icePlaced: game.icePlaced.length,
+    gateIndex: game.gateIndex,
+    lotsPlaced: game.lotsPlaced.length,
+    plateSealed: game.plateSealed,
+  })
+
   return (
     <div
       className="relative min-h-[100dvh] overflow-x-hidden"
@@ -475,10 +553,13 @@ export function CareApp({ onHub, onBoardChange }: Props) {
             freshness={game.freshness}
             freshnessMax={FRESHNESS_MAX}
             combo={game.combo}
+            stepsDone={steps.done}
+            stepsTotal={steps.total}
             headingRef={headingRef}
             lead={craftCopy.spikeLead}
             teach={craftCopy.spikeTeach}
             hint={craftCopy.spikeHint}
+            onReady={armClock}
             onSpike={spike}
           />
         ) : null}
@@ -488,6 +569,8 @@ export function CareApp({ onHub, onBoardChange }: Props) {
             freshness={game.freshness}
             freshnessMax={FRESHNESS_MAX}
             combo={game.combo}
+            stepsDone={steps.done}
+            stepsTotal={steps.total}
             headingRef={headingRef}
             lead={craftCopy.gillLead}
             teach={craftCopy.gillTeach}
@@ -504,6 +587,8 @@ export function CareApp({ onHub, onBoardChange }: Props) {
             freshness={game.freshness}
             freshnessMax={FRESHNESS_MAX}
             combo={game.combo}
+            stepsDone={steps.done}
+            stepsTotal={steps.total}
             headingRef={headingRef}
             lead={craftCopy.iceLead}
             teach={craftCopy.iceTeach}
@@ -519,7 +604,10 @@ export function CareApp({ onHub, onBoardChange }: Props) {
             freshness={game.freshness}
             freshnessMax={FRESHNESS_MAX}
             combo={game.combo}
+            stepsDone={steps.done}
+            stepsTotal={steps.total}
             headingRef={headingRef}
+            onReady={armClock}
             onGate={pickGate}
           />
         ) : null}
@@ -531,6 +619,8 @@ export function CareApp({ onHub, onBoardChange }: Props) {
             freshness={game.freshness}
             freshnessMax={FRESHNESS_MAX}
             combo={game.combo}
+            stepsDone={steps.done}
+            stepsTotal={steps.total}
             headingRef={headingRef}
             onSelect={selectLot}
             onPlace={placeLot}
@@ -543,6 +633,8 @@ export function CareApp({ onHub, onBoardChange }: Props) {
             freshness={game.freshness}
             freshnessMax={FRESHNESS_MAX}
             combo={game.combo}
+            stepsDone={steps.done}
+            stepsTotal={steps.total}
             headingRef={headingRef}
             onSeal={plate}
           />

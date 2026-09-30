@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState, type Ref } from 'react'
+import { useReadyArm } from '@/care/useReadyArm.ts'
+import { CycleBar } from '@/components/CycleRing.tsx'
 import { FishPlayfield, type FishPose } from '@/components/FishPlayfield.tsx'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
+import { HitCue } from '@/components/HitCue.tsx'
 import { LiveAnnouncer } from '@/components/LiveAnnouncer.tsx'
 import { StageHeader } from '@/components/StageHeader.tsx'
+import { StepMeter } from '@/components/StepMeter.tsx'
 import { playCue } from '@/game/audio.ts'
 import { copy } from '@/game/copy.ts'
 import { useCycle } from '@/hooks/useCycle.ts'
@@ -12,10 +16,13 @@ type Props = {
   freshness: number
   freshnessMax: number
   combo: number
+  stepsDone: number
+  stepsTotal: number
   headingRef: Ref<HTMLHeadingElement>
   lead?: string
   teach?: string
   hint?: string
+  onReady: () => void
   onSpike: (progress: number, reduced: boolean, onTarget: boolean) => 'hit' | 'miss'
 }
 
@@ -24,21 +31,27 @@ export function StageNotice({
   freshness,
   freshnessMax,
   combo,
+  stepsDone,
+  stepsTotal,
   headingRef,
   lead = copy.spikeLead,
   teach = copy.spikeTeach,
   hint = copy.spikeHint,
+  onReady,
   onSpike,
 }: Props) {
-  const { progress, inWindow, reduced, reset } = useCycle(true)
+  const armed = useReadyArm(onReady)
+  const { progress, inWindow, reduced, reset } = useCycle(armed)
   const progressRef = useRef(progress)
   progressRef.current = progress
   const targetRef = useRef<HTMLButtonElement>(null)
   const [windowNote, setWindowNote] = useState('')
   const [pose, setPose] = useState<FishPose>('idle')
   const wasOpen = useRef(false)
+  const cue = !armed ? copy.getReady : inWindow ? copy.hitNow : copy.watchLoop
 
   useEffect(() => {
+    if (!armed) return
     if (inWindow && !wasOpen.current) {
       setWindowNote(copy.windowOpen)
       playCue('window')
@@ -47,10 +60,10 @@ export function StageNotice({
       setWindowNote('')
     }
     wasOpen.current = inWindow
-  }, [inWindow])
+  }, [armed, inWindow])
 
   const attempt = (onTarget: boolean) => {
-    if (pose === 'success') return
+    if (!armed || pose === 'success') return
     const result = onSpike(progressRef.current, reduced, onTarget)
     if (result === 'hit') {
       setPose('success')
@@ -78,7 +91,7 @@ export function StageNotice({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [pose, reduced])
+  }, [pose, reduced, armed])
 
   return (
     <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full flex-col gap-4 sm:gap-5">
@@ -90,6 +103,7 @@ export function StageNotice({
         headingRef={headingRef}
       />
       <LiveAnnouncer message={announcement || (inWindow ? copy.windowOpen : windowNote)} />
+      <HitCue text={cue} />
       <p className="stage-hint text-sm text-navy/80">{hint}</p>
       <FishPlayfield
         mode="spike"
@@ -99,6 +113,8 @@ export function StageNotice({
         onSpike={attempt}
         targetRef={targetRef}
       />
+      <CycleBar progress={progress} inWindow={inWindow} reduced={reduced} />
+      <StepMeter done={stepsDone} total={stepsTotal} />
       <FreshnessMeter value={freshness} max={freshnessMax} />
     </div>
   )

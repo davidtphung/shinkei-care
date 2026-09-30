@@ -49,7 +49,19 @@ export type PackLot = {
   needs: PackNeed[]
   step: number
   wait: number
+  done: boolean
 }
+
+export type ShipRun = {
+  ids: number[]
+  count: number
+  started: number
+  clearBay: boolean
+  note: string
+  settled: boolean
+}
+
+export type BayNote = 'ok' | 'one-left' | 'holding'
 
 export type Special = {
   x: number
@@ -76,6 +88,12 @@ export type CatchState = {
   payloads: Payload[]
   jobs: MachineJob[]
   pack: PackLot[]
+  ship: ShipRun | null
+  shipped: number
+  shipSerial: number
+  shipLive: string
+  pressure: number
+  bayNoted: BayNote
   fish: OceanFish[]
   cols: number
   rows: number
@@ -97,8 +115,6 @@ export const GATES: GateId[] = ['boat', 'auction', 'truck', 'kitchen', 'plate']
 
 export const PACK_KEYS: Record<string, PackNeed> = {
   '1': 'ice',
-  i: 'ice',
-  I: 'ice',
   '2': 'seal',
   e: 'seal',
   E: 'seal',
@@ -106,8 +122,6 @@ export const PACK_KEYS: Record<string, PackNeed> = {
   b: 'band',
   B: 'band',
   '4': 'crate',
-  c: 'crate',
-  C: 'crate',
 }
 
 export const OCEAN = { x0: 0.03, x1: 0.56, y0: 0.05, y1: 0.93 }

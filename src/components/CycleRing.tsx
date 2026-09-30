@@ -16,8 +16,8 @@ export function CycleRing({ progress, inWindow, reduced, size = 'md', className 
   const cy = dim / 2
   const r = size === 'sm' ? 36 : 46
   const circ = 2 * Math.PI * r
-  const sweep = reduced ? WINDOW_START : progress
-  const dash = Math.max(0.02, sweep) * circ
+  const sweep = progress
+  const dash = Math.max(0, sweep) * circ
   const windowLen = (WINDOW_END - WINDOW_START) * circ
   const windowOffset = (1 - WINDOW_START) * circ
 
@@ -25,6 +25,7 @@ export function CycleRing({ progress, inWindow, reduced, size = 'md', className 
     <div
       role="status"
       aria-label={`${copy.cycleLabel}. ${inWindow ? copy.windowOpen : copy.windowClosed}`}
+      data-motion={reduced ? 'reduced' : 'full'}
       className={cn(
         'relative',
         size === 'sm' ? 'h-24 w-24' : 'h-[120px] w-[120px]',
@@ -94,7 +95,7 @@ export function CycleBar({
   reduced: boolean
   className?: string
 }) {
-  const sweep = reduced ? WINDOW_START : progress
+  const sweep = progress
   const windowLeft = WINDOW_START * 100
   const windowWidth = (WINDOW_END - WINDOW_START) * 100
 
@@ -102,6 +103,7 @@ export function CycleBar({
     <div
       role="status"
       aria-label={`${copy.cycleLabel}. ${inWindow ? copy.windowOpen : copy.windowClosed}`}
+      data-motion={reduced ? 'reduced' : 'full'}
       className={cn('w-full', className)}
     >
       <div className="mb-1 flex items-baseline justify-between gap-3 text-navy">
@@ -115,7 +117,7 @@ export function CycleBar({
         />
         <div
           className="absolute inset-y-0 left-0 rounded-full bg-accent"
-          style={{ width: `${Math.max(4, sweep * 100)}%` }}
+          style={{ width: `${Math.min(100, Math.max(0, sweep * 100))}%` }}
         />
       </div>
     </div>

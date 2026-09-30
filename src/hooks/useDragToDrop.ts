@@ -77,7 +77,7 @@ export function useDragToDrop({ dropRef, tokenRef, onSelect, onPlace, onMiss }: 
         callbacks.current.onPlace()
         return
       }
-      haptic('miss')
+      haptic('again')
       callbacks.current.onMiss()
     },
     [dropRef, markDropHot, tokenRef],
