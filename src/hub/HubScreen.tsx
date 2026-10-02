@@ -8,6 +8,7 @@ import { bestEntry, overallBest, type Boards } from '@/game/leaderboard.ts'
 import type { ArcadeMode } from '@/game/mode.ts'
 import { formatRaceTime } from '@/game/time.ts'
 import { usePressed } from '@/hooks/usePressed.ts'
+import { CoolWater } from '@/motion/CoolWater.tsx'
 
 type Props = {
   boards: Boards
@@ -20,8 +21,9 @@ export function HubScreen({ boards, onMode }: Props) {
   const top = overallBest(boards)
 
   return (
-    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg min-w-0 flex-col justify-between overflow-x-hidden pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.25rem))] pr-[max(1.25rem,env(safe-area-inset-right))] pb-[max(2rem,env(safe-area-inset-bottom))] pl-[max(1.25rem,env(safe-area-inset-left))]">
-      <div className="text-center">
+    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg min-w-0 flex-col justify-between overflow-x-hidden pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.25rem))] pr-[max(1.25rem,env(safe-area-inset-right))] pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] pl-[max(1.25rem,env(safe-area-inset-left))] min-[420px]:pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <CoolWater />
+      <div className="relative z-[1] text-center">
         <p className="text-xs font-semibold tracking-[0.28em] text-navy uppercase">{hubCopy.kicker}</p>
         <p className="wordmark font-display mt-2 text-[clamp(3.25rem,18vw,4.5rem)] leading-none text-cream drop-shadow-[0_2px_0_#0B1424] outline-none sm:text-8xl">
           {hubCopy.wordmark}
@@ -43,7 +45,7 @@ export function HubScreen({ boards, onMode }: Props) {
         )}
       </div>
 
-      <div className="flex flex-col items-center gap-3">
+      <div className="relative z-[1] flex flex-col items-center gap-3">
         <Mascot size={120} className="drop-shadow-md" />
         <div className="flex items-center gap-3" aria-hidden>
           <PixelMatrix name="brain" size={36} />
@@ -52,7 +54,7 @@ export function HubScreen({ boards, onMode }: Props) {
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="relative z-[1] space-y-3">
         <p className="text-center text-xs font-semibold tracking-[0.2em] text-navy/70 uppercase">{hubCopy.pick}</p>
         <GameCard
           title={hubCopy.careName}

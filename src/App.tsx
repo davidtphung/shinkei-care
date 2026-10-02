@@ -7,8 +7,11 @@ import { copy } from '@/game/copy.ts'
 import { readBoards, type Boards } from '@/game/leaderboard.ts'
 import { hashForMode, parseModeHash, type ArcadeMode } from '@/game/mode.ts'
 import { ArcadeNav } from '@/hub/ArcadeNav.tsx'
+import { ModeStage } from '@/motion/ModeStage.tsx'
+import { motionVars } from '@/motion/tokens.ts'
 import { canonicalZineHash } from '@/zine/route.ts'
 import { ZineApp } from '@/zine/ZineApp.tsx'
+import '@/motion/motion.css'
 import { HubScreen } from '@/hub/HubScreen.tsx'
 import { LeaderboardScreen } from '@/hub/LeaderboardScreen.tsx'
 import { MazeApp } from '@/maze/MazeApp.tsx'
@@ -59,7 +62,7 @@ export default function App() {
   const refreshBoards = () => setBoards(readBoards())
 
   return (
-    <div className="relative min-h-[100dvh] overflow-x-hidden">
+    <div className="relative min-h-[100dvh] overflow-x-hidden" style={motionVars()}>
       <BrandBackground />
       <HardwareAtmosphere />
       <div className="grain" aria-hidden />
@@ -70,36 +73,38 @@ export default function App() {
         {copy.skipToGame}
       </a>
       {mode !== 'zine' ? (
-        <div className="pointer-events-none absolute top-[max(0.75rem,env(safe-area-inset-top))] right-[max(0.75rem,env(safe-area-inset-right))] left-[max(0.75rem,env(safe-area-inset-left))] z-40 flex items-start justify-end gap-3">
-          <div className="pointer-events-auto hidden min-[420px]:block">
+        <>
+          <div className="sere-nav-slot">
             <ArcadeNav mode={mode} onMode={setMode} />
           </div>
-          <div className="pointer-events-auto">
-            <MuteToggle />
+          <div className="pointer-events-none absolute top-[max(0.75rem,env(safe-area-inset-top))] right-[max(0.75rem,env(safe-area-inset-right))] z-50">
+            <div className="pointer-events-auto">
+              <MuteToggle />
+            </div>
           </div>
-        </div>
+        </>
       ) : null}
-      <main id="game">
-        {mode === 'hub' ? <HubScreen boards={boards} onMode={setMode} /> : null}
-        {mode === 'care' ? <CareApp onHub={() => setMode('hub')} onBoardChange={refreshBoards} /> : null}
-        {mode === 'maze' ? <MazeApp onHub={() => setMode('hub')} onBoardChange={refreshBoards} /> : null}
-        {mode === 'zine' ? <ZineApp onClose={() => setMode('hub')} /> : null}
-        {mode === 'leaderboard' ? (
-          <LeaderboardScreen
-            boards={boards}
-            onHub={() => setMode('hub')}
-            onCare={() => setMode('care')}
-            onMaze={() => setMode('maze')}
-          />
-        ) : null}
+      <main id="game" role={mode === 'zine' ? undefined : 'tabpanel'} aria-labelledby={mode === 'zine' ? undefined : `sere-tab-${mode}`}>
+        <ModeStage
+          mode={mode}
+          render={(shown) => (
+            <>
+              {shown === 'hub' ? <HubScreen boards={boards} onMode={setMode} /> : null}
+              {shown === 'care' ? <CareApp onHub={() => setMode('hub')} onBoardChange={refreshBoards} /> : null}
+              {shown === 'maze' ? <MazeApp onHub={() => setMode('hub')} onBoardChange={refreshBoards} /> : null}
+              {shown === 'zine' ? <ZineApp onClose={() => setMode('hub')} /> : null}
+              {shown === 'leaderboard' ? (
+                <LeaderboardScreen
+                  boards={boards}
+                  onHub={() => setMode('hub')}
+                  onCare={() => setMode('care')}
+                  onMaze={() => setMode('maze')}
+                />
+              ) : null}
+            </>
+          )}
+        />
       </main>
-      {mode !== 'maze' && mode !== 'zine' ? (
-        <div className="pointer-events-auto fixed right-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 z-40 min-[420px]:hidden">
-          <div className="mx-auto max-w-lg rounded-full border-2 border-navy bg-cream/95 px-2 py-1">
-            <ArcadeNav mode={mode} onMode={setMode} />
-          </div>
-        </div>
-      ) : null}
     </div>
   )
 }

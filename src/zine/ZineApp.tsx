@@ -501,6 +501,7 @@ export function ZineApp({
           data-dragging={dragging ? 'true' : 'false'}
           onPointerDown={onPointerDown}
         >
+          <div className="zine-lift" data-testid="zine-lift" aria-hidden />
           <div className="zine-grid" aria-hidden />
           {zoom ? (
             <div key="zoom" className="zine-zoom" data-testid="zine-zoom">

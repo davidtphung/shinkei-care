@@ -1,6 +1,8 @@
+import { SPRING_OMEGA } from '../motion/tokens.ts'
+
 /** Critically damped spring. Zeta is 1, so a step from rest does not bounce. */
 
-export const SPRING_OMEGA = 14
+export { SPRING_OMEGA }
 
 export type SpringState = {
   x: number
