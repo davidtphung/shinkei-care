@@ -14,6 +14,7 @@ export const hubCopy = {
   playCare: 'Play Care',
   playMaze: 'Play Catch',
   openBoard: 'Open leaderboard',
+  zineName: 'Zine',
   hub: 'Hub',
   backHub: 'Hub',
   nav: 'Sere arcade',
