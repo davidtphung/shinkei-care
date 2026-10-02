@@ -92,7 +92,7 @@ export default function App() {
               {shown === 'hub' ? <HubScreen boards={boards} onMode={setMode} /> : null}
               {shown === 'care' ? <CareApp onHub={() => setMode('hub')} onBoardChange={refreshBoards} /> : null}
               {shown === 'maze' ? <MazeApp onHub={() => setMode('hub')} onBoardChange={refreshBoards} /> : null}
-              {shown === 'zine' ? <ZineApp onClose={() => setMode('hub')} /> : null}
+              {shown === 'zine' ? <ZineApp onClose={() => setMode('hub')} onPlay={() => setMode('maze')} /> : null}
               {shown === 'leaderboard' ? (
                 <LeaderboardScreen
                   boards={boards}

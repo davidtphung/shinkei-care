@@ -21,7 +21,9 @@ describe('zine reader markup', () => {
     assert.equal(html.match(/<h1\b/g)?.length, 1)
     assert.match(html, /Six seconds\./)
     assert.match(html, /A salmon comes over the rail/)
-    assert.match(html, /Cover: a hand holds a silver salmon over a boat rail, gray sea behind/)
+    assert.match(html, /Cover: a person in bright blue gloves holds a silver salmon over a boat rail, gray sea behind/)
+    assert.equal(html.includes('data-testid="zine-play"'), false)
+    assert.match(html, /six-seconds-v2-spread-01\.webp/)
     assert.match(html, /Not affiliated with Shinkei Systems or Seremoni\. Non commercial brief\./)
     assert.match(html, /data-motion="fade"/)
     assert.match(html, /data-testid="zine-fade"/)
@@ -32,7 +34,9 @@ describe('zine reader markup', () => {
 
   it('uses the left page for a phone and lists the chapter rail', () => {
     const html = render({ motion: 'fade', single: true, initialStop: 3, initialContents: true, solid: true })
-    assert.match(html, /six-seconds-spread-03-left\.webp/)
+    assert.match(html, /six-seconds-v2-spread-03-left\.webp/)
+    assert.match(html, /six-seconds-v2-spread-01-thumb\.webp/)
+    assert.equal(html.includes('six-seconds-spread-'), false)
     assert.match(html, /data-single="true"/)
     assert.match(html, /data-solid="true"/)
     assert.match(html, /data-testid="zine-rail"/)
@@ -46,7 +50,15 @@ describe('zine reader markup', () => {
     const html = render({ motion: 'spring', initialStop: 4, initialZoom: true })
     assert.match(html, /data-zoomed="true"/)
     assert.match(html, /data-testid="zine-zoom"/)
-    assert.match(html, /six-seconds-spread-04\.webp/)
+    assert.match(html, /six-seconds-v2-spread-04\.webp/)
     assert.match(html, /Drag to look across the page\./)
+  })
+
+  it('offers Play Sere on the back cover', () => {
+    const html = render({ motion: 'fade', initialStop: 7 })
+    assert.match(html, /data-testid="zine-play"/)
+    assert.match(html, />Play Sere</)
+    assert.match(html, /a Play Sere line/)
+    assert.match(html, /six-seconds-v2-spread-07\.webp/)
   })
 })

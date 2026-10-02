@@ -8,6 +8,7 @@ export const zineCopy = {
   zoom: 'Zoom',
   share: 'Share',
   close: 'Close',
+  play: 'Play Sere',
   prev: 'Prev',
   next: 'Next',
   copied: 'Copied.',

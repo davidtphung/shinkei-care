@@ -21,6 +21,7 @@ type MotionMode = 'spring' | 'fade'
 
 type Props = {
   onClose: () => void
+  onPlay?: () => void
   motion?: MotionMode
   single?: boolean
   solid?: boolean
@@ -55,6 +56,7 @@ function useMediaFlag(query: string, override?: boolean): boolean {
 
 export function ZineApp({
   onClose,
+  onPlay,
   motion: motionProp,
   single: singleProp,
   solid: solidProp,
@@ -548,6 +550,11 @@ export function ZineApp({
         </div>
       </div>
       <footer className="zine-foot">
+        {leaf.stop === 7 ? (
+          <button type="button" className="zine-chip zine-play" data-testid="zine-play" onClick={onPlay}>
+            {zineCopy.play}
+          </button>
+        ) : null}
         <div className="zine-foot-row">
           <button type="button" className="zine-step" onClick={() => goTo(index - 1, true)} disabled={index <= 0}>
             {zineCopy.prev}

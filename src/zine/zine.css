@@ -99,6 +99,11 @@
   flex: 1 1 0;
 }
 
+.zine-play {
+  flex: none;
+  width: 100%;
+}
+
 .zine-chip:active,
 .zine-step:active,
 .zine-tick:active,
