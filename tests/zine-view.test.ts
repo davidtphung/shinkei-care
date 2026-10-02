@@ -21,6 +21,10 @@ describe('zine reader markup', () => {
     assert.equal(html.match(/<h1\b/g)?.length, 1)
     assert.match(html, /Six seconds\./)
     assert.match(html, /A salmon comes over the rail/)
+    assert.match(html, /data-testid="zine-cover-note"/)
+    assert.match(html, /class="zine-sr"/)
+    assert.equal(html.includes('data-testid="zine-plate"'), false)
+    assert.equal(html.includes('class="zine-plate"'), false)
     assert.match(html, /Cover: a person in bright blue gloves holds a silver salmon over a boat rail, gray sea behind/)
     assert.equal(html.includes('data-testid="zine-play"'), false)
     assert.match(html, /six-seconds-v2-spread-01\.webp/)
@@ -52,6 +56,14 @@ describe('zine reader markup', () => {
     assert.match(html, /data-testid="zine-zoom"/)
     assert.match(html, /six-seconds-v2-spread-04\.webp/)
     assert.match(html, /Drag to look across the page\./)
+  })
+
+  it('keeps the caption plate on later stops', () => {
+    const html = render({ motion: 'fade', initialStop: 2 })
+    assert.match(html, /data-testid="zine-plate"/)
+    assert.match(html, /class="zine-plate"/)
+    assert.match(html, /Surgery, at sea, in six seconds\./)
+    assert.equal(html.includes('data-testid="zine-cover-note"'), false)
   })
 
   it('offers Play Sere on the back cover', () => {

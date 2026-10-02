@@ -537,7 +537,11 @@ export function ZineApp({
               ))}
             </div>
           )}
-          <aside className="zine-plate" aria-label={leaf.title}>
+          <aside
+            className={leaf.stop === 1 ? 'zine-sr' : 'zine-plate'}
+            aria-label={leaf.title}
+            data-testid={leaf.stop === 1 ? 'zine-cover-note' : 'zine-plate'}
+          >
             <div className="zine-plate-head">
               <p className="zine-plate-kicker zine-mono">{leaf.kicker}</p>
               <p className="zine-plate-page zine-mono">{leaf.pageLabel}</p>
