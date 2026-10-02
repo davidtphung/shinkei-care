@@ -13,6 +13,7 @@ const items: { mode: ArcadeMode; label: string }[] = [
   { mode: 'care', label: hubCopy.careName },
   { mode: 'maze', label: hubCopy.mazeName },
   { mode: 'leaderboard', label: hubCopy.boardName },
+  { mode: 'zine', label: hubCopy.zineName },
 ]
 
 export function ArcadeNav({ mode, onMode, ink = false }: Props) {
