@@ -272,7 +272,11 @@ export function ZineApp({
     if (target instanceof Element && target.closest('button, a, input')) return
     const stage = stageRef.current
     if (!stage) return
-    stage.setPointerCapture(event.pointerId)
+    try {
+      stage.setPointerCapture(event.pointerId)
+    } catch {
+      // A pointer that is already gone cannot be captured. The gesture still tracks.
+    }
     cancelSpring()
     setDragging(true)
     setPressed(true)
@@ -499,7 +503,7 @@ export function ZineApp({
         >
           <div className="zine-grid" aria-hidden />
           {zoom ? (
-            <div className="zine-zoom" data-testid="zine-zoom">
+            <div key="zoom" className="zine-zoom" data-testid="zine-zoom">
               <img
                 ref={zoomRef}
                 src={zineFileUrl(leaf.file)}
@@ -507,18 +511,19 @@ export function ZineApp({
                 width={leaf.width}
                 height={leaf.height}
                 draggable={false}
+                style={{ transform: `translate3d(${pan.current.x}px, ${pan.current.y}px, 0) scale(2)` }}
               />
               <p className="zine-sr">{zineCopy.zoomHint}</p>
             </div>
           ) : motion === 'fade' ? (
-            <div className="zine-fade" data-testid="zine-fade">
+            <div key="fade" className="zine-fade" data-testid="zine-fade">
               {outgoing && outgoing.index !== leaf.index ? (
                 <PageFrame leaf={outgoing} className="zine-fade-out" />
               ) : null}
               <PageFrame leaf={leaf} className="zine-fade-in" />
             </div>
           ) : (
-            <div ref={trackRef} className="zine-track" data-testid="zine-track">
+            <div key="track" ref={trackRef} className="zine-track" data-testid="zine-track">
               {leaves.map((page) => (
                 <PageFrame
                   key={`${page.spread}-${page.side}`}

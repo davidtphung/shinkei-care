@@ -295,7 +295,8 @@
   pointer-events: auto;
 }
 
-.zine-stage[data-dragging='true'] .zine-plate {
+.zine-stage[data-dragging='true'] .zine-plate,
+.zine[data-contents='true'] .zine-plate {
   opacity: 0;
   transform: translateY(6px);
   pointer-events: none;
