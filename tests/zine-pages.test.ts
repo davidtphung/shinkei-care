@@ -6,9 +6,9 @@ describe('zine page math', () => {
   it('reads seven spreads on a wide screen', () => {
     const leaves = leavesFor('spread')
     assert.equal(leaves.length, SPREAD_COUNT)
-    assert.equal(leaves[0]?.file, 'six-seconds-spread-01.webp')
+    assert.equal(leaves[0]?.file, 'six-seconds-v2-spread-01.webp')
     assert.equal(leaves[2]?.stop, 3)
-    assert.equal(leaves[3]?.file, 'six-seconds-spread-04.webp')
+    assert.equal(leaves[3]?.file, 'six-seconds-v2-spread-04.webp')
     assert.equal(leaves[6]?.side, 'full')
     assert.equal(leafIndexFor(leaves, 5, 1), 4)
   })
@@ -33,12 +33,12 @@ describe('zine page math', () => {
         '7:full',
       ],
     )
-    assert.equal(leaves[0]?.file, 'six-seconds-spread-01.webp')
-    assert.equal(leaves[1]?.file, 'six-seconds-spread-02-left.webp')
-    assert.equal(leaves[2]?.file, 'six-seconds-spread-02-right.webp')
+    assert.equal(leaves[0]?.file, 'six-seconds-v2-spread-01.webp')
+    assert.equal(leaves[1]?.file, 'six-seconds-v2-spread-02-left.webp')
+    assert.equal(leaves[2]?.file, 'six-seconds-v2-spread-02-right.webp')
     assert.equal(leaves[3]?.pageLabel, 'P.04')
     assert.equal(leaves[4]?.pageLabel, 'P.05')
-    assert.equal(leaves[11]?.file, 'six-seconds-spread-07.webp')
+    assert.equal(leaves[11]?.file, 'six-seconds-v2-spread-07.webp')
     assert.equal(leafIndexFor(leaves, 3, 0), 3)
     assert.equal(leafIndexFor(leaves, 3, 1), 4)
     assert.equal(leafIndexFor(leaves, 1, 1), 0)

@@ -28,7 +28,7 @@ export const STOPS: readonly Stop[] = [
     subtitle: null,
     caption:
       'A salmon comes over the rail. What happens in the next six seconds decides how it tastes two weeks from now.',
-    alt: 'Cover: a hand holds a silver salmon over a boat rail, gray sea behind',
+    alt: 'Cover: a person in bright blue gloves holds a silver salmon over a boat rail, gray sea behind',
     pages: ['Cover'],
   },
   {
@@ -98,8 +98,9 @@ export const STOPS: readonly Stop[] = [
     kicker: 'Close',
     title: 'Field brief close.',
     subtitle: null,
-    caption: 'A four-point grade strip, a join-the-team mark, and the sources close the brief.',
-    alt: 'Four-point grade strip, join the team, sources',
+    caption:
+      'A four-point grade strip, a join-the-team mark, a Play Sere line, and the sources close the brief.',
+    alt: 'Four-point grade strip, join the team, Play Sere line, sources',
     pages: ['Back'],
   },
 ]
@@ -134,8 +135,10 @@ export function padSpread(spread: number): string {
   return String(spread).padStart(2, '0')
 }
 
+const FILE_PREFIX = 'six-seconds-v2-spread'
+
 export function thumbFile(spread: number): string {
-  return `six-seconds-spread-${padSpread(spread)}-thumb.webp`
+  return `${FILE_PREFIX}-${padSpread(spread)}-thumb.webp`
 }
 
 export function clampStop(stop: number): number {
@@ -166,8 +169,7 @@ export function leavesFor(mode: LeafMode): Leaf[] {
 
 function makeLeaf(stop: Stop, side: LeafSide, pageLabel: string): Leaf {
   const pad = padSpread(stop.spread)
-  const file =
-    side === 'full' ? `six-seconds-spread-${pad}.webp` : `six-seconds-spread-${pad}-${side}.webp`
+  const file = side === 'full' ? `${FILE_PREFIX}-${pad}.webp` : `${FILE_PREFIX}-${pad}-${side}.webp`
   return {
     index: 0,
     stop: stop.stop,

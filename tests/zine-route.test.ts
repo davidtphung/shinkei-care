@@ -44,16 +44,16 @@ describe('zine asset urls', () => {
     const script =
       'https://cdn.jsdelivr.net/gh/davidtphung/shinkei-care@d13382e580ff4898b8773caab7ba9cb341c7ac45/published/assets/index-D5oBwPEW.js'
     assert.equal(
-      resolveZineUrl('six-seconds-spread-01.webp', script),
-      'https://cdn.jsdelivr.net/gh/davidtphung/shinkei-care@d13382e580ff4898b8773caab7ba9cb341c7ac45/published/assets/zine/six-seconds-spread-01.webp',
+      resolveZineUrl('six-seconds-v2-spread-01.webp', script),
+      'https://cdn.jsdelivr.net/gh/davidtphung/shinkei-care@d13382e580ff4898b8773caab7ba9cb341c7ac45/published/assets/zine/six-seconds-v2-spread-01.webp',
     )
   })
 
   it('falls back to the site base when the page is the dev server', () => {
-    assert.equal(resolveZineUrl('six-seconds-spread-02-left.webp', null, '/'), '/assets/zine/six-seconds-spread-02-left.webp')
+    assert.equal(resolveZineUrl('six-seconds-v2-spread-02-left.webp', null, '/'), '/assets/zine/six-seconds-v2-spread-02-left.webp')
     assert.equal(
-      resolveZineUrl('six-seconds-spread-07.webp', 'http://127.0.0.1:4721/src/main.tsx', '/shinkei-care/'),
-      '/shinkei-care/assets/zine/six-seconds-spread-07.webp',
+      resolveZineUrl('six-seconds-v2-spread-07.webp', 'http://127.0.0.1:4721/src/main.tsx', '/shinkei-care/'),
+      '/shinkei-care/assets/zine/six-seconds-v2-spread-07.webp',
     )
   })
 })
