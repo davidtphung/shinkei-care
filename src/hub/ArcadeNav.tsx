@@ -82,7 +82,7 @@ export function ArcadeNav({ mode, onMode }: Props) {
       return {
         button,
         x: button.offsetLeft,
-        y: button.offsetTop + button.offsetHeight - 8,
+        y: button.offsetTop,
         w: button.offsetWidth,
       }
     }

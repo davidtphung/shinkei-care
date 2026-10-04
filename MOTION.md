@@ -6,15 +6,17 @@ Numbers live in `src/motion/tokens.ts`. The spring is critically damped (`zeta` 
 
 ## Tab bar
 
-The home nav is one centered tab list. Zine is first, then Hub, Care, Catch, and About. Leaderboard stays a screen you open from Care or Catch, so the indicator hides while that screen is up. An orange indicator sits under the active tab. Its place and width follow the spring, so a second tap takes over mid travel. Pointer down scales the tab to 0.97 with transform only. Hover and focus reveal a cream wash in 140ms and let it go in 220ms.
+The home nav is one centered pill. Zine is first, then Hub, Care, Catch, and About. Leaderboard stays a screen you open from Care or Catch, so the orange pill hides while that screen is up. The active tab is a rounded orange pill with cream type. Its place and width follow the spring, so a second tap takes over mid travel. The pill moves with transform only. Pointer down scales the tab to 0.97 with transform only. Hover and focus show a quiet wash in 140ms and let it go in 220ms.
 
 Arrow keys move between tabs and wrap. Home and End jump to the ends.
 
-On a narrow screen the row scrolls inside the centered bar. It does not widen the page.
+On a narrow screen the five labels stay in one centered pill. They do not clip, and the row does not widen the page.
 
 ## Content
 
-Changing tabs moves the view 8px on one horizontal axis and fades it. The view that leaves and the view that arrives use that same distance. The first view on load does not play this transition. Reduced motion keeps the fade and drops the shift.
+Changing tabs fades the view and raises it 8px. The view that leaves fades and moves up by that same distance. The first view on load does not play this transition. Reduced motion keeps the fade and drops the rise.
+
+Cards and pills lift 2px on hover and scale to 0.97 on press, both with transform only. Cabinet cards stagger in by 50ms. The fish mascot floats 6px on a slow loop. Reduced motion drops the lift, the stagger shift, and the float.
 
 ## Zine pages
 
@@ -24,7 +26,7 @@ The cover shows a small blurred preview at once. The full cover fades in with op
 
 ## Entrance
 
-The nav tabs fade and rise 8px in a stagger. Five tabs finish in 480ms, under the 600ms cap. The stagger runs once each page load.
+The nav tabs fade and rise 8px in a stagger. Five tabs finish in 480ms, under the 600ms cap. The stagger runs once each page load. Cabinet cards use the same rise, staggered by 50ms, each time that screen opens.
 
 ## Cool water
 

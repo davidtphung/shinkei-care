@@ -5,15 +5,15 @@ import { usePressed } from '@/hooks/usePressed.ts'
 import { cn } from '@/lib/utils.ts'
 
 const buttonVariants = cva(
-  'hit-target pressable spring inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full px-5 py-3 text-base font-semibold leading-none disabled:pointer-events-none disabled:opacity-50 sm:min-h-12',
+  'sere-lift hit-target pressable inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full px-5 py-3 text-base font-semibold leading-none disabled:pointer-events-none disabled:opacity-50 sm:min-h-12',
   {
     variants: {
       variant: {
         primary: 'bg-accent text-navy',
         navy: 'bg-navy text-cream',
         cream: 'bg-cream text-navy',
-        outline: 'border-2 border-navy bg-cream text-navy',
-        ghost: 'bg-transparent text-cream',
+        outline: 'border border-navy/15 bg-cream text-navy',
+        ghost: 'bg-transparent text-cream shadow-none',
       },
     },
     defaultVariants: {

@@ -21,7 +21,7 @@ export function HubScreen({ boards, onMode }: Props) {
   const top = overallBest(boards)
 
   return (
-    <div className="sere-screen flex min-h-[100dvh] flex-col justify-between gap-6">
+    <div className="sere-screen flex min-h-[100dvh] flex-col justify-between gap-8">
       <CoolWater />
       <div className="relative z-[1]">
         <PageHeader
@@ -48,11 +48,11 @@ export function HubScreen({ boards, onMode }: Props) {
         />
       </div>
 
-      <div className="relative z-[1] flex justify-center">
-        <Mascot size={120} className="drop-shadow-md" />
+      <div className="sere-float relative z-[1] flex justify-center">
+        <Mascot size={120} />
       </div>
 
-      <div className="relative z-[1] space-y-3">
+      <div className="sere-stagger relative z-[1] flex flex-col gap-4">
         <GameCard
           title={hubCopy.careName}
           blurb={hubCopy.careBlurb}
@@ -109,7 +109,7 @@ function GameCard({
       data-pressed={pressed ? 'true' : 'false'}
       onClick={onClick}
       aria-label={label}
-      className="hit-target pressable spring panel min-h-12 w-full rounded-3xl border-4 border-navy bg-cream px-4 py-3 text-left text-navy"
+      className="sere-card hit-target pressable min-h-12 w-full px-4 py-4 text-left text-navy"
     >
       <span className="block text-lg font-semibold">{title}</span>
       <span className="block text-sm text-navy/75">{blurb}</span>
@@ -128,7 +128,7 @@ function HowArcade() {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-navy/70" />
-        <Dialog.Content className="panel fixed inset-x-4 top-1/2 z-50 mx-auto max-h-[min(80dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] max-w-md -translate-y-1/2 overflow-y-auto rounded-3xl bg-cream p-6 text-navy shadow-xl">
+        <Dialog.Content className="sere-surface fixed inset-x-4 top-1/2 z-50 mx-auto max-h-[min(80dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] max-w-md -translate-y-1/2 overflow-y-auto p-6 text-navy">
           <Dialog.Title className="text-2xl font-semibold">{hubCopy.howTo}</Dialog.Title>
           <Dialog.Description className="sr-only">{hubCopy.howTitle}</Dialog.Description>
           <h3 className="mt-4 text-lg font-semibold">{hubCopy.howTitle}</h3>

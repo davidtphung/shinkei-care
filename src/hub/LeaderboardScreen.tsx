@@ -31,7 +31,7 @@ export function LeaderboardScreen({ boards, onHub, onCare, onMaze }: Props) {
   }
 
   return (
-    <div className="sere-screen flex min-h-[100dvh] flex-col">
+    <div className="sere-screen flex min-h-[100dvh] flex-col gap-2">
       <PageHeader title={hubCopy.boardName} line={hubCopy.boardBlurb} />
       {top ? (
         <p className="mt-3 text-center text-sm font-semibold text-navy tabular-nums">
@@ -48,7 +48,7 @@ export function LeaderboardScreen({ boards, onHub, onCare, onMaze }: Props) {
       <BoardTable title={hubCopy.careName} rows={boards.care} />
       <BoardTable title={hubCopy.mazeName} rows={boards.maze} />
 
-      <div className="mt-6 space-y-2">
+      <div className="sere-stagger mt-6 flex flex-col gap-3">
         <Button className="w-full" onClick={copyText}>
           {copied ? hubCopy.copied : hubCopy.copyBoard}
         </Button>
@@ -69,7 +69,7 @@ export function LeaderboardScreen({ boards, onHub, onCare, onMaze }: Props) {
 
 function BoardTable({ title, rows }: { title: string; rows: ScoreEntry[] }) {
   return (
-    <section className="panel mt-6 rounded-3xl border-4 border-navy bg-cream p-4 text-navy">
+    <section className="sere-surface mt-6 p-4 text-navy">
       <h2 className="text-xl font-semibold">{title}</h2>
       {rows.length === 0 ? (
         <p className="mt-3 text-sm">{hubCopy.emptyBoard}</p>
