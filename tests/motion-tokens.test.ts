@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import { entranceTotalMs, motionTokens, SPRING_OMEGA, SPRING_ZETA } from '../src/motion/tokens.ts'
-import { indicatorTransform, sharedAxis, stepTab, tabItems } from '../src/motion/tabs.ts'
+import { indicatorTransform, sharedAxis, stepTab, tabIndex, tabItems } from '../src/motion/tabs.ts'
 import { SPRING_OMEGA as springOmega, stepSpring } from '../src/zine/spring.ts'
 
 describe('motion tokens', () => {
@@ -43,7 +43,7 @@ describe('tab motion math', () => {
   it('puts Zine first and wraps arrow keys', () => {
     assert.deepEqual(
       tabItems.map((item) => item.mode),
-      ['zine', 'hub', 'care', 'maze', 'leaderboard'],
+      ['zine', 'hub', 'care', 'maze', 'about'],
     )
     assert.equal(stepTab(0, 'ArrowLeft', 5), 4)
     assert.equal(stepTab(4, 'ArrowRight', 5), 0)
@@ -52,6 +52,10 @@ describe('tab motion math', () => {
     assert.equal(stepTab(3, 'Home', 5), 0)
     assert.equal(stepTab(3, 'End', 5), 4)
     assert.equal(stepTab(1, 'Enter', 5), null)
+    assert.equal(tabIndex('about'), 4)
+    assert.equal(tabIndex('leaderboard'), -1)
+    assert.equal(motionTokens.coverFadeMs, 250)
+    assert.equal(motionTokens.shareNoteMs, 2000)
   })
 
   it('uses one shared axis for the way in and the way out', () => {

@@ -12,9 +12,13 @@ export const motionTokens = {
   contentShiftPx: 8,
   entranceFadeMs: 280,
   entranceStaggerMs: 50,
+  hoverLiftPx: 2,
   liftMs: 220,
+  floatMs: 5600,
   shimmerMs: 6400,
   indicatorBasePx: 100,
+  coverFadeMs: 250,
+  shareNoteMs: 2000,
 } as const
 
 export function entranceTotalMs(count: number): number {
@@ -31,7 +35,12 @@ export function motionVars(): Record<string, string> {
     '--motion-content': `${motionTokens.contentMs}ms`,
     '--motion-shift': `${motionTokens.contentShiftPx}px`,
     '--motion-enter': `${motionTokens.entranceFadeMs}ms`,
+    '--motion-stagger': `${motionTokens.entranceStaggerMs}ms`,
+    '--motion-hover-lift': `${motionTokens.hoverLiftPx}px`,
     '--motion-lift': `${motionTokens.liftMs}ms`,
+    '--motion-float': `${motionTokens.floatMs}ms`,
     '--motion-shimmer': `${motionTokens.shimmerMs}ms`,
+    '--motion-cover': `${motionTokens.coverFadeMs}ms`,
+    '--motion-share': `${motionTokens.shareNoteMs}ms`,
   }
 }

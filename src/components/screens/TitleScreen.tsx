@@ -6,18 +6,20 @@ import { isUnlocked, type Progress } from '@/game/progress.ts'
 import { formatRaceTime } from '@/game/time.ts'
 import type { LevelId } from '@/game/types.ts'
 import { Button } from '@/components/ui/button.tsx'
-import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
+import { PageHeader } from '@/components/PageHeader.tsx'
 import { Mascot } from '@/components/Mascot.tsx'
+import { hubCopy } from '@/game/hubCopy.ts'
 import { usePressed } from '@/hooks/usePressed.ts'
 
 type Props = {
   progress: Progress
   onPlay: (level: LevelId) => void
   onHub?: () => void
+  onLeaderboard?: () => void
   headingRef: Ref<HTMLHeadingElement>
 }
 
-export function TitleScreen({ progress, onPlay, onHub, headingRef }: Props) {
+export function TitleScreen({ progress, onPlay, onHub, onLeaderboard, headingRef }: Props) {
   const start = (level: LevelId) => {
     void unlockAudio().then((ok) => {
       if (ok && !isMuted()) playConfirm()
@@ -26,39 +28,18 @@ export function TitleScreen({ progress, onPlay, onHub, headingRef }: Props) {
   }
 
   return (
-    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg min-w-0 flex-col justify-between overflow-x-hidden pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.25rem))] pr-[max(1.25rem,env(safe-area-inset-right))] pb-[max(2rem,env(safe-area-inset-bottom))] pl-[max(1.25rem,env(safe-area-inset-left))]">
-      <div className="text-center">
-        <p className="text-xs font-semibold tracking-[0.28em] text-navy uppercase">
-          {copy.kicker}
-        </p>
-        <h1 ref={headingRef} className="sr-only">
-          {copy.title}
-        </h1>
-        <p className="wordmark font-display mt-2 text-[clamp(3.25rem,18vw,4.5rem)] leading-none text-cream drop-shadow-[0_2px_0_#0B1424] outline-none sm:text-8xl">
-          {copy.wordmark}
-        </p>
-        <p className="mt-1 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">{copy.wordmarkLine}</p>
-        <p className="mt-2 text-lg text-navy">{copy.subtitle}</p>
-        <p className="mt-3 text-sm font-semibold tracking-[0.16em] text-navy/80 uppercase">
-          {copy.careScore}
-        </p>
-        <TitleBests progress={progress} />
+    <div className="sere-screen flex min-h-[100dvh] flex-col justify-between gap-8">
+      <PageHeader title={copy.wordmarkLine} line={copy.subtitle} headingRef={headingRef} />
+
+      <div className="sere-float sere-mascot flex justify-center">
+        <Mascot size={132} />
       </div>
 
-      <div className="flex flex-col items-center gap-3">
-        <Mascot size={132} className="drop-shadow-md" />
-        <div className="flex items-center gap-3" aria-hidden>
-          <PixelMatrix name="ice" size={40} />
-          <PixelMatrix name="cooler" size={40} />
-          <PixelMatrix name="seal" size={40} />
-        </div>
-      </div>
-
-      <div className="space-y-3">
+      <div className="sere-stagger flex flex-col gap-4">
         <p className="text-center text-xs font-semibold tracking-[0.2em] text-navy/70 uppercase">
           {copy.levelsTitle}
         </p>
-        <ul className="space-y-2">
+        <ul className="flex flex-col gap-3">
           {([1, 2, 3] as const).map((level) => {
             const open = isUnlocked(progress, level)
             const quality = progress.quality[level]
@@ -77,6 +58,11 @@ export function TitleScreen({ progress, onPlay, onHub, headingRef }: Props) {
           })}
         </ul>
         <HowToPlay />
+        {onLeaderboard ? (
+          <Button variant="outline" className="w-full" onClick={onLeaderboard}>
+            {hubCopy.boardName}
+          </Button>
+        ) : null}
         {onHub ? (
           <Button variant="outline" className="w-full" onClick={onHub}>
             {copy.backToHub}
@@ -128,7 +114,7 @@ function LevelButton({
           ? copy.playLevel(levelName(level))
           : copy.levelLocked(levelName(level - 1))
       }
-      className="hit-target pressable spring panel min-h-12 w-full rounded-3xl border-4 border-navy bg-cream px-4 py-3 text-left text-navy disabled:opacity-50"
+      className="sere-card hit-target pressable min-h-12 w-full px-4 py-4 text-left text-navy disabled:opacity-50"
     >
       <span className="block text-lg font-semibold">
         {level}. {levelName(level)}
@@ -147,28 +133,6 @@ function LevelButton({
   )
 }
 
-function TitleBests({ progress }: { progress: Progress }) {
-  const qualities = [progress.quality[1], progress.quality[2], progress.quality[3]]
-  const times = [progress.time[1], progress.time[2], progress.time[3]].filter(
-    (value): value is number => value !== null,
-  )
-  const bestQuality = Math.max(...qualities)
-  const bestTime = times.length > 0 ? Math.min(...times) : null
-
-  if (bestQuality <= 0 && bestTime === null) {
-    return (
-      <p className="mt-2 text-sm text-navy/80">{copy.firstQuality}</p>
-    )
-  }
-
-  return (
-    <p className="mt-2 text-sm text-navy tabular-nums">
-      {bestQuality > 0 ? copy.bestScore(bestQuality) : copy.firstQuality}
-      {bestTime !== null ? ` · ${copy.bestTimeValue(formatRaceTime(bestTime))}` : ''}
-    </p>
-  )
-}
-
 function HowToPlay() {
   return (
     <Dialog.Root>
@@ -179,7 +143,7 @@ function HowToPlay() {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-navy/70" />
-        <Dialog.Content className="panel fixed inset-x-4 top-1/2 z-50 mx-auto max-h-[min(80dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] max-w-md -translate-y-1/2 overflow-y-auto rounded-3xl bg-cream p-6 text-navy shadow-xl">
+        <Dialog.Content className="sere-surface fixed inset-x-4 top-1/2 z-50 mx-auto max-h-[min(80dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] max-w-md -translate-y-1/2 overflow-y-auto p-6 text-navy">
           <Dialog.Title className="text-2xl font-semibold">{copy.howTo}</Dialog.Title>
           <Dialog.Description className="sr-only">
             How to play Shinkei Care

@@ -62,9 +62,10 @@ type Hud = {
 type Props = {
   onHub: () => void
   onBoardChange: () => void
+  onLeaderboard: () => void
 }
 
-export function MazeApp({ onHub, onBoardChange }: Props) {
+export function MazeApp({ onHub, onBoardChange, onLeaderboard }: Props) {
   const reduced = usePrefersReducedMotion()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const frameRef = useRef<CatchState | null>(null)
@@ -230,7 +231,7 @@ export function MazeApp({ onHub, onBoardChange }: Props) {
   }
 
   if (screen === 'title') {
-    return <MazeTitle progress={progress} onPlay={begin} onHub={onHub} />
+    return <MazeTitle progress={progress} onPlay={begin} onHub={onHub} onLeaderboard={onLeaderboard} />
   }
 
   if (screen === 'score' && result) {

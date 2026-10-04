@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type Ref } from 'react'
+import { motionTokens } from '../motion/tokens.ts'
 import { zineFileUrl } from './assets.ts'
 import { zineCopy } from './copy.ts'
 import {
@@ -77,11 +78,27 @@ export function ZineApp({
   const [dragging, setDragging] = useState(false)
   const [note, setNote] = useState<'copied' | 'manual' | null>(null)
   const [manualUrl, setManualUrl] = useState('')
+  const noteTimer = useRef(0)
   const [announce, setAnnounce] = useState('')
   const [stageWidth, setStageWidth] = useState(0)
   const [fadeFrom, setFadeFrom] = useState<number | null>(null)
 
   const leaves = useMemo(() => leavesFor(single ? 'single' : 'spread'), [single])
+
+  useEffect(() => {
+    const spread = leavesFor('spread')
+    const phone = leavesFor('single')
+    const cover = spread.find((item) => item.stop === 1 && item.side === 'full')
+    const page = spread.find((item) => item.stop === 2 && item.side === 'full')
+    const pageLeft = phone.find((item) => item.stop === 2 && item.side === 'left')
+    for (const file of [cover?.file, cover?.thumb, page?.file, pageLeft?.file]) {
+      if (!file) continue
+      const image = new Image()
+      image.src = zineFileUrl(file)
+    }
+  }, [])
+
+  useEffect(() => () => window.clearTimeout(noteTimer.current), [])
   const index = leafIndexFor(leaves, stop, side)
   const leaf = leaves[index] ?? leaves[0]!
   const maxIndex = Math.max(leaves.length - 1, 0)
@@ -395,6 +412,10 @@ export function ZineApp({
       await navigator.clipboard.writeText(payload.url)
       setManualUrl('')
       setNote('copied')
+      window.clearTimeout(noteTimer.current)
+      noteTimer.current = window.setTimeout(() => {
+        setNote((current) => (current === 'copied' ? null : current))
+      }, motionTokens.shareNoteMs)
     } catch {
       setManualUrl(payload.url)
       setNote('manual')
@@ -442,9 +463,16 @@ export function ZineApp({
           >
             {zineCopy.zoom}
           </button>
-          <button type="button" className="zine-chip" onClick={() => void share()}>
-            {zineCopy.share}
-          </button>
+          <div className="zine-share">
+            <button type="button" className="zine-chip" onClick={() => void share()}>
+              {zineCopy.share}
+            </button>
+            {note === 'copied' ? (
+              <p className="zine-copied" role="status" aria-live="polite">
+                {zineCopy.linkCopied}
+              </p>
+            ) : null}
+          </div>
           <button type="button" className="zine-chip" onClick={onClose}>
             {zineCopy.close}
           </button>
@@ -507,15 +535,23 @@ export function ZineApp({
           <div className="zine-grid" aria-hidden />
           {zoom ? (
             <div key="zoom" className="zine-zoom" data-testid="zine-zoom">
-              <img
-                ref={zoomRef}
-                src={zineFileUrl(leaf.file)}
-                alt={leaf.alt}
-                width={leaf.width}
-                height={leaf.height}
-                draggable={false}
-                style={{ transform: `translate3d(${pan.current.x}px, ${pan.current.y}px, 0) scale(2)` }}
-              />
+              {leaf.stop === 1 ? (
+                <CoverImage
+                  leaf={leaf}
+                  imgRef={zoomRef}
+                  style={{ transform: `translate3d(${pan.current.x}px, ${pan.current.y}px, 0) scale(2)` }}
+                />
+              ) : (
+                <img
+                  ref={zoomRef}
+                  src={zineFileUrl(leaf.file)}
+                  alt={leaf.alt}
+                  width={leaf.width}
+                  height={leaf.height}
+                  draggable={false}
+                  style={{ transform: `translate3d(${pan.current.x}px, ${pan.current.y}px, 0) scale(2)` }}
+                />
+              )}
               <p className="zine-sr">{zineCopy.zoomHint}</p>
             </div>
           ) : motion === 'fade' ? (
@@ -540,6 +576,7 @@ export function ZineApp({
           <aside
             className={leaf.stop === 1 ? 'zine-sr' : 'zine-plate'}
             aria-label={leaf.title}
+            data-stop={leaf.stop}
             data-testid={leaf.stop === 1 ? 'zine-cover-note' : 'zine-plate'}
           >
             <div className="zine-plate-head">
@@ -551,6 +588,11 @@ export function ZineApp({
             {leaf.subtitle ? <p className="zine-plate-sub">{leaf.subtitle}</p> : null}
             <p className="zine-plate-body">{leaf.caption}</p>
           </aside>
+          {leaf.stop > 1 && leaf.stop < 7 ? (
+            <p className="zine-cue" data-testid="zine-cue" aria-hidden="true">
+              {leaf.title}
+            </p>
+          ) : null}
         </div>
       </div>
       <footer className="zine-foot">
@@ -589,11 +631,6 @@ export function ZineApp({
             {zineCopy.next}
           </button>
         </div>
-        {note === 'copied' ? (
-          <p className="zine-status" role="status">
-            {zineCopy.copied}
-          </p>
-        ) : null}
         {note === 'manual' ? (
           <input className="zine-link" readOnly value={manualUrl} aria-label={zineCopy.linkLabel} />
         ) : null}
@@ -620,16 +657,75 @@ function PageFrame({
   className?: string
   eager?: boolean
 }) {
+  const cover = leaf.stop === 1 && leaf.side === 'full'
   return (
     <div className={className ? `zine-page ${className}` : 'zine-page'} style={width ? { width } : undefined}>
+      {cover ? (
+        <CoverImage leaf={leaf} eager={eager} />
+      ) : (
+        <img
+          src={zineFileUrl(leaf.file)}
+          alt={leaf.alt}
+          width={leaf.width}
+          height={leaf.height}
+          draggable={false}
+          loading={eager ? 'eager' : 'lazy'}
+        />
+      )}
+    </div>
+  )
+}
+
+function CoverImage({
+  leaf,
+  eager = true,
+  imgRef,
+  style,
+}: {
+  leaf: Leaf
+  eager?: boolean
+  imgRef?: Ref<HTMLImageElement>
+  style?: CSSProperties
+}) {
+  const src = zineFileUrl(leaf.file)
+  const [ready, setReady] = useState(false)
+  const localRef = useRef<HTMLImageElement>(null)
+
+  const setRefs = (node: HTMLImageElement | null) => {
+    localRef.current = node
+    if (typeof imgRef === 'function') imgRef(node)
+    else if (imgRef && typeof imgRef === 'object') {
+      ;(imgRef as { current: HTMLImageElement | null }).current = node
+    }
+  }
+
+  useEffect(() => {
+    const image = localRef.current
+    if (image && image.complete && image.naturalWidth > 0) setReady(true)
+  }, [src])
+
+  return (
+    <span className="zine-cover">
+      <span
+        className="zine-cover-preview"
+        data-testid="zine-cover-preview"
+        aria-hidden="true"
+        style={{ backgroundImage: `url("${zineFileUrl(leaf.thumb)}")` }}
+      />
       <img
-        src={zineFileUrl(leaf.file)}
+        ref={setRefs}
+        className="zine-cover-full"
+        data-ready={ready ? 'true' : 'false'}
+        data-testid="zine-cover-full"
+        src={src}
         alt={leaf.alt}
         width={leaf.width}
         height={leaf.height}
         draggable={false}
         loading={eager ? 'eager' : 'lazy'}
+        style={style}
+        onLoad={() => setReady(true)}
       />
-    </div>
+    </span>
   )
 }

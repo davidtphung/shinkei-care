@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PageHeader } from '@/components/PageHeader.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { levelName } from '@/game/copy.ts'
 import { hubCopy } from '@/game/hubCopy.ts'
@@ -30,31 +31,24 @@ export function LeaderboardScreen({ boards, onHub, onCare, onMaze }: Props) {
   }
 
   return (
-    <div className="relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg min-w-0 flex-col overflow-x-hidden pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.25rem))] pr-[max(1.25rem,env(safe-area-inset-right))] pb-[max(2rem,env(safe-area-inset-bottom))] pl-[max(1.25rem,env(safe-area-inset-left))]">
-      <div className="text-center">
-        <p className="text-xs font-semibold tracking-[0.28em] text-navy uppercase">{hubCopy.kicker}</p>
-        <p className="wordmark font-display mt-2 text-[clamp(2.8rem,14vw,4rem)] leading-none text-cream drop-shadow-[0_2px_0_#0B1424] outline-none">
-          {hubCopy.wordmark}
+    <div className="sere-screen flex min-h-[100dvh] flex-col gap-2">
+      <PageHeader title={hubCopy.boardName} line={hubCopy.boardBlurb} />
+      {top ? (
+        <p className="mt-3 text-center text-sm font-semibold text-navy tabular-nums">
+          {hubCopy.overall}:{' '}
+          {hubCopy.overallLine(
+            top.game === 'care' ? hubCopy.careName : hubCopy.mazeName,
+            top.entry.name,
+            top.entry.score,
+            formatRaceTime(top.entry.timeMs),
+          )}
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-navy">{hubCopy.boardName}</h1>
-        <p className="mt-2 text-sm text-navy/80">{hubCopy.boardBlurb}</p>
-        {top ? (
-          <p className="mt-3 text-sm font-semibold text-navy tabular-nums">
-            {hubCopy.overall}:{' '}
-            {hubCopy.overallLine(
-              top.game === 'care' ? hubCopy.careName : hubCopy.mazeName,
-              top.entry.name,
-              top.entry.score,
-              formatRaceTime(top.entry.timeMs),
-            )}
-          </p>
-        ) : null}
-      </div>
+      ) : null}
 
       <BoardTable title={hubCopy.careName} rows={boards.care} />
       <BoardTable title={hubCopy.mazeName} rows={boards.maze} />
 
-      <div className="mt-6 space-y-2">
+      <div className="sere-stagger mt-6 flex flex-col gap-3">
         <Button className="w-full" onClick={copyText}>
           {copied ? hubCopy.copied : hubCopy.copyBoard}
         </Button>
@@ -75,7 +69,7 @@ export function LeaderboardScreen({ boards, onHub, onCare, onMaze }: Props) {
 
 function BoardTable({ title, rows }: { title: string; rows: ScoreEntry[] }) {
   return (
-    <section className="panel mt-6 rounded-3xl border-4 border-navy bg-cream p-4 text-navy">
+    <section className="sere-surface mt-6 p-4 text-navy">
       <h2 className="text-xl font-semibold">{title}</h2>
       {rows.length === 0 ? (
         <p className="mt-3 text-sm">{hubCopy.emptyBoard}</p>
