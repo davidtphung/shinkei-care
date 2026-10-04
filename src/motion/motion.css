@@ -270,7 +270,7 @@
 
 .sere-stagger > *:not(ul),
 .sere-stagger li {
-  animation: sere-card-in var(--motion-enter, 280ms) linear both;
+  animation: sere-card-in var(--motion-enter, 280ms) linear backwards;
 }
 
 .sere-stagger > *:nth-child(2) {

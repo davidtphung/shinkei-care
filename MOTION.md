@@ -16,7 +16,7 @@ On a narrow screen the five labels stay in one centered pill. They do not clip, 
 
 Changing tabs fades the view and raises it 8px. The view that leaves fades and moves up by that same distance. The first view on load does not play this transition. Reduced motion keeps the fade and drops the rise.
 
-Cards and pills lift 2px on hover and scale to 0.97 on press, both with transform only. Cabinet cards stagger in by 50ms. The fish mascot floats 6px on a slow loop. Reduced motion drops the lift, the stagger shift, and the float.
+Cards and pills lift 2px on hover and scale to 0.97 on press, both with transform only. Cabinet cards stagger in by 50ms. That rise lets go of its transform when it finishes, so the hover lift can run. The fish mascot floats 6px on a slow loop. Reduced motion drops the lift, the stagger shift, and the float.
 
 ## Zine pages
 

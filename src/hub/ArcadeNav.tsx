@@ -88,6 +88,7 @@ export function ArcadeNav({ mode, onMode }: Props) {
     }
     const box = measure()
     if (!box) {
+      run.current += 1
       paint(0)
       return
     }
@@ -110,7 +111,11 @@ export function ArcadeNav({ mode, onMode }: Props) {
     }
     const onResize = () => {
       const next = measure()
-      if (!next) return
+      if (!next) {
+        run.current += 1
+        paint(0)
+        return
+      }
       jump(next.x, next.y, next.w)
     }
     window.addEventListener('resize', onResize)
