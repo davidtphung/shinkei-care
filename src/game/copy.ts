@@ -164,6 +164,7 @@ export const copy = {
 
   soundOn: 'Sound on. Mute arcade cues.',
   soundOff: 'Sound off. Unmute arcade cues.',
+  soundToggle: 'Sound on/off',
   soundLabel: 'Sound',
   muteLabel: 'Muted',
 

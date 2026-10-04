@@ -5,6 +5,7 @@ import { isMuted, playConfirm, unlockAudio } from '@/game/audio.ts'
 import { isUnlocked, type Progress } from '@/game/progress.ts'
 import { formatRaceTime } from '@/game/time.ts'
 import type { LevelId } from '@/game/types.ts'
+import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { PageHeader } from '@/components/PageHeader.tsx'
 import { Mascot } from '@/components/Mascot.tsx'
@@ -29,6 +30,7 @@ export function TitleScreen({ progress, onPlay, onHub, onLeaderboard, headingRef
 
   return (
     <div className="sere-screen flex min-h-[100dvh] flex-col justify-between gap-8">
+      <MuteToggle className="sere-sound-inline" />
       <PageHeader title={copy.wordmarkLine} line={copy.subtitle} headingRef={headingRef} />
 
       <div className="sere-float sere-mascot flex justify-center">

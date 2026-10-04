@@ -10,7 +10,7 @@ The home nav is one centered pill. Zine is first, then Hub, Care, Catch, and Abo
 
 Arrow keys move between tabs and wrap. Home and End jump to the ends.
 
-On a narrow screen the five labels stay in one centered pill. They do not clip, and the row does not widen the page.
+On a screen up to 480px wide the five labels stay in one centered pill along the bottom, with safe-area insets. They do not clip, and the row does not widen the page. The sound control leaves that corner. It is a 44px round speaker button in the page header instead, with aria-label "Sound on/off". On a wide screen the same round button sits at the top right, clear of the pill.
 
 ## Content
 
@@ -20,7 +20,7 @@ Cards and pills lift 2px on hover and scale to 0.97 on press, both with transfor
 
 ## Zine pages
 
-Page turns already use the shared spring. While a page is dragged, a cream sheet eases out under it and settles back when the page is released. Reduced motion keeps the sheet still and only changes its opacity.
+The brief uses the same page ground, pill tab bar, and page header as the cabinets. Its controls and contents rail use the same pills and 20px cards. Page turns already use the shared spring. While a page is dragged, a cream sheet eases out under it and settles back when the page is released. Reduced motion keeps the sheet still and only changes its opacity.
 
 The cover shows a small blurred preview at once. The full cover fades in with opacity over 250ms. Reduced motion hides the preview and shows the sharp cover immediately. Stops 2 to 6 show a short title caption on hover and focus, with opacity only. A click still opens the full caption plate. Stop 6 keeps a reserved plate and fades that plate with opacity only, so the page does not jump. Sharing a link shows "Link copied" beside the Share button for 2 seconds. That note is announced with aria-live.
 

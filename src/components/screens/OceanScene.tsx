@@ -3,6 +3,7 @@ import { copy } from '@/game/copy.ts'
 import { BrandBackground } from '@/components/BrandBackground.tsx'
 import { Mascot } from '@/components/Mascot.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
+import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { Button } from '@/components/ui/button.tsx'
 
 type Props = {
@@ -15,6 +16,7 @@ export function OceanScene({ headingRef, onContinue }: Props) {
     <div className="on-ink relative isolate min-h-[100dvh] overflow-hidden text-cream">
       <BrandBackground variant="ocean" />
       <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-between">
+        <MuteToggle className="sere-sound-inline" />
         <header className="space-y-2">
           <p className="text-xs font-semibold tracking-[0.22em] text-cream/75 uppercase">
             {copy.oceanLead}

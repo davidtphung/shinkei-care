@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { Mascot } from '@/components/Mascot.tsx'
+import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { PageHeader } from '@/components/PageHeader.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { copy } from '@/game/copy.ts'
@@ -22,6 +23,7 @@ export function HubScreen({ boards, onMode }: Props) {
 
   return (
     <div className="sere-screen flex min-h-[100dvh] flex-col justify-between gap-8">
+      <MuteToggle className="sere-sound-inline" />
       <CoolWater />
       <div className="relative z-[1]">
         <PageHeader

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type Ref } from 'react'
+import { MuteToggle } from '@/components/MuteToggle.tsx'
+import { PageHeader } from '@/components/PageHeader.tsx'
 import { motionTokens } from '../motion/tokens.ts'
 import { zineFileUrl } from './assets.ts'
 import { zineCopy } from './copy.ts'
@@ -435,13 +437,14 @@ export function ZineApp({
       data-single={single ? 'true' : 'false'}
       data-solid={solid ? 'true' : 'false'}
     >
+      <MuteToggle className="sere-sound-inline" />
       <div className="zine-band" aria-hidden />
       <header className="zine-bar">
-        <div className="zine-title">
-          <p className="zine-kicker">{zineCopy.kicker}</p>
-          <h1 className="zine-h1">{zineCopy.h1}</h1>
-        </div>
-        <p className="zine-count zine-mono">{zineCopy.count(stop, SPREAD_COUNT)}</p>
+        <PageHeader
+          title={zineCopy.h1}
+          line={zineCopy.kicker}
+          note={<p className="zine-count zine-mono">{zineCopy.count(stop, SPREAD_COUNT)}</p>}
+        />
         <div className="zine-chips">
           <button
             type="button"
