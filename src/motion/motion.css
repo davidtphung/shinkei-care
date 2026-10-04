@@ -425,6 +425,10 @@
   .play-pad {
     padding-bottom: max(7.25rem, calc(env(safe-area-inset-bottom) + 6.25rem));
   }
+
+  .sere-screen {
+    gap: 1.5rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
