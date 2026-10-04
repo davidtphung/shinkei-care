@@ -31,7 +31,7 @@ export function TitleScreen({ progress, onPlay, onHub, onLeaderboard, headingRef
     <div className="sere-screen flex min-h-[100dvh] flex-col justify-between gap-8">
       <PageHeader title={copy.wordmarkLine} line={copy.subtitle} headingRef={headingRef} />
 
-      <div className="sere-float flex justify-center">
+      <div className="sere-float sere-mascot flex justify-center">
         <Mascot size={132} />
       </div>
 
