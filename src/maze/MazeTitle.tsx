@@ -1,4 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog'
+import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { PageHeader } from '@/components/PageHeader.tsx'
 import { copy } from '@/game/copy.ts'
@@ -19,6 +20,7 @@ type Props = {
 export function MazeTitle({ progress, onPlay, onHub, onLeaderboard }: Props) {
   return (
     <div className="sere-screen flex min-h-[100dvh] flex-col justify-start gap-8">
+      <MuteToggle className="sere-sound-inline" />
       <PageHeader title={mazeCopy.title} line={mazeCopy.subtitle} />
 
       <div className="sere-stagger flex flex-col gap-4">

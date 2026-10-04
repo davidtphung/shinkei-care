@@ -1,3 +1,4 @@
+import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { PageHeader } from '@/components/PageHeader.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { hubCopy } from '@/game/hubCopy.ts'
@@ -5,6 +6,7 @@ import { hubCopy } from '@/game/hubCopy.ts'
 export function AboutScreen() {
   return (
     <div className="sere-screen flex min-h-[100dvh] flex-col gap-8">
+      <MuteToggle className="sere-sound-inline" />
       <PageHeader title={hubCopy.aboutName} line={hubCopy.aboutLine} />
       <div className="space-y-4 text-base leading-relaxed text-navy">
         <p>{hubCopy.aboutWhat}</p>

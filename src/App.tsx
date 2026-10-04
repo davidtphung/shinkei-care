@@ -76,21 +76,15 @@ export default function App() {
       >
         {copy.skipToGame}
       </a>
-      {mode !== 'zine' ? (
-        <>
-          <div className="sere-nav-slot">
-            <ArcadeNav mode={mode} onMode={setMode} />
-          </div>
-          <div className="pointer-events-none absolute top-[max(0.75rem,env(safe-area-inset-top))] right-[max(0.75rem,env(safe-area-inset-right))] z-50">
-            <div className="pointer-events-auto">
-              <MuteToggle />
-            </div>
-          </div>
-        </>
-      ) : null}
+      <div className="sere-nav-slot">
+        <ArcadeNav mode={mode} onMode={setMode} />
+      </div>
+      <div className="sere-sound-slot">
+        <MuteToggle />
+      </div>
       <main
         id="game"
-        role={mode === 'zine' ? undefined : 'tabpanel'}
+        role={tabbed ? 'tabpanel' : undefined}
         aria-labelledby={tabbed ? `sere-tab-${mode}` : undefined}
         aria-label={mode === 'leaderboard' ? hubCopy.boardName : undefined}
       >

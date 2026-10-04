@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { FreshnessMeter } from '@/components/FreshnessMeter.tsx'
 import { StepMeter } from '@/components/StepMeter.tsx'
 import { RaceClock } from '@/components/RaceClock.tsx'
+import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { playCue, unlockAudio } from '@/game/audio.ts'
 import { copy } from '@/game/copy.ts'
@@ -252,6 +253,7 @@ export function MazeApp({ onHub, onBoardChange, onLeaderboard }: Props) {
     <div className="play-pad cabinet relative z-20 mx-auto flex min-h-0 w-full max-w-3xl flex-col gap-2 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       <div className="flex items-start justify-between gap-3">
         {hud ? <RaceClock elapsed={hud.elapsed} /> : <span />}
+        <MuteToggle className="sere-sound-inline" />
         <Button variant="outline" className="min-h-11 px-4 text-xs tracking-[0.12em] uppercase" onClick={onHub}>
           {mazeCopy.hub}
         </Button>
@@ -414,6 +416,7 @@ function MazeScore({
 
   return (
     <div className="play-pad cabinet relative z-20 mx-auto flex w-full max-w-lg flex-col justify-start gap-5">
+      <MuteToggle className="sere-sound-inline" />
       <p className="text-center text-xs font-semibold tracking-[0.24em] text-navy uppercase">
         {mazeLevelName(level)} · {mazeCopy.quality}
       </p>
