@@ -7,12 +7,11 @@ export const tabItems: { mode: ArcadeMode; label: string }[] = [
   { mode: 'hub', label: hubCopy.hub },
   { mode: 'care', label: hubCopy.careName },
   { mode: 'maze', label: hubCopy.mazeName },
-  { mode: 'leaderboard', label: hubCopy.boardName },
+  { mode: 'about', label: hubCopy.aboutName },
 ]
 
 export function tabIndex(mode: ArcadeMode): number {
-  const index = tabItems.findIndex((item) => item.mode === mode)
-  return index < 0 ? 0 : index
+  return tabItems.findIndex((item) => item.mode === mode)
 }
 
 /** Arrow keys wrap. Home and End jump to the ends. Other keys are ignored. */

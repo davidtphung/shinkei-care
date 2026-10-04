@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { zineCopy } from '../src/zine/copy.ts'
 import { ZineApp } from '../src/zine/ZineApp.tsx'
 
 function render(props: {
@@ -22,6 +23,10 @@ describe('zine reader markup', () => {
     assert.match(html, /Six seconds\./)
     assert.match(html, /A salmon comes over the rail/)
     assert.match(html, /data-testid="zine-cover-note"/)
+    assert.match(html, /data-testid="zine-cover-preview"/)
+    assert.match(html, /data-testid="zine-cover-full"/)
+    assert.match(html, /six-seconds-v2-spread-01-thumb\.webp/)
+    assert.equal(html.includes('data-testid="zine-cue"'), false)
     assert.match(html, /class="zine-sr"/)
     assert.equal(html.includes('data-testid="zine-plate"'), false)
     assert.equal(html.includes('class="zine-plate"'), false)
@@ -63,7 +68,18 @@ describe('zine reader markup', () => {
     assert.match(html, /data-testid="zine-plate"/)
     assert.match(html, /class="zine-plate"/)
     assert.match(html, /Surgery, at sea, in six seconds\./)
+    assert.match(html, /data-testid="zine-cue"/)
     assert.equal(html.includes('data-testid="zine-cover-note"'), false)
+  })
+
+  it('reserves stop 6 and skips the cue on the back cover', () => {
+    const map = render({ motion: 'fade', initialStop: 6 })
+    assert.match(map, /data-stop="6"/)
+    assert.match(map, /data-testid="zine-cue"/)
+    assert.match(map, /The map is the menu\./)
+    const close = render({ motion: 'fade', initialStop: 7 })
+    assert.equal(close.includes('data-testid="zine-cue"'), false)
+    assert.match(close, /data-stop="7"/)
   })
 
   it('offers Play Sere on the back cover', () => {
@@ -72,5 +88,6 @@ describe('zine reader markup', () => {
     assert.match(html, />Play Sere</)
     assert.match(html, /a Play Sere line/)
     assert.match(html, /six-seconds-v2-spread-07\.webp/)
+    assert.equal(zineCopy.linkCopied, 'Link copied')
   })
 })

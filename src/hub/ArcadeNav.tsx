@@ -87,7 +87,10 @@ export function ArcadeNav({ mode, onMode }: Props) {
       }
     }
     const box = measure()
-    if (!box) return
+    if (!box) {
+      paint(0)
+      return
+    }
     if (!seen.current || reduce) {
       seen.current = true
       jump(box.x, box.y, box.w)
@@ -115,7 +118,10 @@ export function ArcadeNav({ mode, onMode }: Props) {
   }, [mode, reduce])
 
   const onKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    const index = tabItems.findIndex((item) => item.mode === mode)
+    const focused = (event.target as HTMLElement).closest('button[data-mode]')
+    if (!(focused instanceof HTMLButtonElement)) return
+    const index = tabItems.findIndex((item) => item.mode === focused.dataset.mode)
+    if (index < 0) return
     const next = stepTab(index, event.key, tabItems.length)
     if (next == null) return
     event.preventDefault()
@@ -143,6 +149,7 @@ export function ArcadeNav({ mode, onMode }: Props) {
         >
           {tabItems.map((item, index) => {
             const selected = item.mode === mode
+            const listed = tabItems.some((tab) => tab.mode === mode)
             const delay = enter && !reduce ? index * motionTokens.entranceStaggerMs : 0
             return (
               <button
@@ -155,7 +162,7 @@ export function ArcadeNav({ mode, onMode }: Props) {
                 data-pressed={pressed === item.mode ? 'true' : 'false'}
                 aria-selected={selected}
                 aria-controls="game"
-                tabIndex={selected ? 0 : -1}
+                tabIndex={selected || (!listed && item.mode === 'hub') ? 0 : -1}
                 className="sere-tab"
                 style={{ animationDelay: `${delay}ms` } as CSSProperties}
                 onClick={() => onMode(item.mode)}

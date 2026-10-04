@@ -5,10 +5,13 @@ import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { CareApp } from '@/care/CareApp.tsx'
 import { copy } from '@/game/copy.ts'
 import { readBoards, type Boards } from '@/game/leaderboard.ts'
+import { hubCopy } from '@/game/hubCopy.ts'
 import { hashForMode, parseModeHash, type ArcadeMode } from '@/game/mode.ts'
+import { AboutScreen } from '@/hub/AboutScreen.tsx'
 import { ArcadeNav } from '@/hub/ArcadeNav.tsx'
 import { ModeStage } from '@/motion/ModeStage.tsx'
 import { motionVars } from '@/motion/tokens.ts'
+import { tabItems } from '@/motion/tabs.ts'
 import { canonicalZineHash } from '@/zine/route.ts'
 import { ZineApp } from '@/zine/ZineApp.tsx'
 import '@/motion/motion.css'
@@ -60,6 +63,7 @@ export default function App() {
   }, [mode])
 
   const refreshBoards = () => setBoards(readBoards())
+  const tabbed = tabItems.some((item) => item.mode === mode)
 
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden" style={motionVars()}>
@@ -84,14 +88,32 @@ export default function App() {
           </div>
         </>
       ) : null}
-      <main id="game" role={mode === 'zine' ? undefined : 'tabpanel'} aria-labelledby={mode === 'zine' ? undefined : `sere-tab-${mode}`}>
+      <main
+        id="game"
+        role={mode === 'zine' ? undefined : 'tabpanel'}
+        aria-labelledby={tabbed ? `sere-tab-${mode}` : undefined}
+        aria-label={mode === 'leaderboard' ? hubCopy.boardName : undefined}
+      >
         <ModeStage
           mode={mode}
           render={(shown) => (
             <>
               {shown === 'hub' ? <HubScreen boards={boards} onMode={setMode} /> : null}
-              {shown === 'care' ? <CareApp onHub={() => setMode('hub')} onBoardChange={refreshBoards} /> : null}
-              {shown === 'maze' ? <MazeApp onHub={() => setMode('hub')} onBoardChange={refreshBoards} /> : null}
+              {shown === 'care' ? (
+                <CareApp
+                  onHub={() => setMode('hub')}
+                  onBoardChange={refreshBoards}
+                  onLeaderboard={() => setMode('leaderboard')}
+                />
+              ) : null}
+              {shown === 'maze' ? (
+                <MazeApp
+                  onHub={() => setMode('hub')}
+                  onBoardChange={refreshBoards}
+                  onLeaderboard={() => setMode('leaderboard')}
+                />
+              ) : null}
+              {shown === 'about' ? <AboutScreen /> : null}
               {shown === 'zine' ? <ZineApp onClose={() => setMode('hub')} onPlay={() => setMode('maze')} /> : null}
               {shown === 'leaderboard' ? (
                 <LeaderboardScreen

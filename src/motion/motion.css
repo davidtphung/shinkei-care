@@ -255,6 +255,21 @@
   animation-play-state: paused;
 }
 
+.sere-screen {
+  position: relative;
+  z-index: 20;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 32rem;
+  min-width: 0;
+  margin-inline: auto;
+  overflow-x: hidden;
+  padding-top: max(4.5rem, calc(env(safe-area-inset-top) + 3.25rem));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+}
+
 @keyframes cool-drift {
   0% {
     transform: translate3d(-6%, 0, 0);
@@ -280,6 +295,11 @@
   .sere-tab {
     padding-inline: 8px;
     letter-spacing: 0.04em;
+  }
+
+  .sere-screen,
+  .play-pad {
+    padding-bottom: max(7.25rem, calc(env(safe-area-inset-bottom) + 6.25rem));
   }
 }
 

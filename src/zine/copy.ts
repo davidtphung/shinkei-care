@@ -12,6 +12,7 @@ export const zineCopy = {
   prev: 'Prev',
   next: 'Next',
   copied: 'Copied.',
+  linkCopied: 'Link copied',
   shareTitle: 'Six seconds.',
   shareText: 'Field Brief No. 01',
   linkLabel: 'Brief link',

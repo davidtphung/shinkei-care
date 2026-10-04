@@ -15,6 +15,8 @@ export const motionTokens = {
   liftMs: 220,
   shimmerMs: 6400,
   indicatorBasePx: 100,
+  coverFadeMs: 250,
+  shareNoteMs: 2000,
 } as const
 
 export function entranceTotalMs(count: number): number {
@@ -33,5 +35,7 @@ export function motionVars(): Record<string, string> {
     '--motion-enter': `${motionTokens.entranceFadeMs}ms`,
     '--motion-lift': `${motionTokens.liftMs}ms`,
     '--motion-shimmer': `${motionTokens.shimmerMs}ms`,
+    '--motion-cover': `${motionTokens.coverFadeMs}ms`,
+    '--motion-share': `${motionTokens.shareNoteMs}ms`,
   }
 }

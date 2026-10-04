@@ -95,8 +95,39 @@
   text-transform: uppercase;
 }
 
-.zine-chip {
+.zine-chip,
+.zine-share {
   flex: 1 1 0;
+  min-width: 0;
+}
+
+.zine-share {
+  position: relative;
+  display: flex;
+}
+
+.zine-share > .zine-chip {
+  width: 100%;
+}
+
+.zine-copied {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 3;
+  width: max-content;
+  max-width: 12rem;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--color-navy);
+  background: var(--color-cream);
+  color: var(--color-navy);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-align: center;
+  text-transform: uppercase;
+  pointer-events: none;
 }
 
 .zine-play {
@@ -212,13 +243,40 @@
 }
 
 .zine-page img,
-.zine-zoom img {
+.zine-zoom img,
+.zine-cover,
+.zine-cover-full {
   width: 100%;
   height: 100%;
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
+}
+
+.zine-cover {
+  position: relative;
+  display: block;
+}
+
+.zine-cover-preview {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: blur(12px);
+  transform: scale(1.06);
+}
+
+.zine-cover-full {
+  position: relative;
+  opacity: 0;
+  transition: opacity var(--motion-cover, 250ms) linear;
+}
+
+.zine-cover-full[data-ready='true'] {
+  opacity: 1;
 }
 
 .zine-fade {
@@ -314,20 +372,73 @@
   border-width: 0 1px 1px 0;
 }
 
-.zine-stage:hover .zine-plate,
 .zine-stage[data-open='true'] .zine-plate,
-.zine-stage[data-pressed='true'] .zine-plate,
-.zine:focus-within .zine-plate {
+.zine-stage:hover .zine-plate[data-stop='7'],
+.zine-stage[data-pressed='true'] .zine-plate[data-stop='7'],
+.zine:focus-within .zine-plate[data-stop='7'] {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
 
 .zine-stage[data-dragging='true'] .zine-plate,
-.zine[data-contents='true'] .zine-plate {
+.zine[data-contents='true'] .zine-plate,
+.zine[data-zoomed='true'] .zine-plate {
   opacity: 0;
   transform: translateY(6px);
   pointer-events: none;
+}
+
+.zine-plate[data-stop='6'] {
+  min-height: 10.5rem;
+  transform: none;
+  transition: opacity var(--motion-fade, 200ms) linear;
+}
+
+.zine-plate[data-stop='6'] .zine-plate-body {
+  min-height: 4.5rem;
+}
+
+.zine-stage[data-open='true'] .zine-plate[data-stop='6'],
+.zine-stage[data-dragging='true'] .zine-plate[data-stop='6'],
+.zine[data-contents='true'] .zine-plate[data-stop='6'],
+.zine[data-zoomed='true'] .zine-plate[data-stop='6'] {
+  transform: none;
+}
+
+.zine-cue {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  z-index: 2;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 8px 12px;
+  border-top: 1px solid var(--color-navy);
+  background: var(--color-cream);
+  color: var(--color-navy);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-hover-in, 140ms) linear;
+}
+
+.zine-stage:hover .zine-cue,
+.zine:focus-within .zine-cue {
+  opacity: 1;
+}
+
+.zine-stage[data-open='true'] .zine-cue,
+.zine-stage[data-dragging='true'] .zine-cue,
+.zine[data-contents='true'] .zine-cue,
+.zine[data-zoomed='true'] .zine-cue {
+  opacity: 0;
 }
 
 .zine-plate-kicker,
@@ -546,9 +657,17 @@
     width: auto;
   }
 
-  .zine-chip {
+  .zine-chip,
+  .zine-share {
     flex: 0 0 auto;
+  }
+
+  .zine-chip {
     padding: 0 14px;
+  }
+
+  .zine-share > .zine-chip {
+    width: auto;
   }
 
   .zine-h1 {
@@ -557,6 +676,16 @@
 
   .zine-plate-title {
     font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 419px) {
+  .zine-kicker,
+  .zine-mono,
+  .zine-legal {
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    line-height: 1.5;
   }
 }
 
@@ -588,9 +717,23 @@
     opacity: 0.72;
   }
 
-  .zine-plate {
+  .zine-plate,
+  .zine-plate[data-stop='6'] {
     transform: none;
     transition: opacity 180ms linear;
+  }
+
+  .zine-cue {
+    transition: none;
+  }
+
+  .zine-cover-preview {
+    display: none;
+  }
+
+  .zine-cover-full {
+    opacity: 1;
+    transition: none;
   }
 
   .zine-stage[data-dragging='true'] .zine-plate {

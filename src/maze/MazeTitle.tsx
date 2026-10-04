@@ -1,7 +1,8 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { Button } from '@/components/ui/button.tsx'
-import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
+import { PageHeader } from '@/components/PageHeader.tsx'
 import { copy } from '@/game/copy.ts'
+import { hubCopy } from '@/game/hubCopy.ts'
 import { formatRaceTime } from '@/game/time.ts'
 import type { LevelId } from '@/game/types.ts'
 import { usePressed } from '@/hooks/usePressed.ts'
@@ -12,26 +13,13 @@ type Props = {
   progress: MazeProgress
   onPlay: (level: LevelId) => void
   onHub: () => void
+  onLeaderboard: () => void
 }
 
-export function MazeTitle({ progress, onPlay, onHub }: Props) {
+export function MazeTitle({ progress, onPlay, onHub, onLeaderboard }: Props) {
   return (
-    <div className="relative z-20 mx-auto flex min-h-0 w-full max-w-lg min-w-0 flex-col justify-start gap-8 overflow-x-hidden pt-[max(4.5rem,calc(env(safe-area-inset-top)+3.25rem))] pr-[max(1.25rem,env(safe-area-inset-right))] pb-[max(2rem,env(safe-area-inset-bottom))] pl-[max(1.25rem,env(safe-area-inset-left))]">
-      <div className="text-center">
-        <p className="text-xs font-semibold tracking-[0.28em] text-navy uppercase">{mazeCopy.kicker}</p>
-        <p className="wordmark font-display mt-2 text-[clamp(3.25rem,16vw,4.5rem)] leading-none text-cream drop-shadow-[0_2px_0_#0B1424] outline-none">
-          {mazeCopy.title}
-        </p>
-        <p className="mt-1 text-3xl font-semibold tracking-tight text-navy">{mazeCopy.subtitle}</p>
-        <p className="mt-3 text-sm font-semibold tracking-[0.16em] text-navy/80 uppercase">{mazeCopy.quality}</p>
-        <MazeBests progress={progress} />
-      </div>
-
-      <div className="flex justify-center gap-3" aria-hidden>
-        <PixelMatrix name="ice" size={40} />
-        <PixelMatrix name="brain" size={40} />
-        <PixelMatrix name="fish" size={40} />
-      </div>
+    <div className="sere-screen flex min-h-[100dvh] flex-col justify-start gap-8">
+      <PageHeader title={mazeCopy.title} line={mazeCopy.subtitle} />
 
       <div className="space-y-3">
         <p className="text-center text-xs font-semibold tracking-[0.2em] text-navy/70 uppercase">{mazeCopy.levelsTitle}</p>
@@ -54,6 +42,9 @@ export function MazeTitle({ progress, onPlay, onHub }: Props) {
           })}
         </ul>
         <HowMaze />
+        <Button variant="outline" className="w-full" onClick={onLeaderboard}>
+          {hubCopy.boardName}
+        </Button>
         <Button variant="outline" className="w-full" onClick={onHub}>
           {mazeCopy.hub}
         </Button>
@@ -98,24 +89,6 @@ function LevelButton({
       ) : null}
       {!open ? <span className="mt-1 block text-sm">{mazeCopy.locked(mazeLevelName(level - 1))}</span> : null}
     </button>
-  )
-}
-
-function MazeBests({ progress }: { progress: MazeProgress }) {
-  const qualities = [progress.quality[1], progress.quality[2], progress.quality[3]]
-  const times = [progress.time[1], progress.time[2], progress.time[3]].filter(
-    (value): value is number => value !== null,
-  )
-  const bestQuality = Math.max(...qualities)
-  const bestTime = times.length > 0 ? Math.min(...times) : null
-  if (bestQuality <= 0 && bestTime === null) {
-    return <p className="mt-2 text-sm text-navy/80">{mazeCopy.firstQuality}</p>
-  }
-  return (
-    <p className="mt-2 text-sm text-navy tabular-nums">
-      {bestQuality > 0 ? copy.bestScore(bestQuality) : mazeCopy.firstQuality}
-      {bestTime !== null ? ` · ${copy.bestTimeValue(formatRaceTime(bestTime))}` : ''}
-    </p>
   )
 }
 

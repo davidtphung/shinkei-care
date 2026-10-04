@@ -99,9 +99,10 @@ function missCopy(kind: 'early' | 'late' | 'high' | 'window' | 'gill' | 'ice' | 
 type Props = {
   onHub: () => void
   onBoardChange: () => void
+  onLeaderboard: () => void
 }
 
-export function CareApp({ onHub, onBoardChange }: Props) {
+export function CareApp({ onHub, onBoardChange, onLeaderboard }: Props) {
   const headingRef = useRef<HTMLHeadingElement>(null)
   const spikeLock = useRef(false)
   const gillLock = useRef(false)
@@ -545,7 +546,13 @@ export function CareApp({ onHub, onBoardChange }: Props) {
       </div>
       <div id="care-game">
         {game.screen === 'title' ? (
-          <TitleScreen progress={progress} onPlay={begin} onHub={onHub} headingRef={headingRef} />
+          <TitleScreen
+            progress={progress}
+            onPlay={begin}
+            onHub={onHub}
+            onLeaderboard={onLeaderboard}
+            headingRef={headingRef}
+          />
         ) : null}
         {game.screen === 'spike' ? (
           <StageNotice
