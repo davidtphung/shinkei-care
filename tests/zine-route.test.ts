@@ -13,16 +13,19 @@ describe('zine hash routes', () => {
     assert.equal(hashForZine(1), '#zine')
     assert.equal(hashForZine(3), '#zine/3')
     assert.equal(hashForZine(7), '#zine/7')
+    assert.equal(hashForZine(8), '#zine/8')
+    assert.equal(parseZineStop('#zine/8'), 8)
   })
 
-  it('clamps a stop that falls outside 1 to 7', () => {
+  it('clamps a stop that falls outside 1 to 8', () => {
     assert.equal(parseZineStop('#zine/0'), 1)
-    assert.equal(parseZineStop('#zine/8'), 7)
+    assert.equal(parseZineStop('#zine/9'), 8)
     assert.equal(parseZineStop('#zine/nope'), null)
     assert.equal(canonicalZineHash('#zine/3'), '#zine/3')
+    assert.equal(canonicalZineHash('#zine/8'), '#zine/8')
     assert.equal(canonicalZineHash('#zine/1'), '#zine')
     assert.equal(canonicalZineHash('#zine/nope'), '#zine')
-    assert.equal(canonicalZineHash('#zine/99'), '#zine/7')
+    assert.equal(canonicalZineHash('#zine/99'), '#zine/8')
   })
 
   it('keeps the arcade hashes and adds the zine mode', () => {

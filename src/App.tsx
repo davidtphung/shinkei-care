@@ -28,7 +28,7 @@ export default function App() {
   const setMode = (next: ArcadeMode) => {
     setModeState(next)
     if (next === 'zine') {
-      if (!/^#zine(?:\/[1-7])?$/i.test(window.location.hash)) {
+      if (!/^#zine(?:\/[1-8])?$/i.test(window.location.hash)) {
         window.history.replaceState(null, '', '#zine')
       }
       return
