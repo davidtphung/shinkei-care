@@ -90,8 +90,8 @@ export function ZineApp({
     const phone = leavesFor('single')
     const cover = spread.find((item) => item.stop === 1 && item.side === 'full')
     const page = spread.find((item) => item.stop === 2 && item.side === 'full')
-    const pageLeft = phone.find((item) => item.stop === 2 && item.side === 'left')
-    for (const file of [cover?.file, cover?.thumb, page?.file, pageLeft?.file]) {
+    const pageLeft = phone.find((item) => item.stop === 3 && item.side === 'left')
+    for (const file of [cover?.file, cover?.blur, page?.file, pageLeft?.file]) {
       if (!file) continue
       const image = new Image()
       image.src = zineFileUrl(file)
@@ -588,7 +588,7 @@ export function ZineApp({
             {leaf.subtitle ? <p className="zine-plate-sub">{leaf.subtitle}</p> : null}
             <p className="zine-plate-body">{leaf.caption}</p>
           </aside>
-          {leaf.stop > 1 && leaf.stop < 7 ? (
+          {leaf.stop > 1 && leaf.stop < SPREAD_COUNT ? (
             <p className="zine-cue" data-testid="zine-cue" aria-hidden="true">
               {leaf.title}
             </p>
@@ -596,7 +596,7 @@ export function ZineApp({
         </div>
       </div>
       <footer className="zine-foot">
-        {leaf.stop === 7 ? (
+        {leaf.stop === SPREAD_COUNT ? (
           <button type="button" className="zine-chip zine-play" data-testid="zine-play" onClick={onPlay}>
             {zineCopy.play}
           </button>
@@ -710,7 +710,7 @@ function CoverImage({
         className="zine-cover-preview"
         data-testid="zine-cover-preview"
         aria-hidden="true"
-        style={{ backgroundImage: `url("${zineFileUrl(leaf.thumb)}")` }}
+        style={{ backgroundImage: `url("${zineFileUrl(leaf.blur)}")` }}
       />
       <img
         ref={setRefs}

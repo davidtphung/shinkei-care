@@ -22,7 +22,7 @@ Cards and pills lift 2px on hover and scale to 0.97 on press, both with transfor
 
 Page turns already use the shared spring. While a page is dragged, a cream sheet eases out under it and settles back when the page is released. Reduced motion keeps the sheet still and only changes its opacity.
 
-The cover shows a small blurred preview at once. The full cover fades in with opacity over 250ms. Reduced motion hides the preview and shows the sharp cover immediately. Stops 2 to 6 show a short title caption on hover and focus, with opacity only. A click still opens the full caption plate. Stop 6 keeps a reserved plate and fades that plate with opacity only, so the page does not jump. Sharing a link shows "Link copied" beside the Share button for 2 seconds. That note is announced with aria-live.
+The brief has eight stops, one page each. The cover shows a small blurred preview at once. The full cover fades in with opacity over 250ms. Reduced motion hides the preview and shows the sharp cover immediately. Stops 2 to 7 show a short title caption on hover and focus, with opacity only. A click still opens the full caption plate. Stop 7 keeps a reserved plate and fades that plate with opacity only, so the page does not jump. Sharing a link shows "Link copied" beside the Share button for 2 seconds. That note is announced with aria-live.
 
 ## Entrance
 
