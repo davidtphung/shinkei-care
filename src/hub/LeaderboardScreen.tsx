@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { PageHeader } from '@/components/PageHeader.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { levelName } from '@/game/copy.ts'
@@ -32,6 +33,7 @@ export function LeaderboardScreen({ boards, onHub, onCare, onMaze }: Props) {
 
   return (
     <div className="sere-screen flex min-h-[100dvh] flex-col gap-2">
+      <MuteToggle className="sere-sound-inline" />
       <PageHeader title={hubCopy.boardName} line={hubCopy.boardBlurb} />
       {top ? (
         <p className="mt-3 text-center text-sm font-semibold text-navy tabular-nums">

@@ -2,6 +2,7 @@ import type { ReactNode, Ref } from 'react'
 import { copy, levelName, rankLabel } from '@/game/copy.ts'
 import { formatRaceTime } from '@/game/time.ts'
 import type { LevelId } from '@/game/types.ts'
+import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { PixelMatrix } from '@/components/icons/PixelMatrix.tsx'
 
@@ -38,6 +39,7 @@ export function RoundEnd({
 
   return (
     <div className="play-pad cabinet relative z-20 mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center gap-5">
+      <MuteToggle className="sere-sound-inline" />
       <p className="text-center text-xs font-semibold tracking-[0.24em] text-navy uppercase">
         {levelName(level)} · {copy.careScore}
       </p>

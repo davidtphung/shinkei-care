@@ -1,4 +1,5 @@
 import type { Ref } from 'react'
+import { MuteToggle } from '@/components/MuteToggle.tsx'
 import { copy } from '@/game/copy.ts'
 
 type Props = {
@@ -27,6 +28,7 @@ export function StageHeader({
         <p className={`text-[0.7rem] font-semibold tracking-[0.22em] uppercase sm:text-xs ${mute}`}>
           {copy.stageOf(stage)}
         </p>
+        <MuteToggle className="sere-sound-inline" />
         {combo > 0 ? (
           <p className={`text-[0.7rem] font-semibold tracking-[0.16em] uppercase sm:text-xs ${ink}`}>
             {copy.comboCount(combo)}
