@@ -499,7 +499,7 @@ export function CareApp({ onHub, onBoardChange, onLeaderboard }: Props) {
     setProgress(time.progress)
     setNewBestQuality(quality.isNew)
     setNewBestTime(time.isNew)
-    setPromptName((quality.isNew || time.isNew || qualifiesForBoard('care', scored)) && scored > 0)
+    setPromptName(qualifiesForBoard('care', scored))
     setGame((prev) => ({ ...prev, score: scored, screen: 'score' }))
   }
 
@@ -668,6 +668,7 @@ export function CareApp({ onHub, onBoardChange, onLeaderboard }: Props) {
             namePrompt={
               promptName ? (
                 <NamePrompt
+                  best={newBestQuality || newBestTime}
                   onSave={(name) => {
                     submitScore({
                       game: 'care',

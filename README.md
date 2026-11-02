@@ -56,7 +56,7 @@ A Space Invaders-style ocean window. Arrows or A D move the boat. Space or C thr
 
 ### Leaderboard
 
-Top 10 each for Care and Catch. Rank, name (3 to 12 characters), quality, time, level, date. Initials prompt after a personal best. Scores stay in `localStorage` on this device. Copy results exports plain text.
+Every saved run stays for Care and Catch. The board opens on the top scores, and Show all lists the rest in a scrolling list. Sort by best or newest. Each row has rank, name (3 to 12 characters), mode, quality, time, level, and the date and time it was saved. A scored run can be saved with initials. Scores stay in `localStorage` on this device. Copy results exports plain text.
 
 Built by [David T Phung](https://x.com/davidtphung).
 

@@ -18,9 +18,12 @@ export type Boards = {
 }
 
 const KEY = 'shinkei-sere-boards'
-const MAX = 10
+/** How many runs the board shows before Show all. Storage keeps every saved run. */
+export const BOARD_PREVIEW = 10
 const NAME_MIN = 3
 const NAME_MAX = 12
+
+export type BoardSort = 'best' | 'newest'
 
 const empty: Boards = {
   care: [],
@@ -64,7 +67,7 @@ function sanitizeList(value: unknown): ScoreEntry[] {
       at: Number.isFinite(at) && at > 0 ? at : Date.now(),
     })
   }
-  return sortBoard(rows).slice(0, MAX)
+  return sortBoard(rows)
 }
 
 function sortBoard(rows: ScoreEntry[]): ScoreEntry[] {
@@ -73,6 +76,20 @@ function sortBoard(rows: ScoreEntry[]): ScoreEntry[] {
     if (a.timeMs !== b.timeMs) return a.timeMs - b.timeMs
     return a.at - b.at
   })
+}
+
+export function sortByNewest(rows: ScoreEntry[]): ScoreEntry[] {
+  return [...rows].sort((a, b) => {
+    if (b.at !== a.at) return b.at - a.at
+    if (b.score !== a.score) return b.score - a.score
+    return a.timeMs - b.timeMs
+  })
+}
+
+export function visibleRuns(rows: ScoreEntry[], sort: BoardSort, expanded: boolean): ScoreEntry[] {
+  const ordered = sort === 'newest' ? sortByNewest(rows) : sortBoard(rows)
+  if (expanded) return ordered
+  return ordered.slice(0, BOARD_PREVIEW)
 }
 
 function makeId(): string {
@@ -120,10 +137,7 @@ export function boardOf(boards: Boards, game: BoardId): ScoreEntry[] {
 }
 
 export function qualifiesForBoard(game: BoardId, score: number): boolean {
-  const rows = boardOf(readBoards(), game)
-  if (rows.length < MAX) return score > 0
-  const floor = rows[rows.length - 1]?.score ?? 0
-  return score > floor
+  return (game === 'care' || game === 'maze') && score > 0
 }
 
 export function submitScore(input: {
@@ -146,7 +160,7 @@ export function submitScore(input: {
     at: Date.now(),
   }
   const prev = readBoards()
-  const nextList = sortBoard([...boardOf(prev, input.game), entry]).slice(0, MAX)
+  const nextList = sortBoard([...boardOf(prev, input.game), entry])
   const saved = nextList.some((row) => row.id === entry.id)
   const boards = save({
     ...prev,
@@ -183,13 +197,23 @@ export function formatBoardText(boards: Boards = readBoards()): string {
     } else {
       rows.forEach((row, index) => {
         const time = formatPlainTime(row.timeMs)
-        const date = new Date(row.at).toISOString().slice(0, 10)
-        lines.push(`${index + 1}. ${row.name}  ${row.score}  ${time}  L${row.level}  ${date}`)
+        lines.push(`${index + 1}. ${row.name}  ${row.score}  ${time}  L${row.level}  ${formatSavedAt(row.at)}`)
       })
     }
     lines.push('')
   }
   return lines.join('\n').trim() + '\n'
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+export function formatSavedAt(at: number): string {
+  const date = new Date(at)
+  const hours24 = date.getHours()
+  const hours = hours24 % 12 || 12
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const suffix = hours24 < 12 ? 'AM' : 'PM'
+  return `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}, ${hours}:${minutes} ${suffix}`
 }
 
 function formatPlainTime(ms: number): string {

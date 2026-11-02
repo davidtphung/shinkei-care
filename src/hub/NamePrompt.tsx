@@ -6,16 +6,17 @@ import { readLastName, sanitizeName, validName } from '@/game/leaderboard.ts'
 type Props = {
   onSave: (name: string) => void
   onSkip: () => void
+  best?: boolean
 }
 
-export function NamePrompt({ onSave, onSkip }: Props) {
+export function NamePrompt({ onSave, onSkip, best = true }: Props) {
   const [name, setName] = useState(() => readLastName() || 'SER')
   const clean = sanitizeName(name)
   const ok = validName(clean)
 
   return (
     <div className="panel rounded-3xl border-4 border-navy bg-cream p-5 text-navy">
-      <h2 className="text-2xl font-semibold">{hubCopy.initialsTitle}</h2>
+      <h2 className="text-2xl font-semibold">{best ? hubCopy.initialsTitle : hubCopy.saveRunTitle}</h2>
       <p className="mt-2 text-base">{hubCopy.initialsLead}</p>
       <label className="mt-4 block">
         <span className="text-xs font-semibold tracking-[0.16em] uppercase">{hubCopy.initialsLabel}</span>

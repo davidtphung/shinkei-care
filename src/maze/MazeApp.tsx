@@ -102,7 +102,7 @@ export function MazeApp({ onHub, onBoardChange, onLeaderboard }: Props) {
     const quality = writeMazeQuality(state.level, scored)
     const time = writeMazeTime(state.level, ms)
     setProgress(time.progress)
-    const prompt = (quality.isNew || time.isNew || qualifiesForBoard('maze', scored)) && scored > 0
+    const prompt = qualifiesForBoard('maze', scored)
     setResult({
       score: scored,
       elapsed: ms,
@@ -433,7 +433,13 @@ function MazeScore({
       {result.newBestQuality || result.newBestTime ? (
         <p className="text-center text-sm font-semibold tracking-[0.16em] text-navy uppercase">{copy.newBest}</p>
       ) : null}
-      {prompt ? <NamePrompt onSave={save} onSkip={() => setPrompt(false)} /> : null}
+      {prompt ? (
+        <NamePrompt
+          best={result.newBestQuality || result.newBestTime}
+          onSave={save}
+          onSkip={() => setPrompt(false)}
+        />
+      ) : null}
       <Button className="w-full text-lg" onClick={onAgain}>
         {mazeCopy.playAgain}
       </Button>
