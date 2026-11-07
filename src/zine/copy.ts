@@ -1,7 +1,7 @@
 export const zineCopy = {
   h1: 'Six seconds.',
-  kicker: 'Vol. 01 / Field Brief No. 01',
-  byline: 'By David T Phung. Sept 2026.',
+  kicker: 'Vol. 01 / A story in seven stops',
+  byline: 'By David T Phung. Nov 2026.',
   count: (stop: number, total: number) => `${stop} / ${total}`,
   progressLabel: 'Brief progress',
   contents: 'Contents',
@@ -22,7 +22,7 @@ export const zineCopy = {
   zoomHint: 'Drag to look across the page.',
   keys: 'Left and right arrows turn the page. Home and End jump to the ends. Escape closes.',
   disclaimer: 'Not affiliated with Shinkei Systems or Seremoni. Non commercial brief.',
-  credits: 'Photos: Lobo for Fast Company, Seremoni, Shinkei Systems.',
+  credits: 'Photos: Matt and Alex Lowber, Lobo for Fast Company, Seremoni, Shinkei Systems.',
   announce: (stop: number, total: number, title: string) => `Stop ${stop} of ${total}. ${title}`,
   stopLabel: (title: string, page: string) => `${title}. ${page}`,
 } as const
